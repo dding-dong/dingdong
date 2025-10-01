@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: dingdong
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/dingdong
+    username: root
+    password: root
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        use_sql_comments: ture
