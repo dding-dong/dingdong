@@ -1,0 +1,26 @@
+version: '3.8' # Docker Compose 파일 버전
+services:
+  postgresql: # 서비스 이름 (컨테이너 이름으로도 사용될 수 있음)
+    container_name: postgresql # 컨체이너 네임
+    image: postgres:18  # 사용할 Docker 이미지
+    restart: always # 컨테이너가 실패하면 항상 재시작
+    environment:
+      POSTGRES_DB: dingdong # 데이터베이스 이름
+      POSTGRES_USER: root # PostgreSQL 사용자 이름
+      POSTGRES_PASSWORD: root # PostgreSQL 비밀번호 (실제 사용 시 더 강력한 비밀번호 사용)
+    ports:
+      - "5432:5432" # 호스트의 5432 포트를 컨테이너의 5432 포트에 연결
+    volumes:
+      - ./docker/db/postgresql:/var/lib/postgresql/18/docker
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./docker/redis/data:/data
+      - ./docker/redis/conf/redis.conf:/usr/local/conf/redis.conf
+    labels:
+      - "name=redis"
+      - "mode=standalone"
