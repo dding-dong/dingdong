@@ -3,9 +3,9 @@ package com.sparta.dingdong.common.exception;
 import org.springframework.http.HttpStatus;
 
 public interface ErrorCode {
-    HttpStatus getStatus();
+	HttpStatus getStatus();
 
-    String getCode();
+	String getCode();
 
-    String getMessage();
+	String getMessage();
 }

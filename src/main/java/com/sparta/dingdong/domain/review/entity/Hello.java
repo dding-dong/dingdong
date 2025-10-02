@@ -6,9 +6,9 @@ import jakarta.persistence.Id;
 @Entity
 public class Hello {
 
-    @Id
-    private Long id;
+	@Id
+	private Long id;
 
-    private String name;
+	private String name;
 
 }
