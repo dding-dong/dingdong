@@ -20,3 +20,8 @@ spring:
 
 jwt:
   secret: ENC(UoCQPV8c703hocUC6m6fSw==)
+
+springdoc:
+  swagger-ui:
+    tags-sorter: alpha
+    operations-sorter: alpha
