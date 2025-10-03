@@ -1,40 +1,50 @@
 package com.sparta.dingdong.common.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Entity
-@Table(name = "p_city")
 @Getter
-@Setter
+@Entity
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "p_city") // 시/도를 저장하는 테이블
 public class City {
 
 	@Id
-	@GeneratedValue
-	private Long id;   // 도시 ID
+	@Column(length = 2) // "02" (서울), "31" (경기)
+	private String id;
 
-	@Column(nullable = false)
-	private String name;  // 도시 이름
+	@Column(nullable = false, length = 50)
+	private String name;
 
-	@Column(nullable = false)
-	private Boolean status = true;  // 사용 여부 (true = 활성, false = 비활성)
+	@OneToMany(mappedBy = "city", fetch = FetchType.LAZY,
+		cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<Gu> guList = new ArrayList<>();
 
-	// 연관 관계 (City : Gu = 1 : N)
-	@OneToMany(mappedBy = "city", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Gu> guList;
+	// 정적 팩토리 메서드
+	public static City of(String id, String name) {
+		return new City(id, name);
+	}
+
+	// 생성자
+	private City(String id, String name) {
+		this.id = id;
+		this.name = name;
+		this.guList = new ArrayList<>();
+	}
+
+	// 편의 메서드
+	public void addGu(Gu gu) {
+		guList.add(gu);
+		gu.setCity(this);
+	}
 }

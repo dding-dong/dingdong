@@ -38,8 +38,9 @@ public class Address {
 	@JoinColumn(name = "dong_id", nullable = false)
 	private Dong dong;
 
+	// 상세주소
 	@Column(nullable = false, length = 255)
-	private String address;
+	private String detailAddress;
 
 	@Column(name = "postal_code", nullable = false, length = 20)
 	private String postalCode;
@@ -56,10 +57,13 @@ public class Address {
 		}
 	}
 
-	public void updateAddress(String address, String postalCode, String dongId, boolean isDefault) {
-		if (address != null) this.address = address;
-		if (postalCode != null) this.postalCode = postalCode;
-		if (dongId != null) this.dong = dong;
+	public void updateAddress(String detailAddress, String postalCode, Dong dong, boolean isDefault) {
+		if (detailAddress != null)
+			this.detailAddress = detailAddress;
+		if (postalCode != null)
+			this.postalCode = postalCode;
+		if (dong != null)
+			this.dong = dong;
 		this.isDefault = isDefault;
 	}
 }
