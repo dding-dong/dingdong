@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.dingdong.common.entity.Dong;
+import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.user.dto.request.UserCreateRequestDto;
 import com.sparta.dingdong.domain.user.dto.response.UserResponseDto;
 import com.sparta.dingdong.domain.user.entity.Address;
@@ -75,4 +76,8 @@ public class UserServiceImpl implements UserService {
 		return UserResponseDto.of(user, address);
 	}
 
+	public UserResponseDto findById(UserAuth userAuth) {
+		User findUser = userRepository.findByIdOrElseThrow(userAuth.getId());
+		return UserResponseDto.from(findUser);
+	}
 }

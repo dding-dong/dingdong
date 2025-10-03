@@ -30,4 +30,17 @@ public class UserResponseDto {
 			.detailAddress(address.getDetailAddress())
 			.build();
 	}
+
+	public static UserResponseDto from(User user) {
+		return UserResponseDto.builder()
+			.id(user.getId())
+			.email(user.getEmail())
+			.nickname(user.getNickname())
+			.phone(user.getPhone())
+			.city(user.getAddressList().get(0).getDong().getGu().getCity().toString())
+			.gu(user.getAddressList().get(0).getDong().getGu().toString())
+			.dong(user.getAddressList().get(0).getDong().toString())
+			.detailAddress(user.getAddressList().get(0).getDetailAddress())
+			.build();
+	}
 }
