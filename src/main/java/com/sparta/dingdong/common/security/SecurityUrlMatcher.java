@@ -6,7 +6,7 @@ public class SecurityUrlMatcher {
 
 	// 공용 URL: 인증 없이 접근 가능
 	public static final String[] PUBLIC_URLS = {
-		"/v1/auth/signup",
+		"/v1/users/signup",
 		"/v1/auth/login",
 		"/v1/auth/reissue"  // 토큰 재발급 URL 포함
 	};
