@@ -34,8 +34,11 @@ public class OrderStatusHistory extends BaseEntity {
 	private Order order;
 
 	@Enumerated(EnumType.STRING)
+	private OrderStatus preStatus;
+
+	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private OrderStatus status;
+	private OrderStatus newStatus;
 
 	@Column(nullable = false)
 	private Long changedBy;
