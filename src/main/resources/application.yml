@@ -18,8 +18,15 @@ spring:
         show_sql: true
         use_sql_comments: ture
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
 jwt:
-  secret: ENC(UoCQPV8c703hocUC6m6fSw==)
+  secret: ENC(xGpMf3tCPdzlqie6n0qyn6PV2SNH11BlDmK3hn4R2VpqoygYDLQMDqQHCcwlLnFjm2UBI9krWBM=)
+  access-token-expiration: 900000 # 15분
+  refresh-token-expiration: 1209600000 # 14일
 
 springdoc:
   swagger-ui:

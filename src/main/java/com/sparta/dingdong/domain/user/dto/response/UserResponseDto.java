@@ -1,0 +1,33 @@
+package com.sparta.dingdong.domain.user.dto.response;
+
+import com.sparta.dingdong.domain.user.entity.Address;
+import com.sparta.dingdong.domain.user.entity.User;
+
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
+@Builder
+public class UserResponseDto {
+	private Long id;
+	private String email;
+	private String nickname;
+	private String phone;
+	private String city;
+	private String gu;
+	private String dong;
+	private String detailAddress;
+
+	public static UserResponseDto of(User user, Address address) {
+		return UserResponseDto.builder()
+			.id(user.getId())
+			.email(user.getEmail())
+			.nickname(user.getNickname())
+			.phone(user.getPhone())
+			.city(address.getDong().getGu().getCity().getName())
+			.gu(address.getDong().getGu().getName())
+			.dong(address.getDong().getName())
+			.detailAddress(address.getDetailAddress())
+			.build();
+	}
+}
