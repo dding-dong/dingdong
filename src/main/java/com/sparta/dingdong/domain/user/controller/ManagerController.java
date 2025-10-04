@@ -1,7 +1,6 @@
 package com.sparta.dingdong.domain.user.controller;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,7 +16,7 @@ import com.sparta.dingdong.domain.user.service.ManagerService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/master/managers")
+@RequestMapping("/v1/master/managers")
 @RequiredArgsConstructor
 public class ManagerController {
 
@@ -31,35 +30,35 @@ public class ManagerController {
 
 	/** 매니저 승인 */
 	@PostMapping("/{userId}/approve")
-	public ResponseEntity<String> approveManager(@PathVariable UUID userId) {
+	public ResponseEntity<String> approveManager(@PathVariable Long userId) {
 		managerService.approveManager(userId);
 		return ResponseEntity.ok("매니저 승인 완료");
 	}
 
 	/** 매니저 활성화 */
 	@PostMapping("/{userId}/activate")
-	public ResponseEntity<String> activateManager(@PathVariable UUID userId) {
+	public ResponseEntity<String> activateManager(@PathVariable Long userId) {
 		managerService.activateManager(userId);
 		return ResponseEntity.ok("매니저 활성화 완료");
 	}
 
 	/** 매니저 정지 */
 	@PostMapping("/{userId}/suspend")
-	public ResponseEntity<String> suspendManager(@PathVariable UUID userId) {
+	public ResponseEntity<String> suspendManager(@PathVariable Long userId) {
 		managerService.suspendManager(userId);
 		return ResponseEntity.ok("매니저 정지 완료");
 	}
 
 	/** 매니저 거절 */
 	@PostMapping("/{userId}/reject")
-	public ResponseEntity<String> rejectManager(@PathVariable UUID userId) {
+	public ResponseEntity<String> rejectManager(@PathVariable Long userId) {
 		managerService.rejectManager(userId);
 		return ResponseEntity.ok("매니저 승인 거절");
 	}
 
 	/** 매니저 삭제 */
 	@DeleteMapping("/{userId}/delete")
-	public ResponseEntity<String> deleteManager(@PathVariable UUID userId) {
+	public ResponseEntity<String> deleteManager(@PathVariable Long userId) {
 		managerService.deleteManager(userId);
 		return ResponseEntity.ok("매니저 삭제 완료");
 	}
