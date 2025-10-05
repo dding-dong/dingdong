@@ -3,6 +3,7 @@ package com.sparta.dingdong.domain.review.controller;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +29,7 @@ public class CustomerReviewControllerV1 {
 	private final CustomerReviewService customerReviewService;
 
 	@Operation(summary = "고객 리뷰 등록 API", description = "고객이 주문에 대한 리뷰를 등록합니다.")
+	@PreAuthorize("hasAnyRole('ROLE_CUSTOMER')")
 	@PostMapping("/orders/{orderId}/reviews")
 	public ResponseEntity<BaseResponseDto<?>> createReview(@PathVariable UUID orderId,
 		@AuthenticationPrincipal UserAuth userDetails,
