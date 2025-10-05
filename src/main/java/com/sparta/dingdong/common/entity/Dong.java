@@ -1,49 +1,43 @@
 package com.sparta.dingdong.common.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.sparta.dingdong.domain.user.entity.Address;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Entity
-@Table(name = "p_dong")
 @Getter
-@Setter
+@Entity
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "p_dong")
 public class Dong {
 
 	@Id
-	@GeneratedValue
-	private Long id;
+	@Column(length = 3) // 동 코드
+	private String id;
+
+	@Column(nullable = false, length = 50)
+	private String name;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "gu_id", nullable = false)
-	private Gu gu; // 구 참조
+	private Gu gu;
 
-	@Column(nullable = false, length = 100)
-	private String name;
+	// 정적 팩토리 메서드
+	public static Dong of(String id, String name, Gu gu) {
+		Dong dong = new Dong();
+		dong.id = id;
+		dong.name = name;
+		dong.gu = gu;
+		return dong;
+	}
 
-	@Column(nullable = false)
-	private Boolean status = true;
-
-	@OneToMany(mappedBy = "dong", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Address> addresses = new ArrayList<>();
+	// Gu 세팅용
+	public void setGu(Gu gu) {
+		this.gu = gu;
+	}
 }
