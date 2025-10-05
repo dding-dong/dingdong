@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.domain.review.exception.NotReviewOwnerException;
+import com.sparta.dingdong.domain.review.exception.OrderAlreadyReviewedException;
 import com.sparta.dingdong.domain.review.exception.ReviewNotFoundException;
 
 @RestControllerAdvice
@@ -25,5 +26,12 @@ public class GlobalExceptionHandler {
 		return ResponseEntity
 			.status(CommonErrorCode.NOT_REVIEW_OWNER.getStatus())
 			.body(BaseResponseDto.error(CommonErrorCode.NOT_REVIEW_OWNER));
+	}
+
+	@ExceptionHandler(OrderAlreadyReviewedException.class)
+	public ResponseEntity<BaseResponseDto<Void>> handleOrderAlreadyReviewedException(OrderAlreadyReviewedException ex) {
+		return ResponseEntity
+			.status(CommonErrorCode.ORDER_ALREADY_REVIEWED.getStatus())
+			.body(BaseResponseDto.error(CommonErrorCode.ORDER_ALREADY_REVIEWED));
 	}
 }

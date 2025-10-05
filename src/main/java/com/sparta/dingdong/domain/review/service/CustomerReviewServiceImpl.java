@@ -11,6 +11,7 @@ import com.sparta.dingdong.domain.order.service.OrderService;
 import com.sparta.dingdong.domain.review.dto.CustomerReviewDto;
 import com.sparta.dingdong.domain.review.entity.Review;
 import com.sparta.dingdong.domain.review.exception.NotReviewOwnerException;
+import com.sparta.dingdong.domain.review.exception.OrderAlreadyReviewedException;
 import com.sparta.dingdong.domain.review.exception.ReviewNotFoundException;
 import com.sparta.dingdong.domain.review.repository.ReviewRepository;
 import com.sparta.dingdong.domain.user.entity.User;
@@ -36,6 +37,10 @@ public class CustomerReviewServiceImpl implements CustomerReviewService {
 		User user = userService.findByUser(userDetails);
 
 		Order order = orderService.findByOrder(orderId);
+
+		if (reviewRepository.existsByOrder(order)) {
+			throw new OrderAlreadyReviewedException(orderId);
+		}
 
 		Review review = Review.create(user, order, request);
 
