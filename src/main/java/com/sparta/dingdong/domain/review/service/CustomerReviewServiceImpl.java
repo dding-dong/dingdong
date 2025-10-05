@@ -10,6 +10,8 @@ import com.sparta.dingdong.domain.order.entity.Order;
 import com.sparta.dingdong.domain.order.service.OrderService;
 import com.sparta.dingdong.domain.review.dto.CustomerReviewDto;
 import com.sparta.dingdong.domain.review.entity.Review;
+import com.sparta.dingdong.domain.review.exception.NotReviewOwnerException;
+import com.sparta.dingdong.domain.review.exception.ReviewNotFoundException;
 import com.sparta.dingdong.domain.review.repository.ReviewRepository;
 import com.sparta.dingdong.domain.user.entity.User;
 import com.sparta.dingdong.domain.user.service.UserService;
@@ -24,6 +26,10 @@ public class CustomerReviewServiceImpl implements CustomerReviewService {
 	private final OrderService orderService;
 	private final ReviewRepository reviewRepository;
 
+	public Review findReview(UUID reviewId) {
+		return reviewRepository.findById(reviewId).orElseThrow(ReviewNotFoundException::new);
+	}
+
 	@Override
 	@Transactional
 	public void createReview(UUID orderId, UserAuth userDetails, CustomerReviewDto.CreateReview request) {
@@ -34,5 +40,19 @@ public class CustomerReviewServiceImpl implements CustomerReviewService {
 		Review review = Review.create(user, order, request);
 
 		reviewRepository.save(review);
+	}
+
+	@Override
+	@Transactional
+	public void updateReview(UUID reviewId, UserAuth userDetails, CustomerReviewDto.UpdateReview request) {
+		Review review = findReview(reviewId);
+
+		User user = userService.findByUser(userDetails);
+
+		if (!review.getUser().getId().equals(user.getId())) {
+			throw new NotReviewOwnerException();
+		}
+
+		review.updateReview(request);
 	}
 }

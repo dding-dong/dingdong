@@ -7,4 +7,6 @@ import com.sparta.dingdong.domain.review.dto.CustomerReviewDto;
 
 public interface CustomerReviewService {
 	void createReview(UUID orderId, UserAuth userDetails, CustomerReviewDto.CreateReview request);
+
+	void updateReview(UUID reviewId, UserAuth userDetails, CustomerReviewDto.UpdateReview request);
 }

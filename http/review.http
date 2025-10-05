@@ -1,9 +1,23 @@
 # 리뷰
 
 ### CUSTOMER REVIEW 등록
-POST http://localhost:8080/v1/orders/aa7b0131-103a-4b58-be6b-92c4d47acda5/reviews
+POST http://localhost:8080/v1/orders/79bcbda8-4b09-424a-96a2-66846bb0a3e2/reviews
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTY1NTI5MiwiZXhwIjoxNzU5NjU3MDkyfQ.gwgf-q9PnM8SoKcnMtPBOrWDuZuJF1SfBg8AtQdT-wM
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTY1ODcwNywiZXhwIjoxNzU5NjYwNTA3fQ.Xh9e7IpVZW5DHJl63L6pLvouCBhlyfHK12gVqRCgrFU
+
+{
+  "rating": 5,
+  "content": "맛있어요!",
+  "imageUrl1": "https://example.com/image1.jpg",
+  "imageUrl2": "https://example.com/image2.jpg",
+  "imageUrl3": "https://example.com/image3.jpg",
+  "displayed": true
+}
+
+### CUSTOMER REVIEW 수정
+PUT http://localhost:8080/v1/reviews/31146295-ab5c-4e48-9a53-0647562491c7
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTY1ODkyNSwiZXhwIjoxNzU5NjYwNzI1fQ.lqa01xkbaTXnPfEcOJp-b1F3jgGHhE0zRrwjrkWvQ8g
 
 {
   "rating": 5,

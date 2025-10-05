@@ -19,11 +19,13 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "p_review")
 @Builder
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Review extends BaseEntity {
@@ -68,5 +70,14 @@ public class Review extends BaseEntity {
 			.imageUrl3(request.getImageUrl3())
 			.isDisplayed(request.isDisplayed())
 			.build();
+	}
+
+	public void updateReview(CustomerReviewDto.UpdateReview request) {
+		this.rating = request.getRating() != null ? request.getRating() : this.rating;
+		this.content = request.getContent() != null ? request.getContent() : this.content;
+		this.imageUrl1 = request.getImageUrl1() != null ? request.getImageUrl1() : this.imageUrl1;
+		this.imageUrl2 = request.getImageUrl2() != null ? request.getImageUrl2() : this.imageUrl2;
+		this.imageUrl3 = request.getImageUrl3() != null ? request.getImageUrl3() : this.imageUrl3;
+		this.isDisplayed = request.isDisplayed();
 	}
 }
