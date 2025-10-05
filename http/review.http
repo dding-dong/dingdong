@@ -1,13 +1,13 @@
 # 리뷰
 
 ### CUSTOMER REVIEW 등록
-POST http://localhost:8080/v1/orders/79bcbda8-4b09-424a-96a2-66846bb0a3e2/reviews
+POST http://localhost:8080/v1/orders/f9aa6333-eeb3-4b9c-af7c-80a7e9e68133/reviews
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTY1ODcwNywiZXhwIjoxNzU5NjYwNTA3fQ.Xh9e7IpVZW5DHJl63L6pLvouCBhlyfHK12gVqRCgrFU
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTY2Mzc4OSwiZXhwIjoxNzU5NjY1NTg5fQ.knvyjpvl7XSPrdIi9ftK8qB-A4pUTPUoSE8nLMDJ62w
 
 {
   "rating": 5,
-  "content": "맛있어요!",
+  "content": "맛있어요3333!",
   "imageUrl1": "https://example.com/image1.jpg",
   "imageUrl2": "https://example.com/image2.jpg",
   "imageUrl3": "https://example.com/image3.jpg",
@@ -32,3 +32,14 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwidXNlclJvbGUiOiJDVVNUT
 DELETE http://localhost:8080/v1/reviews/31146295-ab5c-4e48-9a53-0647562491c7
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTY2MTQyMiwiZXhwIjoxNzU5NjYzMjIyfQ.J9R8y8tRB-e910s3uEZeTwf6vF8vd2FsHjq7QVaAV3Y
+
+
+### OWNER REVIEW REPLY 등록
+POST http://localhost:8080/v1/reviews/9e06b7d9-de7b-41ac-8562-5dca07b8919f/reply
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FUiIsImlhdCI6MTc1OTY2NDA2MywiZXhwIjoxNzU5NjY1ODYzfQ.i6lkjcWoIwKDQ0PIPrjmiqIp1MmCHVNxlcztN4DyESw
+
+{
+  "content": "맛있다고 해주시니 감사합니다!",
+  "isDisplayed": true
+}
