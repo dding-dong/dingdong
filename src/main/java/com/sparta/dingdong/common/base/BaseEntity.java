@@ -33,7 +33,6 @@ public abstract class BaseEntity {
 
 	private LocalDateTime deletedAt;
 
-	@LastModifiedDate
 	private Long deletedBy;
 
 	public void softDelete() {
