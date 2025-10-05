@@ -1,0 +1,15 @@
+# 리뷰
+
+### CUSTOMER REVIEW 등록
+POST http://localhost:8080/v1/orders/aa7b0131-103a-4b58-be6b-92c4d47acda5/reviews
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTY1NTI5MiwiZXhwIjoxNzU5NjU3MDkyfQ.gwgf-q9PnM8SoKcnMtPBOrWDuZuJF1SfBg8AtQdT-wM
+
+{
+  "rating": 5,
+  "content": "맛있어요!",
+  "imageUrl1": "https://example.com/image1.jpg",
+  "imageUrl2": "https://example.com/image2.jpg",
+  "imageUrl3": "https://example.com/image3.jpg",
+  "displayed": true
+}
