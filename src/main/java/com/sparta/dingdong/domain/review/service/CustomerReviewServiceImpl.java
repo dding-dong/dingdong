@@ -55,4 +55,18 @@ public class CustomerReviewServiceImpl implements CustomerReviewService {
 
 		review.updateReview(request);
 	}
+
+	@Override
+	@Transactional
+	public void deleteReview(UUID reviewId, UserAuth userDetails) {
+		Review review = findReview(reviewId);
+
+		User user = userService.findByUser(userDetails);
+
+		if (!review.getUser().getId().equals(user.getId())) {
+			throw new NotReviewOwnerException();
+		}
+
+		review.deleteReview(user);
+	}
 }

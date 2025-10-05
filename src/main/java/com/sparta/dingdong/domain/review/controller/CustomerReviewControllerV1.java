@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -51,5 +52,16 @@ public class CustomerReviewControllerV1 {
 		customerReviewService.updateReview(reviewId, userDetails, request);
 
 		return ResponseEntity.ok(BaseResponseDto.success("리뷰가 수정되었습니다."));
+	}
+
+	@Operation(summary = "리뷰 삭제 API", description = "고객이 주문에 대한 리뷰를 삭제합니다.")
+	@PreAuthorize("hasRole('ROLE_CUSTOMER')")
+	@DeleteMapping("/reviews/{reviewId}")
+	public ResponseEntity<BaseResponseDto<?>> deleteReview(@PathVariable UUID reviewId,
+		@AuthenticationPrincipal UserAuth userDetails) {
+
+		customerReviewService.deleteReview(reviewId, userDetails);
+
+		return ResponseEntity.ok(BaseResponseDto.success("리뷰가 삭제되었습니다."));
 	}
 }

@@ -80,4 +80,9 @@ public class Review extends BaseEntity {
 		this.imageUrl3 = request.getImageUrl3() != null ? request.getImageUrl3() : this.imageUrl3;
 		this.isDisplayed = request.isDisplayed();
 	}
+
+	public void deleteReview(User user) {
+		softDeleteBy(user.getId());
+		softDelete();
+	}
 }

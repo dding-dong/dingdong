@@ -42,4 +42,8 @@ public abstract class BaseEntity {
 	public boolean isDeleted() {
 		return deletedAt != null;
 	}
+
+	public void softDeleteBy(Long deletedBy) {
+		this.deletedBy = deletedBy;
+	}
 }

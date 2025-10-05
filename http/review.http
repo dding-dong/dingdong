@@ -27,3 +27,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwidXNlclJvbGUiOiJDVVNUT
   "imageUrl3": "https://example.com/image3.jpg",
   "displayed": true
 }
+
+### CUSTOMER REVIEW 삭제
+DELETE http://localhost:8080/v1/reviews/31146295-ab5c-4e48-9a53-0647562491c7
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTY2MTQyMiwiZXhwIjoxNzU5NjYzMjIyfQ.J9R8y8tRB-e910s3uEZeTwf6vF8vd2FsHjq7QVaAV3Y

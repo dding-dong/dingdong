@@ -9,4 +9,6 @@ public interface CustomerReviewService {
 	void createReview(UUID orderId, UserAuth userDetails, CustomerReviewDto.CreateReview request);
 
 	void updateReview(UUID reviewId, UserAuth userDetails, CustomerReviewDto.UpdateReview request);
+
+	void deleteReview(UUID reviewId, UserAuth userDetails);
 }
