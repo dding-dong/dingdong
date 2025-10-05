@@ -64,4 +64,9 @@ public class ReviewReply extends BaseEntity {
 			.isDisplayed(request.isDisplayed())
 			.build();
 	}
+
+	public void updateReply(OwnerReviewDto.UpdateReply request) {
+		this.content = request.getContent() != null ? request.getContent() : this.content;
+		this.isDisplayed = request.isDisplayed();
+	}
 }

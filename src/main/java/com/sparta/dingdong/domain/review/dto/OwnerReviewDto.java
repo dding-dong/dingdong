@@ -16,4 +16,14 @@ public class OwnerReviewDto {
 		@Schema(description = "리뷰 딥장 노출 여부", defaultValue = "true")
 		private boolean isDisplayed = true;
 	}
+
+	@Getter
+	public static class UpdateReply {
+
+		@Schema(description = "리뷰 답장 내용", example = "감사합니다!")
+		private String content;
+
+		@Schema(description = "리뷰 딥장 노출 여부")
+		private boolean isDisplayed = true;
+	}
 }

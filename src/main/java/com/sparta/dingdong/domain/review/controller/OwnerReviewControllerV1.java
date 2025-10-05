@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,11 +17,13 @@ import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.review.dto.OwnerReviewDto;
 import com.sparta.dingdong.domain.review.service.OwnerReviewService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/v1")
 @RequiredArgsConstructor
+@Tag(name = "가게 주인 리뷰 API", description = "가게 주인 리뷰 API 입니다.")
 public class OwnerReviewControllerV1 {
 
 	private final OwnerReviewService ownerReviewService;
@@ -32,6 +35,17 @@ public class OwnerReviewControllerV1 {
 		@RequestBody OwnerReviewDto.CreateReply request) {
 
 		ownerReviewService.createReply(reviewId, userDetails, request);
-		return ResponseEntity.ok(BaseResponseDto.success("리뷰에 댓글 등록되었습니다."));
+		return ResponseEntity.ok(BaseResponseDto.success("리뷰에 댓글이 등록되었습니다."));
+	}
+
+	@PutMapping("/reviews/{reviewId}/reply/{replyId}")
+	@PreAuthorize("hasRole('ROLE_OWNER')")
+	public ResponseEntity<BaseResponseDto<?>> updateReply(@PathVariable UUID reviewId,
+		@PathVariable UUID replyId,
+		@AuthenticationPrincipal UserAuth userDetails,
+		@RequestBody OwnerReviewDto.UpdateReply request) {
+
+		ownerReviewService.updateReply(reviewId, replyId, userDetails, request);
+		return ResponseEntity.ok(BaseResponseDto.success("리뷰에 댓글이 수정되었습니다."));
 	}
 }

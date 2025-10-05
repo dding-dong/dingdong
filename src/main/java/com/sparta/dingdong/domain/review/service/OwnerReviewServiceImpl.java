@@ -9,8 +9,11 @@ import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.review.dto.OwnerReviewDto;
 import com.sparta.dingdong.domain.review.entity.Review;
 import com.sparta.dingdong.domain.review.entity.ReviewReply;
+import com.sparta.dingdong.domain.review.exception.NotReviewReplyOwnerException;
+import com.sparta.dingdong.domain.review.exception.NotStoreOwnerException;
 import com.sparta.dingdong.domain.review.exception.ReviewAlreadyRepliedException;
 import com.sparta.dingdong.domain.review.exception.ReviewNotFoundException;
+import com.sparta.dingdong.domain.review.exception.ReviewReplyNotFoundException;
 import com.sparta.dingdong.domain.review.repository.ReviewReplyRepository;
 import com.sparta.dingdong.domain.review.repository.ReviewRepository;
 import com.sparta.dingdong.domain.user.entity.User;
@@ -30,6 +33,10 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 		return reviewRepository.findById(reviewId).orElseThrow(ReviewNotFoundException::new);
 	}
 
+	public ReviewReply findReviewReply(UUID replyId) {
+		return reviewReplyRepository.findById(replyId).orElseThrow(ReviewReplyNotFoundException::new);
+	}
+
 	@Override
 	@Transactional
 	public void createReply(UUID reviewId, UserAuth userDetails, OwnerReviewDto.CreateReply request) {
@@ -41,8 +48,27 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 			throw new ReviewAlreadyRepliedException(reviewId);
 		}
 
+		if (!review.getOrder().getStore().getOwner().equals(user)) {
+			throw new NotStoreOwnerException("해당 리뷰 가게의 사장님만 답글을 작성할 수 있습니다.");
+		}
+
 		ReviewReply reply = ReviewReply.createReviewReply(review, user, request);
 
 		reviewReplyRepository.save(reply);
+	}
+
+	@Override
+	@Transactional
+	public void updateReply(UUID reviewId, UUID replyId, UserAuth userDetails, OwnerReviewDto.UpdateReply request) {
+
+		ReviewReply reply = findReviewReply(replyId);
+
+		User user = userService.findByUser(userDetails);
+
+		if (!reply.getOwner().equals(user)) {
+			throw new NotReviewReplyOwnerException();
+		}
+
+		reply.updateReply(request);
 	}
 }
