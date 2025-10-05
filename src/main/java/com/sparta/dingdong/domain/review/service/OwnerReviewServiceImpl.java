@@ -71,4 +71,19 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 
 		reply.updateReply(request);
 	}
+
+	@Override
+	@Transactional
+	public void deleteReply(UUID reviewId, UUID replyId, UserAuth userDetails) {
+
+		ReviewReply reply = findReviewReply(replyId);
+
+		User user = userService.findByUser(userDetails);
+
+		if (!reply.getOwner().equals(user)) {
+			throw new NotReviewReplyOwnerException();
+		}
+
+		reply.deleteReply(user);
+	}
 }

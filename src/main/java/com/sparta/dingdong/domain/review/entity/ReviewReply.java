@@ -69,4 +69,9 @@ public class ReviewReply extends BaseEntity {
 		this.content = request.getContent() != null ? request.getContent() : this.content;
 		this.isDisplayed = request.isDisplayed();
 	}
+
+	public void deleteReply(User user) {
+		softDeleteBy(user.getId());
+		softDelete();
+	}
 }

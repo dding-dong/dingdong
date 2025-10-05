@@ -52,3 +52,8 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FU
 {
   "content": "맛있다고 해주시니 감사합니다!3333"
 }
+
+### OWNER REVIEW REPLY 삭제
+DELETE http://localhost:8080/v1/reviews/9e06b7d9-de7b-41ac-8562-5dca07b8919f/reply/ed388426-0e5b-4872-886e-94cb10bc73a4
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FUiIsImlhdCI6MTc1OTY2ODY2NywiZXhwIjoxNzU5NjcwNDY3fQ.eTWF68aSe-w45I7AvOIraBw1g4l75KmljLycrSMJ10A

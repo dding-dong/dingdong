@@ -10,4 +10,6 @@ public interface OwnerReviewService {
 	void createReply(UUID reviewId, UserAuth userDetails, OwnerReviewDto.CreateReply request);
 
 	void updateReply(UUID reviewId, UUID replyId, UserAuth userDetails, OwnerReviewDto.UpdateReply request);
+
+	void deleteReply(UUID reviewId, UUID replyId, UserAuth userDetails);
 }

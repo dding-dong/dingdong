@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -47,5 +48,15 @@ public class OwnerReviewControllerV1 {
 
 		ownerReviewService.updateReply(reviewId, replyId, userDetails, request);
 		return ResponseEntity.ok(BaseResponseDto.success("리뷰에 댓글이 수정되었습니다."));
+	}
+
+	@DeleteMapping("/reviews/{reviewId}/reply/{replyId}")
+	@PreAuthorize("hasRole('ROLE_OWNER')")
+	public ResponseEntity<BaseResponseDto<?>> deleteReply(@PathVariable UUID reviewId,
+		@PathVariable UUID replyId,
+		@AuthenticationPrincipal UserAuth userDetails) {
+
+		ownerReviewService.deleteReply(reviewId, replyId, userDetails);
+		return ResponseEntity.ok(BaseResponseDto.success("리뷰에 댓글이 삭제되었습니다."));
 	}
 }
