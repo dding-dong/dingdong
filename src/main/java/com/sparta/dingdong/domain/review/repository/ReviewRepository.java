@@ -1,5 +1,6 @@
 package com.sparta.dingdong.domain.review.repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,5 +12,5 @@ import com.sparta.dingdong.domain.review.entity.Review;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, UUID> {
 
-	boolean existsByOrder(Order order);
+	Optional<Review> findByOrder(Order order);
 }

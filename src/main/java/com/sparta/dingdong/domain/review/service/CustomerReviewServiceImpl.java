@@ -38,12 +38,19 @@ public class CustomerReviewServiceImpl implements CustomerReviewService {
 
 		Order order = orderService.findByOrder(orderId);
 
-		if (reviewRepository.existsByOrder(order)) {
-			throw new OrderAlreadyReviewedException(orderId);
+		Review existingReview = reviewRepository.findByOrder(order).orElse(null);
+
+		if (existingReview != null) {
+			if (existingReview.getDeletedBy() == null && existingReview.getDeletedAt() == null) {
+				// 이미 활성화된 리뷰가 존재한다면 예외
+				throw new OrderAlreadyReviewedException(orderId);
+			} else {
+				existingReview.reactivate(user, request);
+				return;
+			}
 		}
 
 		Review review = Review.create(user, order, request);
-
 		reviewRepository.save(review);
 	}
 

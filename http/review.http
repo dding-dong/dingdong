@@ -1,13 +1,13 @@
 # 리뷰
 
 ### CUSTOMER REVIEW 등록
-POST http://localhost:8080/v1/orders/d00326b7-94f4-435a-b2c9-d99b3e9267b9/reviews
+POST http://localhost:8080/v1/orders/79bcbda8-4b09-424a-96a2-66846bb0a3e2/reviews
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTY2NzcwMSwiZXhwIjoxNzU5NjY5NTAxfQ.L4SV-uWNJlQXQW77FMHpsQnui7pg364uo1bgdfuoGkE
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTY3MTM1NCwiZXhwIjoxNzU5NjczMTU0fQ.DpW0OkXDQvoLYFGpqjhtDMnmbJg5N-o6kq7QEIGU8Kw
 
 {
   "rating": 5,
-  "content": "맛있어요3333!",
+  "content": "맛있어요새로!",
   "imageUrl1": "https://example.com/image1.jpg",
   "imageUrl2": "https://example.com/image2.jpg",
   "imageUrl3": "https://example.com/image3.jpg",
@@ -35,12 +35,12 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT
 
 
 ### OWNER REVIEW REPLY 등록
-POST http://localhost:8080/v1/reviews/8311d3cd-de38-4b3f-adfa-d22b8ed71764/reply
+POST http://localhost:8080/v1/reviews/9e06b7d9-de7b-41ac-8562-5dca07b8919f/reply
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0IiwidXNlclJvbGUiOiJPV05FUiIsImlhdCI6MTc1OTY2NzgxNiwiZXhwIjoxNzU5NjY5NjE2fQ.AGHtcw5ewhtpwmf_VHBlA1o5bpzDWDKAJ-VMw72g61M
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FUiIsImlhdCI6MTc1OTY3MjAwNywiZXhwIjoxNzU5NjczODA3fQ.V3zE6hZsFUt8rijrUe-xjDG7IN2rc4Qwjp2m4vD2D7w
 
 {
-  "content": "맛있다고 해주시니 감사합니다!",
+  "content": "맛있다고 해주시니 감사합니다!새로",
   "isDisplayed": true
 }
 

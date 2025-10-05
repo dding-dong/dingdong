@@ -44,8 +44,16 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 
 		User user = userService.findByUser(userDetails);
 
-		if (reviewReplyRepository.existsByReview(review)) {
-			throw new ReviewAlreadyRepliedException(reviewId);
+		// 답글이 이미 존재하는지 확인
+		ReviewReply existingReviewReply = reviewReplyRepository.findByReview(review).orElse(null);
+
+		if (existingReviewReply != null) {
+			if (existingReviewReply.getDeletedBy() == null && existingReviewReply.getDeletedAt() == null) {
+				throw new ReviewAlreadyRepliedException(reviewId);
+			} else {
+				existingReviewReply.reactivate(review, user, request);
+				return;
+			}
 		}
 
 		if (!review.getOrder().getStore().getOwner().equals(user)) {

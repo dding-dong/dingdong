@@ -74,4 +74,14 @@ public class ReviewReply extends BaseEntity {
 		softDeleteBy(user.getId());
 		softDelete();
 	}
+
+	public void reactivate(Review review, User user, OwnerReviewDto.CreateReply request) {
+		this.review = review;
+		this.owner = user;
+		this.order = review.getOrder();
+		this.store = review.getStore();
+		this.content = request.getContent();
+		this.isDisplayed = request.isDisplayed();
+		reactivate();
+	}
 }

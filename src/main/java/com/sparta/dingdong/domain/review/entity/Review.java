@@ -85,4 +85,15 @@ public class Review extends BaseEntity {
 		softDeleteBy(user.getId());
 		softDelete();
 	}
+
+	public void reactivate(User user, CustomerReviewDto.CreateReview request) {
+		this.user = user;
+		this.rating = request.getRating();
+		this.content = request.getContent();
+		this.imageUrl1 = request.getImageUrl1();
+		this.imageUrl2 = request.getImageUrl2();
+		this.imageUrl3 = request.getImageUrl3();
+		this.isDisplayed = request.isDisplayed();
+		reactivate();
+	}
 }
