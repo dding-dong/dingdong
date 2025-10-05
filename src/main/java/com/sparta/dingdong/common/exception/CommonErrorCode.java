@@ -25,10 +25,15 @@ public enum CommonErrorCode implements ErrorCode {
 	NOT_REVIEW_REPLY_OWNER(HttpStatus.BAD_REQUEST, "805", "리뷰 답글의 작성자가 아닙니다."),
 	NOT_STORE_OWNER(HttpStatus.BAD_REQUEST, "806", "가게 사장님만 접근 가능합니다."),
 
+	CART_NOT_FOUND(HttpStatus.NOT_FOUND, "1001", "장바구니를 찾을 수 없습니다."),
+	CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "1002", "장바구니에 담은 해당 메뉴를 찾을 수 없습니다."),
+	CART_STORE_CONFLICT(HttpStatus.CONFLICT, "1003", "장바구니는 하나의 가게만 담을 수 있습니다."),
+	INVALID_CART_QUANTITY(HttpStatus.BAD_REQUEST, "1004", "수량은 1 이상이어야 합니다."),
+
 	STORE_NOT_FOUND(HttpStatus.BAD_REQUEST, "2000", "해당 가게를 찾을 수 없습니다."),
 	DELETED_STORE_NOT_FOUND(HttpStatus.BAD_REQUEST, "2001", "삭제된 가게를 찾을 수 없습니다."),
 	DELIVERY_AREA_NOT_FOUND(HttpStatus.BAD_REQUEST, "2002", "해당 배달가능지역을 찾을 수 없습니다."),
-//	NOT_STOREOWNER(HttpStatus.FORBIDDEN, "2003", "해당 가게의 사장님만 접근 가능합니다."),
+	//	NOT_STOREOWNER(HttpStatus.FORBIDDEN, "2003", "해당 가게의 사장님만 접근 가능합니다."),
 
 	MENU_ITEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "2100", "해당 메뉴 아이템을 찾을 수 없습니다."),
 	HIDDEN_MENU_ACCESS_DENIED(HttpStatus.FORBIDDEN, "2101", "숨김 메뉴 아이템 조회 권한이 없습니다."),
