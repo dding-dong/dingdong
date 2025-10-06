@@ -84,4 +84,8 @@ public class ReviewReply extends BaseEntity {
 		this.isDisplayed = request.isDisplayed();
 		reactivate();
 	}
+
+	public boolean isActive() {
+		return this.getDeletedAt() == null && this.getDeletedBy() == null && this.isDisplayed();
+	}
 }

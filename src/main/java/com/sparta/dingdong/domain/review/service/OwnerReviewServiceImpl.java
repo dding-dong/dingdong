@@ -44,6 +44,33 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 		return reviewReplyRepository.findById(replyId).orElseThrow(ReviewReplyNotFoundException::new);
 	}
 
+	private void validateStoreOwner(Review review, User user) {
+		if (!review.getOrder().getStore().getOwner().equals(user)) {
+			throw new NotStoreOwnerException("해당 리뷰 가게의 사장님만 답글을 작성할 수 있습니다.");
+		}
+	}
+
+	/**
+	 * 기존 답글이 있으면 처리한다.
+	 * - 삭제되지 않은 답글이 있으면 예외 발생
+	 * - 삭제된 답글이면 재활성화 후 true 반환
+	 */
+	private boolean handleExistingReply(Review review, User user, OwnerReviewDto.CreateReply request) {
+		ReviewReply existingReply = review.getReviewReply();
+
+		if (existingReply == null) {
+			return false; // 답글 없음 → 신규 생성 진행
+		}
+
+		if (existingReply.getDeletedBy() == null && existingReply.getDeletedAt() == null) {
+			throw new ReviewAlreadyRepliedException(review.getId());
+		}
+
+		// 삭제된 답글이라면 재활성화
+		existingReply.reactivate(review, user, request);
+		return true;
+	}
+
 	@Override
 	@Transactional
 	public void createReply(UUID reviewId, UserAuth userDetails, OwnerReviewDto.CreateReply request) {
@@ -51,24 +78,15 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 
 		User user = userService.findByUser(userDetails);
 
-		// 답글이 이미 존재하는지 확인
-		ReviewReply existingReviewReply = reviewReplyRepository.findByReview(review).orElse(null);
+		validateStoreOwner(review, user);
 
-		if (existingReviewReply != null) {
-			if (existingReviewReply.getDeletedBy() == null && existingReviewReply.getDeletedAt() == null) {
-				throw new ReviewAlreadyRepliedException(reviewId);
-			} else {
-				existingReviewReply.reactivate(review, user, request);
-				return;
-			}
+		// 기존 답글 처리
+		if (handleExistingReply(review, user, request)) {
+			return; // 재활성화 후 종료
 		}
 
-		if (!review.getOrder().getStore().getOwner().equals(user)) {
-			throw new NotStoreOwnerException("해당 리뷰 가게의 사장님만 답글을 작성할 수 있습니다.");
-		}
-
+		// 신규 답글 생성
 		ReviewReply reply = ReviewReply.createReviewReply(review, user, request);
-
 		reviewReplyRepository.save(reply);
 	}
 

@@ -38,23 +38,40 @@ public class CustomerReviewServiceImpl implements CustomerReviewService {
 		return reviewRepository.findById(reviewId).orElseThrow(ReviewNotFoundException::new);
 	}
 
+	public ReviewReply findActiveReviewReply(Review review) {
+		return reviewReplyRepository.findByReviewAndDeletedAtIsNullAndDeletedByIsNull(review).orElse(null);
+	}
+
+	/**
+	 * 기존 리뷰가 존재하면 처리
+	 * 활성화된 리뷰 -> 예외 발생
+	 * 삭제/숨김된 리뷰 -> 재활성화 후 true 반환
+	 * 존재하지 않으면 false 반환
+	 */
+	private boolean handleExistingReview(Review existingReview, User user, CustomerReviewDto.CreateReview request,
+		UUID orderId) {
+
+		if (existingReview == null) {
+			return false;
+		}
+		if (existingReview.isActive()) {
+			throw new OrderAlreadyReviewedException(orderId);
+		}
+
+		existingReview.reactivate(user, request);
+		return true;
+	}
+
 	@Override
 	@Transactional
 	public void createReview(UUID orderId, UserAuth userDetails, CustomerReviewDto.CreateReview request) {
 		User user = userService.findByUser(userDetails);
-
 		Order order = orderService.findByOrder(orderId);
 
 		Review existingReview = reviewRepository.findByOrder(order).orElse(null);
 
-		if (existingReview != null) {
-			if (existingReview.getDeletedBy() == null && existingReview.getDeletedAt() == null) {
-				// 이미 활성화된 리뷰가 존재한다면 예외
-				throw new OrderAlreadyReviewedException(orderId);
-			} else {
-				existingReview.reactivate(user, request);
-				return;
-			}
+		if (handleExistingReview(existingReview, user, request, orderId)) {
+			return; // 기존 리뷰가 재활성화되었다면 메서드 종료
 		}
 
 		Review review = Review.create(user, order, request);
@@ -87,10 +104,6 @@ public class CustomerReviewServiceImpl implements CustomerReviewService {
 		}
 
 		review.deleteReview(user);
-	}
-
-	public ReviewReply findActiveReviewReply(Review review) {
-		return reviewReplyRepository.findByReviewAndDeletedAtIsNullAndDeletedByIsNull(review).orElse(null);
 	}
 
 	@Override

@@ -44,11 +44,11 @@ public class CommonReviewServiceImpl implements CommonReviewService {
 			throw new ReviewNotFoundException();
 		}
 
-		ReviewReply reviewReply = findActiveReviewReply(review);
+		ReviewReply reviewReply = review.getReviewReply();
 		CommonReviewDto.ReviewReplyDetails reviewReplyDetails = null;
 
-		// 달린 리뷰가 있거나, 활성화 된 리뷰면 reviewReplyDetails에 담을 수 있다.
-		if (reviewReply != null) {
+		// 달린 리뷰가 있고 활성화 되어있으면 DTO로 변환
+		if (reviewReply != null && reviewReply.isActive()) {
 			reviewReplyDetails = CommonReviewDto.ReviewReplyDetails.builder()
 				.replyId(reviewReply.getId())
 				.ownerId(reviewReply.getOwner().getId())
@@ -56,7 +56,7 @@ public class CommonReviewServiceImpl implements CommonReviewService {
 				.build();
 		}
 
-		CommonReviewDto.ReviewDetails reviewDetails = CommonReviewDto.ReviewDetails.builder()
+		return CommonReviewDto.ReviewDetails.builder()
 			.reviewId(review.getId())
 			.userId(review.getUser().getId())
 			.orderId(review.getOrder().getId())
@@ -68,8 +68,6 @@ public class CommonReviewServiceImpl implements CommonReviewService {
 			.imageUrl3(review.getImageUrl3())
 			.reply(reviewReplyDetails)
 			.build();
-
-		return reviewDetails;
 	}
 
 	@Override
