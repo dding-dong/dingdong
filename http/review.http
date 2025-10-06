@@ -87,3 +87,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FU
 ### OWNER REVIEW 가게 조회
 GET http://localhost:8080/v1/owners/stores/ee334491-78ef-4aaa-886d-fd0ce593d909/reviews
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FUiIsImlhdCI6MTc1OTczNzA2NCwiZXhwIjoxNzU5NzM4ODY0fQ.hPJO4vMt2N54wYKurhd-31AsjlofNaDjzrOL9UqHkzk
+
+## MASTER
+
+### REVIEW 숨김 처리
+PATCH http://localhost:8080/v1/admin/reviews/8311d3cd-de38-4b3f-adfa-d22b8ed71764
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1IiwidXNlclJvbGUiOiJNQU5BR0VSIiwiaWF0IjoxNzU5NzQyMjk0LCJleHAiOjE3NTk3NDQwOTR9.1x3sFBfFW95BqMiK6RrZl680uJGHoh-r1pqMD13Ezys

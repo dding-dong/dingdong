@@ -104,4 +104,8 @@ public class Review extends BaseEntity {
 	public boolean isActive() {
 		return this.getDeletedAt() == null && this.getDeletedBy() == null && this.isDisplayed();
 	}
+
+	public void hide() {
+		this.isDisplayed = false;
+	}
 }
