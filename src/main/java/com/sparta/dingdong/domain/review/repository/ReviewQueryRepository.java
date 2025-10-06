@@ -8,8 +8,10 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.dingdong.domain.review.entity.QReview;
 import com.sparta.dingdong.domain.review.entity.QReviewReply;
+import com.sparta.dingdong.domain.review.repository.vo.OwnerReviewWithReplyVo;
 import com.sparta.dingdong.domain.review.repository.vo.ReviewWithReplyActiveVo;
 import com.sparta.dingdong.domain.review.repository.vo.ReviewWithReplyVo;
+import com.sparta.dingdong.domain.store.entity.QStore;
 
 import lombok.RequiredArgsConstructor;
 
@@ -132,6 +134,43 @@ public class ReviewQueryRepository {
 			.where(review.deletedAt.isNull()
 				.and(review.deletedBy.isNull())
 				.and(review.isDisplayed.isTrue()))
+			.fetch();
+	}
+
+	public List<OwnerReviewWithReplyVo> findAllActiveReviewsWithReplyByOwner(Long ownerId) {
+		QStore store = QStore.store;
+		QReview review = QReview.review;
+		QReviewReply reply = QReviewReply.reviewReply;
+
+		return queryFactory
+			.select(Projections.constructor(
+				OwnerReviewWithReplyVo.class,
+				store.id,
+				store.name,
+				review.id,
+				review.user.id,
+				review.rating,
+				review.content,
+				review.imageUrl1,
+				review.imageUrl2,
+				review.imageUrl3,
+				review.isDisplayed,
+				reply.id,
+				reply.owner.id,
+				reply.content,
+				reply.isDisplayed
+			))
+			.from(store)
+			.join(store.reviews, review)
+			.leftJoin(review.reviewReply, reply)
+			.on(reply.deletedAt.isNull()
+				.and(reply.deletedBy.isNull()))
+			.where(
+				store.owner.id.eq(ownerId)
+					.and(review.deletedAt.isNull())
+					.and(review.deletedBy.isNull())
+					.and(review.isDisplayed.isTrue())
+			)
 			.fetch();
 	}
 }

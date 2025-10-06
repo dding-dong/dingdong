@@ -1,5 +1,9 @@
 package com.sparta.dingdong.domain.review.service;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -14,8 +18,10 @@ import com.sparta.dingdong.domain.review.exception.NotStoreOwnerException;
 import com.sparta.dingdong.domain.review.exception.ReviewAlreadyRepliedException;
 import com.sparta.dingdong.domain.review.exception.ReviewNotFoundException;
 import com.sparta.dingdong.domain.review.exception.ReviewReplyNotFoundException;
+import com.sparta.dingdong.domain.review.repository.ReviewQueryRepository;
 import com.sparta.dingdong.domain.review.repository.ReviewReplyRepository;
 import com.sparta.dingdong.domain.review.repository.ReviewRepository;
+import com.sparta.dingdong.domain.review.repository.vo.OwnerReviewWithReplyVo;
 import com.sparta.dingdong.domain.user.entity.User;
 import com.sparta.dingdong.domain.user.service.UserService;
 
@@ -28,6 +34,7 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 	private final ReviewRepository reviewRepository;
 	private final ReviewReplyRepository reviewReplyRepository;
 	private final UserService userService;
+	private final ReviewQueryRepository reviewQueryRepository;
 
 	public Review findReview(UUID reviewId) {
 		return reviewRepository.findById(reviewId).orElseThrow(ReviewNotFoundException::new);
@@ -141,5 +148,52 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 			.build();
 
 		return reviewDetails;
+	}
+
+	@Override
+	public List<OwnerReviewDto.StoreReviews> getOwnerReviews(UserAuth userDetails) {
+		Long ownerId = userService.findByUser(userDetails).getId();
+
+		List<OwnerReviewWithReplyVo> voList = reviewQueryRepository.findAllActiveReviewsWithReplyByOwner(ownerId);
+
+		// StoreId 기준으로 그룹핑
+		Map<UUID, OwnerReviewDto.StoreReviews> grouped = new LinkedHashMap<>();
+
+		for (OwnerReviewWithReplyVo vo : voList) {
+			OwnerReviewDto.StoreReviews storeDto = grouped.computeIfAbsent(
+				vo.getStoreId(),
+				id -> OwnerReviewDto.StoreReviews.builder()
+					.storeId(vo.getStoreId())
+					.storeName(vo.getStoreName())
+					.reviews(new ArrayList<>())
+					.build()
+			);
+
+			OwnerReviewDto.ReviewReply replyDto = null;
+			if (vo.getReplyId() != null) {
+				replyDto = OwnerReviewDto.ReviewReply.builder()
+					.replyId(vo.getReplyId())
+					.ownerId(vo.getOwnerId())
+					.content(vo.getReplyContent())
+					.isDisplayed(vo.getIsReviewReplyDisplayed())
+					.build();
+			}
+
+			OwnerReviewDto.Review reviewDto = OwnerReviewDto.Review.builder()
+				.reviewId(vo.getReviewId())
+				.userId(vo.getUserId())
+				.rating(vo.getRating())
+				.content(vo.getContent())
+				.imageUrl1(vo.getImageUrl1())
+				.imageUrl2(vo.getImageUrl2())
+				.imageUrl3(vo.getImageUrl3())
+				.reply(replyDto)
+				.isDisplayed(vo.getIsReviewDisplayed())
+				.build();
+
+			storeDto.getReviews().add(reviewDto);
+		}
+
+		return new ArrayList<>(grouped.values());
 	}
 }

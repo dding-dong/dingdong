@@ -1,5 +1,6 @@
 package com.sparta.dingdong.domain.review.dto;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -56,5 +57,39 @@ public class OwnerReviewDto {
 		private String imageUrl3;
 		private OwnerReviewDto.ReviewReplyDetails reply;
 		private Boolean isDisplayed;
+	}
+
+	@Getter
+	@Builder
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	public static class ReviewReply {
+		private UUID replyId;
+		private Long ownerId;
+		private String content;
+		private Boolean isDisplayed;
+	}
+
+	@Getter
+	@Builder
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	public static class Review {
+		private UUID reviewId;
+		private Long userId;
+		private Integer rating;
+		private String content;
+		private String imageUrl1;
+		private String imageUrl2;
+		private String imageUrl3;
+		private ReviewReply reply;
+		private Boolean isDisplayed;
+	}
+
+	@Getter
+	@Builder
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	public static class StoreReviews {
+		private UUID storeId;
+		private String storeName;
+		private List<Review> reviews;
 	}
 }

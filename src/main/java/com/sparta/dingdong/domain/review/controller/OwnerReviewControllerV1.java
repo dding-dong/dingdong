@@ -1,5 +1,6 @@
 package com.sparta.dingdong.domain.review.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class OwnerReviewControllerV1 {
 		@RequestBody OwnerReviewDto.CreateReply request) {
 
 		ownerReviewService.createReply(reviewId, userDetails, request);
-		return ResponseEntity.ok(BaseResponseDto.success("리뷰에 댓글이 등록되었습니다."));
+		return ResponseEntity.ok(BaseResponseDto.success("오너 리뷰에 댓글이 등록되었습니다."));
 	}
 
 	@Operation(summary = "리뷰 답글 수정 API", description = "가게 주인이 리뷰 답글을 수정합니다.")
@@ -51,7 +52,7 @@ public class OwnerReviewControllerV1 {
 		@RequestBody OwnerReviewDto.UpdateReply request) {
 
 		ownerReviewService.updateReply(reviewId, replyId, userDetails, request);
-		return ResponseEntity.ok(BaseResponseDto.success("리뷰에 댓글이 수정되었습니다."));
+		return ResponseEntity.ok(BaseResponseDto.success("오너 리뷰에 댓글이 수정되었습니다."));
 	}
 
 	@Operation(summary = "리뷰 답글 삭제 API", description = "가게 주인이 리뷰 답글을 삭제합니다.")
@@ -62,7 +63,7 @@ public class OwnerReviewControllerV1 {
 		@AuthenticationPrincipal UserAuth userDetails) {
 
 		ownerReviewService.deleteReply(reviewId, replyId, userDetails);
-		return ResponseEntity.ok(BaseResponseDto.success("리뷰에 댓글이 삭제되었습니다."));
+		return ResponseEntity.ok(BaseResponseDto.success("오너 리뷰에 댓글이 삭제되었습니다."));
 	}
 
 	@Operation(summary = "가게 주인 리뷰 상세 조회 API", description = "가게 주인이 리뷰를 상세 조회합니다.")
@@ -70,6 +71,13 @@ public class OwnerReviewControllerV1 {
 	public ResponseEntity<BaseResponseDto<?>> getOwnerReviewDetails(@PathVariable UUID reviewId,
 		@AuthenticationPrincipal UserAuth userDetails) {
 		OwnerReviewDto.ReviewDetails details = ownerReviewService.getReviewDetails(reviewId, userDetails);
-		return ResponseEntity.ok(BaseResponseDto.success("리뷰 상세 조회입니다.", details));
+		return ResponseEntity.ok(BaseResponseDto.success("오너 리뷰 상세 조회입니다.", details));
+	}
+
+	@Operation(summary = "가게 주인 리뷰 전체 조회 API", description = "가게 주인이 리뷰를 전체 조회합니다.")
+	@GetMapping("/owners/reviews")
+	public ResponseEntity<BaseResponseDto<?>> getOwnerReviews(@AuthenticationPrincipal UserAuth userDetails) {
+		List<OwnerReviewDto.StoreReviews> reviews = ownerReviewService.getOwnerReviews(userDetails);
+		return ResponseEntity.ok(BaseResponseDto.success("오너 리뷰 전체 조회입니다.", reviews));
 	}
 }
