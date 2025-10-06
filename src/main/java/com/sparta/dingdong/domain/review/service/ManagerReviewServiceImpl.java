@@ -33,6 +33,7 @@ public class ManagerReviewServiceImpl implements ManagerReviewService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public ManagerReviewDto.Review getReviewDetails(UUID reviewId) {
 		Review review = findReview(reviewId);
 
@@ -63,6 +64,7 @@ public class ManagerReviewServiceImpl implements ManagerReviewService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<ManagerReviewDto.Review> getReviews() {
 		// 모든 리뷰 조회
 		List<Review> reviews = reviewRepository.findAll();

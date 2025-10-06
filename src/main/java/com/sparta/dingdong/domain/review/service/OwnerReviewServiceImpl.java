@@ -107,6 +107,7 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public OwnerReviewDto.ReviewDetails getReviewDetails(UUID reviewId, UserAuth userDetails) {
 		Review review = findReview(reviewId);
 
@@ -151,6 +152,7 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<OwnerReviewDto.StoreReviews> getOwnerReviews(UserAuth userDetails) {
 		Long ownerId = userService.findByUser(userDetails).getId();
 
@@ -199,6 +201,7 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 
 	// TODO: 해당 코드 고쳐야 합니다. Store 합치면 Store에서 findByStore 한다음에 정보 넣어줄 예정입니다. 일단 만들어둠..
 	@Override
+	@Transactional(readOnly = true)
 	public OwnerReviewDto.StoreReviews getOwnerStoreReviews(UserAuth userDetails, UUID storeId) {
 		Long ownerId = userService.findByUser(userDetails).getId();
 

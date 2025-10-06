@@ -15,6 +15,7 @@ import com.sparta.dingdong.domain.review.dto.CommonReviewDto;
 import com.sparta.dingdong.domain.review.service.CommonReviewService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -29,7 +30,8 @@ public class CommonReviewControllerV1 {
 	@Operation(summary = "공통 리뷰 상세 조회 API", description = "고객과 오너가 리뷰 상세 조회합니다.")
 	@GetMapping("/reviews/{reviewId}")
 	@PreAuthorize("hasAnyRole('ROLE_CUSTOMER', 'ROLE_OWNER')")
-	public ResponseEntity<BaseResponseDto<?>> selectReview(@PathVariable UUID reviewId) {
+	public ResponseEntity<BaseResponseDto<?>> selectReview(
+		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId) {
 		CommonReviewDto.ReviewDetails details = commonReviewService.selectReview(reviewId);
 		return ResponseEntity.ok(BaseResponseDto.success("리뷰를 상세 조회합니다.", details));
 	}

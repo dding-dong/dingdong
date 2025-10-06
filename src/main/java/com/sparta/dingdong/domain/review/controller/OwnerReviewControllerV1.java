@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +22,7 @@ import com.sparta.dingdong.domain.review.dto.OwnerReviewDto;
 import com.sparta.dingdong.domain.review.service.OwnerReviewService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -35,9 +37,10 @@ public class OwnerReviewControllerV1 {
 	@Operation(summary = "리뷰 답글 생성 API", description = "가게 주인이 리뷰 답글을 작성합니다.")
 	@PostMapping("/reviews/{reviewId}/reply")
 	@PreAuthorize("hasRole('ROLE_OWNER')")
-	public ResponseEntity<BaseResponseDto<?>> createReply(@PathVariable UUID reviewId,
+	public ResponseEntity<BaseResponseDto<?>> createReply(
+		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId,
 		@AuthenticationPrincipal UserAuth userDetails,
-		@RequestBody OwnerReviewDto.CreateReply request) {
+		@Validated @RequestBody OwnerReviewDto.CreateReply request) {
 
 		ownerReviewService.createReply(reviewId, userDetails, request);
 		return ResponseEntity.ok(BaseResponseDto.success("오너 리뷰에 댓글이 등록되었습니다."));
@@ -46,10 +49,11 @@ public class OwnerReviewControllerV1 {
 	@Operation(summary = "리뷰 답글 수정 API", description = "가게 주인이 리뷰 답글을 수정합니다.")
 	@PutMapping("/reviews/{reviewId}/reply/{replyId}")
 	@PreAuthorize("hasRole('ROLE_OWNER')")
-	public ResponseEntity<BaseResponseDto<?>> updateReply(@PathVariable UUID reviewId,
-		@PathVariable UUID replyId,
+	public ResponseEntity<BaseResponseDto<?>> updateReply(
+		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId,
+		@Parameter(description = "리뷰 답글 UUID") @PathVariable UUID replyId,
 		@AuthenticationPrincipal UserAuth userDetails,
-		@RequestBody OwnerReviewDto.UpdateReply request) {
+		@Validated @RequestBody OwnerReviewDto.UpdateReply request) {
 
 		ownerReviewService.updateReply(reviewId, replyId, userDetails, request);
 		return ResponseEntity.ok(BaseResponseDto.success("오너 리뷰에 댓글이 수정되었습니다."));
@@ -58,8 +62,9 @@ public class OwnerReviewControllerV1 {
 	@Operation(summary = "리뷰 답글 삭제 API", description = "가게 주인이 리뷰 답글을 삭제합니다.")
 	@DeleteMapping("/reviews/{reviewId}/reply/{replyId}")
 	@PreAuthorize("hasRole('ROLE_OWNER')")
-	public ResponseEntity<BaseResponseDto<?>> deleteReply(@PathVariable UUID reviewId,
-		@PathVariable UUID replyId,
+	public ResponseEntity<BaseResponseDto<?>> deleteReply(
+		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId,
+		@Parameter(description = "리뷰 답글 UUID") @PathVariable UUID replyId,
 		@AuthenticationPrincipal UserAuth userDetails) {
 
 		ownerReviewService.deleteReply(reviewId, replyId, userDetails);
@@ -68,7 +73,8 @@ public class OwnerReviewControllerV1 {
 
 	@Operation(summary = "가게 주인 리뷰 상세 조회 API", description = "가게 주인이 리뷰를 상세 조회합니다.")
 	@GetMapping("/owners/reviews/{reviewId}")
-	public ResponseEntity<BaseResponseDto<?>> getOwnerReviewDetails(@PathVariable UUID reviewId,
+	public ResponseEntity<BaseResponseDto<?>> getOwnerReviewDetails(
+		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId,
 		@AuthenticationPrincipal UserAuth userDetails) {
 		OwnerReviewDto.ReviewDetails details = ownerReviewService.getReviewDetails(reviewId, userDetails);
 		return ResponseEntity.ok(BaseResponseDto.success("오너 리뷰 상세 조회입니다.", details));
@@ -83,7 +89,8 @@ public class OwnerReviewControllerV1 {
 
 	@Operation(summary = "가게 리뷰 조회 API", description = "가게 주인이 가게의 리뷰를 조회합니다.")
 	@GetMapping("/owners/stores/{storeId}/reviews")
-	public ResponseEntity<BaseResponseDto<?>> getOwnerStoreReviews(@PathVariable UUID storeId,
+	public ResponseEntity<BaseResponseDto<?>> getOwnerStoreReviews(
+		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@AuthenticationPrincipal UserAuth userDetails) {
 		OwnerReviewDto.StoreReviews reviews = ownerReviewService.getOwnerStoreReviews(userDetails, storeId);
 		return ResponseEntity.ok(BaseResponseDto.success("오너 가게 리뷰 조회입니다.", reviews));

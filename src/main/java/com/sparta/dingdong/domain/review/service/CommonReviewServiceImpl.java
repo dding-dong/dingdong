@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.dingdong.domain.review.dto.CommonReviewDto;
 import com.sparta.dingdong.domain.review.entity.Review;
@@ -34,6 +35,7 @@ public class CommonReviewServiceImpl implements CommonReviewService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public CommonReviewDto.ReviewDetails selectReview(UUID reviewId) {
 		Review review = findReview(reviewId);
 
@@ -71,6 +73,7 @@ public class CommonReviewServiceImpl implements CommonReviewService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<CommonReviewDto.Review> selectReviews() {
 		List<ReviewWithReplyActiveVo> voList = reviewQueryRepository.findAllActiveReviewWithReply();
 		return voList.stream()

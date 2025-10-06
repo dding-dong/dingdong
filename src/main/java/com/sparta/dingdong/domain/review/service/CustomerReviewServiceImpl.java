@@ -94,6 +94,7 @@ public class CustomerReviewServiceImpl implements CustomerReviewService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public CustomerReviewDto.ReviewDetails selectReviewDetails(UUID reviewId, UserAuth userDetails) {
 		User user = userService.findByUser(userDetails);
 		Review review = findReview(reviewId);
@@ -139,6 +140,7 @@ public class CustomerReviewServiceImpl implements CustomerReviewService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<CustomerReviewDto.Review> selectActiveReviews(UserAuth userDetails) {
 		User user = userService.findByUser(userDetails);
 		List<ReviewWithReplyVo> voList = reviewQueryRepository.findAllActiveReviewsWithReplyByUser(user.getId());

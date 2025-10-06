@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,6 +22,7 @@ import com.sparta.dingdong.domain.review.dto.CustomerReviewDto;
 import com.sparta.dingdong.domain.review.service.CustomerReviewService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -35,9 +37,10 @@ public class CustomerReviewControllerV1 {
 	@Operation(summary = "고객 리뷰 등록 API", description = "고객이 주문에 대한 리뷰를 등록합니다.")
 	@PreAuthorize("hasRole('ROLE_CUSTOMER')")
 	@PostMapping("/orders/{orderId}/reviews")
-	public ResponseEntity<BaseResponseDto<?>> createReview(@PathVariable UUID orderId,
+	public ResponseEntity<BaseResponseDto<?>> createReview(
+		@Parameter(description = "주문 UUID") @PathVariable UUID orderId,
 		@AuthenticationPrincipal UserAuth userDetails,
-		@RequestBody CustomerReviewDto.CreateReview request) {
+		@Validated @RequestBody CustomerReviewDto.CreateReview request) {
 
 		customerReviewService.createReview(orderId, userDetails, request);
 
@@ -47,9 +50,10 @@ public class CustomerReviewControllerV1 {
 	@Operation(summary = "리뷰 수정 API", description = "고객이 주문에 대한 리뷰를 수정합니다.")
 	@PreAuthorize("hasRole('ROLE_CUSTOMER')")
 	@PutMapping("/reviews/{reviewId}")
-	public ResponseEntity<BaseResponseDto<?>> updateReview(@PathVariable UUID reviewId,
+	public ResponseEntity<BaseResponseDto<?>> updateReview(
+		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId,
 		@AuthenticationPrincipal UserAuth userDetails,
-		@RequestBody CustomerReviewDto.UpdateReview request) {
+		@Validated @RequestBody CustomerReviewDto.UpdateReview request) {
 
 		customerReviewService.updateReview(reviewId, userDetails, request);
 
@@ -59,7 +63,8 @@ public class CustomerReviewControllerV1 {
 	@Operation(summary = "리뷰 삭제 API", description = "고객이 주문에 대한 리뷰를 삭제합니다.")
 	@PreAuthorize("hasRole('ROLE_CUSTOMER')")
 	@DeleteMapping("/reviews/{reviewId}")
-	public ResponseEntity<BaseResponseDto<?>> deleteReview(@PathVariable UUID reviewId,
+	public ResponseEntity<BaseResponseDto<?>> deleteReview(
+		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId,
 		@AuthenticationPrincipal UserAuth userDetails) {
 
 		customerReviewService.deleteReview(reviewId, userDetails);
@@ -70,7 +75,8 @@ public class CustomerReviewControllerV1 {
 	@Operation(summary = "리뷰 상세 조회 API", description = "고객이 리뷰를 상세 조회합니다.")
 	@PreAuthorize("hasRole('ROLE_CUSTOMER')")
 	@GetMapping("/customers/reviews/{reviewId}")
-	public ResponseEntity<BaseResponseDto<?>> selectReviewDetail(@PathVariable UUID reviewId,
+	public ResponseEntity<BaseResponseDto<?>> selectReviewDetail(
+		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId,
 		@AuthenticationPrincipal UserAuth userDetails) {
 
 		CustomerReviewDto.ReviewDetails details = customerReviewService.selectReviewDetails(reviewId, userDetails);

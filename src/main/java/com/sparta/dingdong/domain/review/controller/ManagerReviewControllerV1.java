@@ -16,6 +16,7 @@ import com.sparta.dingdong.domain.review.dto.ManagerReviewDto;
 import com.sparta.dingdong.domain.review.service.ManagerReviewService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
@@ -30,7 +31,8 @@ public class ManagerReviewControllerV1 {
 	@Operation(summary = "매니저 리뷰 숨김 API", description = "매니저가 리뷰를 숨김 처리합니다.")
 	@PatchMapping("/admin/reviews/{reviewId}")
 	@PreAuthorize("hasRole('ROLE_MANAGER')")
-	public ResponseEntity<BaseResponseDto<?>> hideReview(@PathVariable UUID reviewId) {
+	public ResponseEntity<BaseResponseDto<?>> hideReview(
+		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId) {
 		managerReviewService.hideReview(reviewId);
 		return ResponseEntity.ok(BaseResponseDto.success("리뷰가 숨김처리 되었습니다."));
 	}
@@ -38,7 +40,8 @@ public class ManagerReviewControllerV1 {
 	@Operation(summary = "매니저 리뷰 상세 조회 API", description = "매니저가 리뷰를 상세 조회할 수 있습니다.")
 	@GetMapping("/admin/reviews/{reviewId}")
 	@PreAuthorize("hasRole('ROLE_MANAGER')")
-	public ResponseEntity<BaseResponseDto<?>> getReviewDetails(@PathVariable UUID reviewId) {
+	public ResponseEntity<BaseResponseDto<?>> getReviewDetails(
+		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId) {
 		ManagerReviewDto.Review review = managerReviewService.getReviewDetails(reviewId);
 		return ResponseEntity.ok(BaseResponseDto.success("리뷰가 숨김처리 되었습니다.", review));
 	}
