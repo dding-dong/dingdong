@@ -12,4 +12,6 @@ public interface OwnerReviewService {
 	void updateReply(UUID reviewId, UUID replyId, UserAuth userDetails, OwnerReviewDto.UpdateReply request);
 
 	void deleteReply(UUID reviewId, UUID replyId, UserAuth userDetails);
+
+	OwnerReviewDto.ReviewDetails getReviewDetails(UUID reviewId, UserAuth userDetails);
 }

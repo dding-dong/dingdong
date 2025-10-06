@@ -23,7 +23,7 @@ public enum CommonErrorCode implements ErrorCode {
 	REVIEW_ALREADY_REPLIED(HttpStatus.BAD_REQUEST, "803", "이미 해당 리뷰에 대한 답글이 존재합니다."),
 	REVIEW_REPLY_NOT_FOUND(HttpStatus.BAD_REQUEST, "804", "해당 리뷰의 댓글을 찾을 수 없습니다."),
 	NOT_REVIEW_REPLY_OWNER(HttpStatus.BAD_REQUEST, "805", "리뷰 답글의 작성자가 아닙니다."),
-	NOT_STORE_OWNER(HttpStatus.BAD_REQUEST, "806", "리뷰 답글 작성은 가게 사장님만 가능합니다.");
+	NOT_STORE_OWNER(HttpStatus.BAD_REQUEST, "806", "해당 리뷰는 가게 사장님만 접근 가능합니다.");
 
 	private final HttpStatus status;
 	private final String code;

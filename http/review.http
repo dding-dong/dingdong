@@ -75,3 +75,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FU
 DELETE http://localhost:8080/v1/reviews/f9aa6333-eeb3-4b9c-af7c-80a7e9e68133/reply/ed388426-0e5b-4872-886e-94cb10bc73a4
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FUiIsImlhdCI6MTc1OTcxNTEzNSwiZXhwIjoxNzU5NzE2OTM1fQ.Twk2QCU4tsYXJSpLsbHOV4cjZ9K0ZNLG3RGMt_vpZFU
+
+### OWNER REVIEW 상세 조회
+GET http://localhost:8080/v1/owners/reviews/8311d3cd-de38-4b3f-adfa-d22b8ed71764
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0IiwidXNlclJvbGUiOiJPV05FUiIsImlhdCI6MTc1OTczMTk0NywiZXhwIjoxNzU5NzMzNzQ3fQ.1qhPFDwIXWr6J4aUqbt2yN3Wvs8KREGmukngk3EJqcs

@@ -94,4 +94,52 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 
 		reply.deleteReply(user);
 	}
+
+	public ReviewReply findActiveReviewReply(Review review) {
+		return reviewReplyRepository.findByReviewAndDeletedAtIsNullAndDeletedByIsNull(review).orElse(null);
+	}
+
+	@Override
+	public OwnerReviewDto.ReviewDetails getReviewDetails(UUID reviewId, UserAuth userDetails) {
+		Review review = findReview(reviewId);
+
+		User user = userService.findByUser(userDetails);
+
+		// 해당 리뷰가 내 가게 리뷰인지 체크
+		if (!review.getStore().getOwner().equals(user)) {
+			throw new NotStoreOwnerException("본인 가게의 리뷰만 조회할 수 있습니다.");
+		}
+
+		if (!review.isActive()) {
+			throw new ReviewNotFoundException();
+		}
+
+		ReviewReply reviewReply = findActiveReviewReply(review);
+
+		OwnerReviewDto.ReviewReplyDetails replyDetails = null;
+		if (reviewReply != null) {
+			replyDetails = OwnerReviewDto.ReviewReplyDetails.builder()
+				.replyId(reviewReply.getId())
+				.ownerId(reviewReply.getOwner().getId())
+				.content(reviewReply.getContent())
+				.isDisplayed(reviewReply.isDisplayed())
+				.build();
+		}
+
+		OwnerReviewDto.ReviewDetails reviewDetails = OwnerReviewDto.ReviewDetails.builder()
+			.reviewId(review.getId())
+			.userId(review.getUser().getId())
+			.orderId(review.getOrder().getId())
+			.storeId(review.getStore().getId())
+			.rating(review.getRating())
+			.content(review.getContent())
+			.imageUrl1(review.getImageUrl1())
+			.imageUrl2(review.getImageUrl2())
+			.imageUrl3(review.getImageUrl3())
+			.reply(replyDetails)
+			.isDisplayed(review.isDisplayed())
+			.build();
+
+		return reviewDetails;
+	}
 }
