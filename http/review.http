@@ -97,3 +97,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1IiwidXNlclJvbGUiOiJNQU5BR
 ### REVIEW 상세 조회
 GET http://localhost:8080/v1/admin/reviews/8311d3cd-de38-4b3f-adfa-d22b8ed71764
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1IiwidXNlclJvbGUiOiJNQU5BR0VSIiwiaWF0IjoxNzU5NzQzMTYyLCJleHAiOjE3NTk3NDQ5NjJ9.v79ogq277NJWzJPun3XWB6rff6ZIm3AIUj-XUJQS0jM
+
+### REVIEW 상세 조회
+GET http://localhost:8080/v1/admin/reviews
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1IiwidXNlclJvbGUiOiJNQU5BR0VSIiwiaWF0IjoxNzU5NzQzMTYyLCJleHAiOjE3NTk3NDQ5NjJ9.v79ogq277NJWzJPun3XWB6rff6ZIm3AIUj-XUJQS0jM

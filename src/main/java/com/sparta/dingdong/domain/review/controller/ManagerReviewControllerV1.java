@@ -1,5 +1,6 @@
 package com.sparta.dingdong.domain.review.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -40,5 +41,13 @@ public class ManagerReviewControllerV1 {
 	public ResponseEntity<BaseResponseDto<?>> getReviewDetails(@PathVariable UUID reviewId) {
 		ManagerReviewDto.Review review = managerReviewService.getReviewDetails(reviewId);
 		return ResponseEntity.ok(BaseResponseDto.success("리뷰가 숨김처리 되었습니다.", review));
+	}
+
+	@Operation(summary = "매니저 리뷰 목록 조회 API", description = "매니저가 리뷰 목록을 조회할 수 있습니다.")
+	@GetMapping("/admin/reviews")
+	@PreAuthorize("hasRole('ROLE_MANAGER')")
+	public ResponseEntity<BaseResponseDto<?>> getReviews() {
+		List<ManagerReviewDto.Review> list = managerReviewService.getReviews();
+		return ResponseEntity.ok(BaseResponseDto.success("리뷰가 숨김처리 되었습니다.", list));
 	}
 }
