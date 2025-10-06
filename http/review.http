@@ -1,12 +1,17 @@
 ## COMMON
+### COMMON REVIEW 상세 조회
 GET http://localhost:8080/v1/reviews/8311d3cd-de38-4b3f-adfa-d22b8ed71764
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTcxOTQ5MiwiZXhwIjoxNzU5NzIxMjkyfQ.WDbprgbBIWrC5K_8N5LMDi2FbBKIxpCJvXfIFA6dmqc
 
+### COMMON REVIEW 전체 조회
+GET http://localhost:8080/v1/reviews
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTcyNTI2MywiZXhwIjoxNzU5NzI3MDYzfQ.C1e2rSTnjBIUOrTW2g8pAVZ79iO3SA1H__d6OFwemB4
+
 ## CUSTOMER
 ### CUSTOMER REVIEW 등록
-POST http://localhost:8080/v1/orders/79bcbda8-4b09-424a-96a2-66846bb0a3e2/reviews
+POST http://localhost:8080/v1/orders/f4446e71-19d8-4258-b1cb-7a9f157bd3db/reviews
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTY3MTM1NCwiZXhwIjoxNzU5NjczMTU0fQ.DpW0OkXDQvoLYFGpqjhtDMnmbJg5N-o6kq7QEIGU8Kw
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTcyNDIzMiwiZXhwIjoxNzU5NzI2MDMyfQ.JllKLRg1pW--kPDBpYDZRY4d6n3-XJ_Zeguv4jS-8rw
 
 {
   "rating": 5,

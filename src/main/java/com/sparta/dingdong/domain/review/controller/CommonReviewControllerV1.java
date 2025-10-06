@@ -1,5 +1,6 @@
 package com.sparta.dingdong.domain.review.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -31,5 +32,13 @@ public class CommonReviewControllerV1 {
 	public ResponseEntity<BaseResponseDto<?>> selectReview(@PathVariable UUID reviewId) {
 		CommonReviewDto.ReviewDetails details = commonReviewService.selectReview(reviewId);
 		return ResponseEntity.ok(BaseResponseDto.success("리뷰를 상세 조회합니다.", details));
+	}
+
+	@Operation(summary = "공통 리뷰 전체 조회 API", description = "고객과 오너가 리뷰 전체 조회합니다.")
+	@GetMapping("/reviews")
+	@PreAuthorize("hasAnyRole('ROLE_CUSTOMER', 'ROLE_OWNER')")
+	public ResponseEntity<BaseResponseDto<?>> selectReviews() {
+		List<CommonReviewDto.Review> list = commonReviewService.selectReviews();
+		return ResponseEntity.ok(BaseResponseDto.success("리뷰를 상세 조회합니다.", list));
 	}
 }

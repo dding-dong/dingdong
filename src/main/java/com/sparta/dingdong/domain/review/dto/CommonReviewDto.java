@@ -32,4 +32,29 @@ public class CommonReviewDto {
 		private String imageUrl3;
 		private CommonReviewDto.ReviewReplyDetails reply;
 	}
+
+	@Getter
+	@Builder
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	public static class ReviewReply {
+		private UUID replyId;
+		private Long ownerId;
+		private String content;
+	}
+
+	@Getter
+	@Builder
+	@JsonInclude(JsonInclude.Include.NON_NULL)
+	public static class Review {
+		private UUID reviewId;
+		private Long userId;
+		private UUID orderId;
+		private UUID storeId;
+		private Integer rating;
+		private String content;
+		private String imageUrl1;
+		private String imageUrl2;
+		private String imageUrl3;
+		private CommonReviewDto.ReviewReply reply;
+	}
 }
