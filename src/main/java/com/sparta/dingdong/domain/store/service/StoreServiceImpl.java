@@ -7,6 +7,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.common.entity.Dong;
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.auth.service.AuthService;
@@ -40,32 +41,30 @@ public class StoreServiceImpl implements StoreService {
 	private final DongRepository dongRepository;
 	private final AuthService authService;
 
-	/* ==================== PUBLIC 기능 (로그인 없이 접근 가능) ==================== */
+	/* ==================== PUBLIC 기능 ==================== */
 
 	@Transactional(readOnly = true)
 	@Override
-	public List<StoreDto.Response> getActiveStores() {
-		return storeRepository.findAllActive()
-			.stream()
-			.map(this::mapPublic)
-			.toList();
+	public BaseResponseDto<List<StoreDto.Response>> getActiveStores() {
+		List<StoreDto.Response> stores = storeRepository.findAllActive()
+			.stream().map(this::mapPublic).toList();
+		return BaseResponseDto.success("활성화된 가게 목록 조회 성공", stores);
 	}
 
 	@Transactional(readOnly = true)
 	@Override
-	public List<StoreDto.Response> getActiveStoresByCategory(UUID storeCategoryId) {
-		return storeRepository.findAllActiveByCategory(storeCategoryId)
-			.stream()
-			.map(this::mapPublic)
-			.toList();
+	public BaseResponseDto<List<StoreDto.Response>> getActiveStoresByCategory(UUID storeCategoryId) {
+		List<StoreDto.Response> stores = storeRepository.findAllActiveByCategory(storeCategoryId)
+			.stream().map(this::mapPublic).toList();
+		return BaseResponseDto.success("활성화된 카테고리 가게 목록 조회 성공", stores);
 	}
 
 	/* ==================== OWNER 기능 ==================== */
 
 	@Override
-	public StoreDto.Response create(StoreDto.Request req) {
-		UserAuth userAuth = authService.getCurrentUser();
-		User owner = userRepository.findById(userAuth.getId())
+	public BaseResponseDto<StoreDto.Response> create(StoreDto.Request req) {
+		UserAuth user = authService.getCurrentUser();
+		User owner = userRepository.findById(user.getId())
 			.orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
 		StoreCategory category = storeCategoryRepository.findById(req.getCategoryId())
@@ -89,19 +88,20 @@ public class StoreServiceImpl implements StoreService {
 			}
 		}
 
-		return map(store);
+		return BaseResponseDto.success("가게 생성 성공", map(store));
 	}
 
-	@Override
 	@Transactional(readOnly = true)
-	public List<StoreDto.Response> getMyStores() {
+	@Override
+	public BaseResponseDto<List<StoreDto.Response>> getMyStores() {
 		UserAuth user = authService.getCurrentUser();
-		return storeRepository.findByOwnerId(user.getId())
+		List<StoreDto.Response> stores = storeRepository.findByOwnerId(user.getId())
 			.stream().map(this::map).toList();
+		return BaseResponseDto.success("내 가게 조회 성공", stores);
 	}
 
 	@Override
-	public StoreDto.Response update(UUID id, StoreDto.Request req) {
+	public BaseResponseDto<StoreDto.Response> update(UUID id, StoreDto.Request req) {
 		Store store = getStoreAndValidateOwnership(id);
 
 		store.setName(req.getName());
@@ -119,24 +119,24 @@ public class StoreServiceImpl implements StoreService {
 			}
 		}
 
-		return map(store);
+		return BaseResponseDto.success("가게 정보 수정 성공", map(store));
 	}
 
 	@Override
-	public StoreDto.Response updateStatus(UUID id, StoreDto.UpdateStatusRequest req) {
+	public BaseResponseDto<StoreDto.Response> updateStatus(UUID id, StoreDto.UpdateStatusRequest req) {
 		Store store = getStoreAndValidateOwnership(id);
 		store.setStatus(req.getStatus());
-		return map(store);
+		return BaseResponseDto.success("가게 상태 업데이트 성공", map(store));
 	}
 
 	@Override
-	public StoreDto.Response getMyStore(UUID id) {
+	public BaseResponseDto<StoreDto.Response> getMyStore(UUID id) {
 		Store store = getStoreAndValidateOwnership(id);
-		return map(store);
+		return BaseResponseDto.success("내 가게 조회 성공", map(store));
 	}
 
 	@Override
-	public StoreDto.Response addDeliveryArea(UUID storeId, String dongId) {
+	public BaseResponseDto<StoreDto.Response> addDeliveryArea(UUID storeId, String dongId) {
 		Store store = getStoreAndValidateOwnership(storeId);
 
 		Dong dong = dongRepository.findById(dongId)
@@ -150,11 +150,11 @@ public class StoreServiceImpl implements StoreService {
 		store.getDeliveryAreas().add(area);
 		storeDeliveryAreaRepository.save(area);
 
-		return map(store);
+		return BaseResponseDto.success("배달 지역 추가 성공", map(store));
 	}
 
 	@Override
-	public StoreDto.Response removeDeliveryArea(UUID storeId, UUID deliveryAreaId) {
+	public BaseResponseDto<StoreDto.Response> removeDeliveryArea(UUID storeId, UUID deliveryAreaId) {
 		Store store = getStoreAndValidateOwnership(storeId);
 
 		StoreDeliveryArea area = storeDeliveryAreaRepository.findById(deliveryAreaId)
@@ -167,32 +167,29 @@ public class StoreServiceImpl implements StoreService {
 		store.getDeliveryAreas().remove(area);
 		storeDeliveryAreaRepository.delete(area);
 
-		return map(store);
+		return BaseResponseDto.success("배달 지역 삭제 성공", map(store));
 	}
 
 	/* ==================== MANAGER/MASTER 기능 ==================== */
 
 	@Transactional(readOnly = true)
 	@Override
-	public List<StoreDto.Response> getAll() {
-		return storeRepository.findAll()
-			.stream()
-			.map(this::map)
-			.toList();
+	public BaseResponseDto<List<StoreDto.Response>> getAll() {
+		List<StoreDto.Response> stores = storeRepository.findAll().stream().map(this::map).toList();
+		return BaseResponseDto.success("전체 가게 조회 성공", stores);
 	}
 
 	@Transactional(readOnly = true)
 	@Override
-	public List<StoreDto.Response> getAllByCategory(UUID storeCategoryId) {
-		return storeRepository.findAllByCategory(storeCategoryId)
-			.stream()
-			.map(this::map)
-			.toList();
+	public BaseResponseDto<List<StoreDto.Response>> getAllByCategory(UUID storeCategoryId) {
+		List<StoreDto.Response> stores = storeRepository.findAllByCategory(storeCategoryId)
+			.stream().map(this::map).toList();
+		return BaseResponseDto.success("카테고리별 가게 조회 성공", stores);
 	}
 
 	@Override
-	public StoreDto.Response forceUpdateStatus(UUID id, StoreDto.UpdateStatusRequest req) {
-		UserAuth user = authService.getCurrentUser(); // ✅
+	public BaseResponseDto<StoreDto.Response> forceUpdateStatus(UUID id, StoreDto.UpdateStatusRequest req) {
+		UserAuth user = authService.getCurrentUser();
 		UserRole role = user.getUserRole();
 		if (role != UserRole.MANAGER && role != UserRole.MASTER) {
 			throw new AccessDeniedException("관리자 권한이 필요합니다.");
@@ -201,16 +198,17 @@ public class StoreServiceImpl implements StoreService {
 			.orElseThrow(() -> new IllegalArgumentException("가게를 찾을 수 없습니다."));
 
 		store.setStatus(req.getStatus() == StoreStatus.OPEN ? StoreStatus.FORCED_CLOSED : req.getStatus());
-		return map(store);
+		return BaseResponseDto.success("가게 강제 상태 변경 성공", map(store));
 	}
 
 	@Override
-	public StoreDto.Response manageUpdate(UUID id, StoreDto.@Valid Request req) {
-		UserAuth user = authService.getCurrentUser(); // ✅
+	public BaseResponseDto<StoreDto.Response> manageUpdate(UUID id, StoreDto.@Valid Request req) {
+		UserAuth user = authService.getCurrentUser();
 		UserRole role = user.getUserRole();
 		if (role != UserRole.MANAGER && role != UserRole.MASTER) {
 			throw new AccessDeniedException("관리자 권한이 필요합니다.");
 		}
+
 		Store store = storeRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException("가게를 찾을 수 없습니다."));
 
@@ -222,48 +220,45 @@ public class StoreServiceImpl implements StoreService {
 		store.setAddress(req.getAddress());
 		store.setCategory(category);
 
-		return map(store);
+		return BaseResponseDto.success("가게 정보 관리자 수정 성공", map(store));
 	}
 
 	@Override
-	public void delete(UUID id) {
+	public BaseResponseDto<Void> delete(UUID id) {
 		Store store = getStoreAndValidateOwnership(id);
 		UserAuth user = authService.getCurrentUser();
 		store.softDelete(user.getId());
 		store.setStatus(StoreStatus.CLOSED);
+		return BaseResponseDto.success("가게 삭제 성공");
 	}
 
 	@Override
-	public StoreDto.Response getById(UUID id) {
+	public BaseResponseDto<StoreDto.Response> getById(UUID id) {
 		Store store = storeRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException("가게를 찾을 수 없습니다."));
-		return map(store);
+		return BaseResponseDto.success("가게 조회 성공", map(store));
 	}
 
 	@Override
-	public StoreDto.Response restore(UUID storeId) {
+	public BaseResponseDto<StoreDto.Response> restore(UUID storeId) {
 		Store store = storeRepository.findDeletedById(storeId)
 			.orElseThrow(() -> new IllegalArgumentException("삭제된 가게를 찾을 수 없습니다: " + storeId));
 
 		UserAuth user = authService.getCurrentUser();
 		store.restore(user.getId());
-		return map(store);
+		return BaseResponseDto.success("가게 복구 성공", map(store));
 	}
 
 	/* ==================== 유틸 메서드 ==================== */
 
-	/** OWNER: 본인 가게만 접근 가능 / MANAGER, MASTER: 전체 접근 가능 */
 	private Store getStoreAndValidateOwnership(UUID id) {
 		Store store = storeRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException("가게를 찾을 수 없습니다."));
-
-		UserAuth user = authService.getCurrentUser(); // ✅ 변경
-		authService.validateStoreOwnership(user, store.getOwner().getId()); // ✅ 변경
-
+		UserAuth user = authService.getCurrentUser();
+		authService.validateStoreOwnership(user, store.getOwner().getId());
 		return store;
 	}
 
-	/** 로그인 여부 안전 map() - public 접근용 */
 	private StoreDto.Response mapPublic(Store store) {
 		return StoreDto.Response.builder()
 			.id(store.getId())
@@ -274,15 +269,10 @@ public class StoreServiceImpl implements StoreService {
 			.status(store.getStatus())
 			.categoryId(store.getCategory().getId())
 			.ownerId(store.getOwner().getId())
-			.deliveryAreaIds(
-				store.getDeliveryAreas().stream()
-					.map(d -> d.getDong().getId())
-					.toList()
-			)
+			.deliveryAreaIds(store.getDeliveryAreas().stream().map(d -> d.getDong().getId()).toList())
 			.build();
 	}
 
-	/** 로그인 필수 map() - OWNER/ADMIN 등 인증 필요용 */
 	private StoreDto.Response map(Store store) {
 		UserAuth currentUser = authService.getCurrentUser();
 		boolean isAdmin = currentUser.getUserRole() == UserRole.MANAGER
@@ -297,11 +287,7 @@ public class StoreServiceImpl implements StoreService {
 			.status(store.getStatus())
 			.categoryId(store.getCategory().getId())
 			.ownerId(store.getOwner().getId())
-			.deliveryAreaIds(
-				store.getDeliveryAreas().stream()
-					.map(d -> d.getDong().getId())
-					.toList()
-			);
+			.deliveryAreaIds(store.getDeliveryAreas().stream().map(d -> d.getDong().getId()).toList());
 
 		if (isAdmin) {
 			builder

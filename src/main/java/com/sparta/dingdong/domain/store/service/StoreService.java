@@ -5,46 +5,46 @@ import java.util.UUID;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.domain.store.dto.StoreDto;
 
 import jakarta.validation.Valid;
 
 public interface StoreService {
+	@Transactional(readOnly = true)
+	BaseResponseDto<List<StoreDto.Response>> getActiveStores();
 
 	@Transactional(readOnly = true)
-	List<StoreDto.Response> getActiveStores();
+	BaseResponseDto<List<StoreDto.Response>> getActiveStoresByCategory(UUID storeCategoryId);
+
+	BaseResponseDto<StoreDto.Response> create(StoreDto.Request req);
 
 	@Transactional(readOnly = true)
-	List<StoreDto.Response> getActiveStoresByCategory(UUID storeCategoryId);
+	BaseResponseDto<List<StoreDto.Response>> getMyStores();
 
-	StoreDto.Response create(StoreDto.Request req);
+	BaseResponseDto<StoreDto.Response> update(UUID id, StoreDto.Request req);
 
-	@Transactional(readOnly = true)
-	List<StoreDto.Response> getMyStores();
+	BaseResponseDto<StoreDto.Response> updateStatus(UUID id, StoreDto.UpdateStatusRequest req);
 
-	StoreDto.Response update(UUID id, StoreDto.Request req);
+	BaseResponseDto<StoreDto.Response> getMyStore(UUID id);
 
-	StoreDto.Response updateStatus(UUID id, StoreDto.UpdateStatusRequest req);
+	BaseResponseDto<StoreDto.Response> addDeliveryArea(UUID storeId, String dongId);
 
-	void delete(UUID id);
-
-	StoreDto.Response getMyStore(UUID id);
-
-	StoreDto.Response addDeliveryArea(UUID storeId, String dongId);
-
-	StoreDto.Response removeDeliveryArea(UUID storeId, UUID deliveryAreaId);
+	BaseResponseDto<StoreDto.Response> removeDeliveryArea(UUID storeId, UUID deliveryAreaId);
 
 	@Transactional(readOnly = true)
-	List<StoreDto.Response> getAll();
+	BaseResponseDto<List<StoreDto.Response>> getAll();
 
 	@Transactional(readOnly = true)
-	List<StoreDto.Response> getAllByCategory(UUID storeCategoryId);
+	BaseResponseDto<List<StoreDto.Response>> getAllByCategory(UUID storeCategoryId);
 
-	StoreDto.Response forceUpdateStatus(UUID id, StoreDto.UpdateStatusRequest req);
+	BaseResponseDto<StoreDto.Response> forceUpdateStatus(UUID id, StoreDto.UpdateStatusRequest req);
 
-	StoreDto.Response manageUpdate(UUID id, StoreDto.@Valid Request req);
+	BaseResponseDto<StoreDto.Response> manageUpdate(UUID id, StoreDto.@Valid Request req);
 
-	StoreDto.Response getById(UUID id);
+	BaseResponseDto<Void> delete(UUID id);
 
-	StoreDto.Response restore(UUID storeId);
+	BaseResponseDto<StoreDto.Response> getById(UUID id);
+
+	BaseResponseDto<StoreDto.Response> restore(UUID storeId);
 }
