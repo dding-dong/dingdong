@@ -15,4 +15,6 @@ public interface ReviewReplyRepository extends JpaRepository<ReviewReply, UUID> 
 	Optional<ReviewReply> findByReview(Review review);
 
 	Optional<ReviewReply> findByReviewAndDeletedAtIsNullAndDeletedByIsNull(Review review);
+
+	Optional<ReviewReply> findByReviewAndDeletedAtIsNullAndDeletedByIsNullAndIsDisplayedTrue(Review review);
 }

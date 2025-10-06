@@ -1,3 +1,7 @@
+## COMMON
+GET http://localhost:8080/v1/reviews/8311d3cd-de38-4b3f-adfa-d22b8ed71764
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTcxOTQ5MiwiZXhwIjoxNzU5NzIxMjkyfQ.WDbprgbBIWrC5K_8N5LMDi2FbBKIxpCJvXfIFA6dmqc
+
 ## CUSTOMER
 ### CUSTOMER REVIEW 등록
 POST http://localhost:8080/v1/orders/79bcbda8-4b09-424a-96a2-66846bb0a3e2/reviews
