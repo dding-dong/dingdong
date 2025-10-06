@@ -95,14 +95,20 @@ public class CustomerReviewServiceImpl implements CustomerReviewService {
 
 	@Override
 	public CustomerReviewDto.ReviewDetails selectReviewDetails(UUID reviewId, UserAuth userDetails) {
+		User user = userService.findByUser(userDetails);
 		Review review = findReview(reviewId);
-		ReviewReply reviewReply = findActiveReviewReply(review);
+
+		// 내가 작성한 리뷰만 상세 조회할 수 있다.
+		if (!review.getUser().getId().equals(user.getId())) {
+			throw new NotReviewOwnerException("본인의 리뷰만 조회할 수 있습니다.");
+		}
 
 		// 고객은 삭제된 리뷰는 볼 수 없다.
 		if (review.getDeletedAt() != null && review.getDeletedBy() != null) {
 			throw new ReviewNotFoundException();
 		}
 
+		ReviewReply reviewReply = findActiveReviewReply(review);
 		CustomerReviewDto.ReviewReplyDetails reviewReplyDto = null;
 
 		// 리뷰 답글 노출 여부
