@@ -2,6 +2,7 @@ package com.sparta.dingdong.common.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -20,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor
+@EnableMethodSecurity
 public class SecurityConfig {
 
 	private final JwtFilter jwtFilter;
@@ -39,6 +41,14 @@ public class SecurityConfig {
 			.csrf(AbstractHttpConfigurer::disable)
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(auth -> auth
+
+				// Swagger 관련 리소스 허용
+				.requestMatchers(
+					"/swagger-ui/**",
+					"/v3/api-docs/**",
+					"/swagger-resources/**",
+					"/webjars/**"
+				).permitAll()
 				.requestMatchers(SecurityUrlMatcher.PUBLIC_URLS).permitAll()
 				.requestMatchers(SecurityUrlMatcher.CUSTOMER_URLS).hasRole("CUSTOMER")
 				.requestMatchers(SecurityUrlMatcher.OWNER_URLS).hasRole("OWNER")
