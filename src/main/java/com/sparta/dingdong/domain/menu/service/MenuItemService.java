@@ -5,18 +5,19 @@ import java.util.UUID;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.domain.menu.dto.MenuItemDto;
 
 public interface MenuItemService {
 	@Transactional(readOnly = true)
-	List<MenuItemDto.Response> getAllByStore(UUID storeId, boolean includeHidden);
-	
-	MenuItemDto.Response create(UUID storeId, MenuItemDto.Request req);
+	BaseResponseDto<List<MenuItemDto.Response>> getAllByStore(UUID storeId, boolean includeHidden);
+
+	BaseResponseDto<MenuItemDto.Response> create(UUID storeId, MenuItemDto.Request req);
 
 	@Transactional(readOnly = true)
-	MenuItemDto.Response getById(UUID menuId);
+	BaseResponseDto<MenuItemDto.Response> getById(UUID menuId);
 
-	MenuItemDto.Response update(UUID menuId, MenuItemDto.Request req);
+	BaseResponseDto<MenuItemDto.Response> update(UUID menuId, MenuItemDto.Request req);
 
-	void delete(UUID menuId);
+	BaseResponseDto<Void> delete(UUID menuId);
 }

@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.AI.service.AIService;
 import com.sparta.dingdong.domain.auth.service.AuthService;
@@ -27,21 +28,25 @@ public class MenuItemServiceImpl implements MenuItemService {
 
 	private final MenuItemRepository menuItemRepository;
 	private final StoreRepository storeRepository;
-	private final AIService aiMenuDescriptionService; // AI 자동 설명용
+	private final AIService aiMenuDescriptionService; // AI 메뉴 설명 추천 서비스
 	private final AuthService authService;
 
 	@Transactional(readOnly = true)
 	@Override
-	public List<MenuItemDto.Response> getAllByStore(UUID storeId, boolean includeHidden) {
+	public BaseResponseDto<List<MenuItemDto.Response>> getAllByStore(UUID storeId, boolean includeHidden) {
 		List<MenuItem> items = includeHidden
 			? menuItemRepository.findAllByStoreIdIncludingDeleted(storeId)
 			: menuItemRepository.findActiveByStoreId(storeId);
 
-		return items.stream().map(this::map).collect(Collectors.toList());
+		List<MenuItemDto.Response> responseList = items.stream()
+			.map(this::map)
+			.collect(Collectors.toList());
+
+		return BaseResponseDto.success("메뉴 목록 조회 성공", responseList);
 	}
 
 	@Override
-	public MenuItemDto.Response create(UUID storeId, MenuItemDto.Request req) {
+	public BaseResponseDto<MenuItemDto.Response> create(UUID storeId, MenuItemDto.Request req) {
 		Store store = storeRepository.findById(storeId)
 			.orElseThrow(() -> new IllegalArgumentException("가게를 찾을 수 없습니다."));
 
@@ -70,25 +75,30 @@ public class MenuItemServiceImpl implements MenuItemService {
 			.build();
 
 		MenuItem saved = menuItemRepository.save(menu);
-		return map(saved);
+
+		return BaseResponseDto.success("메뉴 생성 성공", map(saved));
 	}
 
 	@Transactional(readOnly = true)
 	@Override
-	public MenuItemDto.Response getById(UUID menuId) {
+	public BaseResponseDto<MenuItemDto.Response> getById(UUID menuId) {
 		MenuItem menu = menuItemRepository.findById(menuId)
 			.orElseThrow(() -> new IllegalArgumentException("메뉴를 찾을 수 없습니다."));
+
 		UserAuth user = authService.getCurrentUser();
 		authService.validateStoreOwnership(user, menu.getStore().getOwner().getId());
-		return map(menu);
+
+		return BaseResponseDto.success("메뉴 조회 성공", map(menu));
 	}
 
 	@Override
-	public MenuItemDto.Response update(UUID menuId, MenuItemDto.Request req) {
+	public BaseResponseDto<MenuItemDto.Response> update(UUID menuId, MenuItemDto.Request req) {
 		MenuItem menu = menuItemRepository.findById(menuId)
 			.orElseThrow(() -> new IllegalArgumentException("메뉴를 찾을 수 없습니다."));
+
 		UserAuth user = authService.getCurrentUser();
 		authService.validateStoreOwnership(user, menu.getStore().getOwner().getId());
+
 		menu.setName(req.getName());
 		menu.setContent(req.getContent());
 		menu.setPrice(req.getPrice());
@@ -103,17 +113,21 @@ public class MenuItemServiceImpl implements MenuItemService {
 			menu.setIsAiUsed(true);
 		}
 
-		return map(menu);
+		return BaseResponseDto.success("메뉴 수정 성공", map(menu));
 	}
 
 	@Override
-	public void delete(UUID menuId) {
+	public BaseResponseDto<Void> delete(UUID menuId) {
 		MenuItem menu = menuItemRepository.findById(menuId)
 			.orElseThrow(() -> new IllegalArgumentException("메뉴를 찾을 수 없습니다."));
+
 		UserAuth user = authService.getCurrentUser();
 		authService.validateStoreOwnership(user, menu.getStore().getOwner().getId());
+
 		menu.softDelete(user.getId());
-		menu.setIsDisplayed(false); // 삭제 시 해당 메뉴아이템 비노출
+		menu.setIsDisplayed(false); // 삭제 시 비노출 처리
+
+		return BaseResponseDto.success("메뉴 삭제 성공");
 	}
 
 	/* ==================== 유틸 메서드 ==================== */
