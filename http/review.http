@@ -93,3 +93,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FU
 ### REVIEW 숨김 처리
 PATCH http://localhost:8080/v1/admin/reviews/8311d3cd-de38-4b3f-adfa-d22b8ed71764
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1IiwidXNlclJvbGUiOiJNQU5BR0VSIiwiaWF0IjoxNzU5NzQyMjk0LCJleHAiOjE3NTk3NDQwOTR9.1x3sFBfFW95BqMiK6RrZl680uJGHoh-r1pqMD13Ezys
+
+### REVIEW 상세 조회
+GET http://localhost:8080/v1/admin/reviews/8311d3cd-de38-4b3f-adfa-d22b8ed71764
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1IiwidXNlclJvbGUiOiJNQU5BR0VSIiwiaWF0IjoxNzU5NzQzMTYyLCJleHAiOjE3NTk3NDQ5NjJ9.v79ogq277NJWzJPun3XWB6rff6ZIm3AIUj-XUJQS0jM

@@ -4,12 +4,14 @@ import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.dingdong.common.dto.BaseResponseDto;
+import com.sparta.dingdong.domain.review.dto.ManagerReviewDto;
 import com.sparta.dingdong.domain.review.service.ManagerReviewService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,5 +32,13 @@ public class ManagerReviewControllerV1 {
 	public ResponseEntity<BaseResponseDto<?>> hideReview(@PathVariable UUID reviewId) {
 		managerReviewService.hideReview(reviewId);
 		return ResponseEntity.ok(BaseResponseDto.success("리뷰가 숨김처리 되었습니다."));
+	}
+
+	@Operation(summary = "매니저 리뷰 상세 조회 API", description = "매니저가 리뷰를 상세 조회할 수 있습니다.")
+	@GetMapping("/admin/reviews/{reviewId}")
+	@PreAuthorize("hasRole('ROLE_MANAGER')")
+	public ResponseEntity<BaseResponseDto<?>> getReviewDetails(@PathVariable UUID reviewId) {
+		ManagerReviewDto.Review review = managerReviewService.getReviewDetails(reviewId);
+		return ResponseEntity.ok(BaseResponseDto.success("리뷰가 숨김처리 되었습니다.", review));
 	}
 }
