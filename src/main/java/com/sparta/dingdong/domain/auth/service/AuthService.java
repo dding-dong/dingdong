@@ -1,5 +1,8 @@
 package com.sparta.dingdong.domain.auth.service;
 
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +13,7 @@ import com.sparta.dingdong.domain.auth.dto.request.LoginRequestDto;
 import com.sparta.dingdong.domain.auth.dto.response.TokenResponse;
 import com.sparta.dingdong.domain.auth.exception.AuthErrorCode;
 import com.sparta.dingdong.domain.user.entity.User;
+import com.sparta.dingdong.domain.user.entity.enums.UserRole;
 import com.sparta.dingdong.domain.user.exception.UserErrorCode;
 import com.sparta.dingdong.domain.user.repository.RedisRepository;
 import com.sparta.dingdong.domain.user.repository.UserRepository;
@@ -88,5 +92,32 @@ public class AuthService {
 		tokenService.saveRefreshToken(userAuth.getId(), newTokens.getRefreshToken());
 
 		return newTokens;
+	}
+
+	/** 현재 인증된 사용자 반환 */
+	public UserAuth getCurrentUser() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+		if (auth == null || !auth.isAuthenticated()) {
+			throw new AccessDeniedException("인증이 필요합니다.");
+		}
+
+		Object principal = auth.getPrincipal();
+		if (!(principal instanceof UserAuth userAuth)) {
+			throw new AccessDeniedException("잘못된 인증 정보입니다.");
+		}
+
+		return userAuth;
+	}
+
+	/** OWNER는 본인 가게만 접근 가능 (MANAGER, MASTER는 전체 접근 가능) */
+	public void validateStoreOwnership(UserAuth user, Long storeOwnerId) {
+		UserRole role = user.getUserRole();
+
+		if (role == UserRole.OWNER) {
+			if (!storeOwnerId.equals(user.getId())) {
+				throw new AccessDeniedException("본인 가게만 접근 가능합니다.");
+			}
+		}
 	}
 }
