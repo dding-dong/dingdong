@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.domain.user.dto.response.ManagerResponseDto;
 import com.sparta.dingdong.domain.user.service.ManagerService;
 
@@ -24,8 +25,11 @@ public class ManagerController {
 
 	/** 승인 대기중 목록 조회 */
 	@GetMapping("/pending")
-	public ResponseEntity<List<ManagerResponseDto>> getPendingManagers() {
-		return ResponseEntity.ok(managerService.getPendingManagers());
+	public ResponseEntity<BaseResponseDto<List<ManagerResponseDto>>> getPendingManagers() {
+		List<ManagerResponseDto> pendingManagers = managerService.getPendingManagers();
+		return ResponseEntity.ok(
+			BaseResponseDto.success("승인 대기중 매니저 목록 조회 성공", pendingManagers)
+		);
 	}
 
 	/** 매니저 승인 */
