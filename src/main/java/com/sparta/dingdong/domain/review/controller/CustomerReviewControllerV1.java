@@ -1,11 +1,13 @@
 package com.sparta.dingdong.domain.review.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -63,5 +65,25 @@ public class CustomerReviewControllerV1 {
 		customerReviewService.deleteReview(reviewId, userDetails);
 
 		return ResponseEntity.ok(BaseResponseDto.success("리뷰가 삭제되었습니다."));
+	}
+
+	@Operation(summary = "리뷰 상세 조회 API", description = "고객이 리뷰를 상세 조회합니다.")
+	@PreAuthorize("hasRole('ROLE_CUSTOMER')")
+	@GetMapping("/customers/reviews/{reviewId}")
+	public ResponseEntity<BaseResponseDto<?>> selectReviewDetail(@PathVariable UUID reviewId,
+		@AuthenticationPrincipal UserAuth userDetails) {
+
+		CustomerReviewDto.ReviewDetails details = customerReviewService.selectReviewDetails(reviewId, userDetails);
+		return ResponseEntity.ok(BaseResponseDto.success("리뷰를 상세 조회합니다.", details));
+	}
+
+	@Operation(summary = "리뷰 전체 조회 API", description = "고객이 주문에 대한 전체 리뷰를 조회합니다.")
+	@PreAuthorize("hasRole('ROLE_CUSTOMER')")
+	@GetMapping("/customers/reviews")
+	public ResponseEntity<BaseResponseDto<?>> selectReviews(@AuthenticationPrincipal UserAuth userDetails) {
+
+		List<CustomerReviewDto.Review> reviews = customerReviewService.selectActiveReviews(userDetails);
+
+		return ResponseEntity.ok(BaseResponseDto.success("리뷰 전체 조회입니다.", reviews));
 	}
 }

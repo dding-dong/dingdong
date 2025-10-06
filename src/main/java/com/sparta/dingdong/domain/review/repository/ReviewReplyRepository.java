@@ -13,4 +13,6 @@ import com.sparta.dingdong.domain.review.entity.ReviewReply;
 public interface ReviewReplyRepository extends JpaRepository<ReviewReply, UUID> {
 
 	Optional<ReviewReply> findByReview(Review review);
+
+	Optional<ReviewReply> findByReviewAndDeletedAtIsNullAndDeletedByIsNull(Review review);
 }

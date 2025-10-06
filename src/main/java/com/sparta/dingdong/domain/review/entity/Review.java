@@ -8,6 +8,7 @@ import com.sparta.dingdong.domain.review.dto.CustomerReviewDto;
 import com.sparta.dingdong.domain.store.entity.Store;
 import com.sparta.dingdong.domain.user.entity.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -57,6 +58,9 @@ public class Review extends BaseEntity {
 	private String imageUrl3;
 
 	private boolean isDisplayed;
+
+	@OneToOne(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+	private ReviewReply reviewReply;
 
 	public static Review create(User user, Order order, CustomerReviewDto.CreateReview request) {
 		return Review.builder()

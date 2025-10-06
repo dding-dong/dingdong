@@ -1,5 +1,4 @@
-# 리뷰
-
+## CUSTOMER
 ### CUSTOMER REVIEW 등록
 POST http://localhost:8080/v1/orders/79bcbda8-4b09-424a-96a2-66846bb0a3e2/reviews
 Content-Type: application/json
@@ -29,15 +28,25 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwidXNlclJvbGUiOiJDVVNUT
 }
 
 ### CUSTOMER REVIEW 삭제
-DELETE http://localhost:8080/v1/reviews/31146295-ab5c-4e48-9a53-0647562491c7
+DELETE http://localhost:8080/v1/reviews/9e06b7d9-de7b-41ac-8562-5dca07b8919f
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTY2MTQyMiwiZXhwIjoxNzU5NjYzMjIyfQ.J9R8y8tRB-e910s3uEZeTwf6vF8vd2FsHjq7QVaAV3Y
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTcxNjI0MiwiZXhwIjoxNzU5NzE4MDQyfQ.qRHroql5gPmofZBCLRuKJEIVkJdbssocDfUeXMwfWj4
 
 
+###CUSTOMER REVIEW 상세 조회
+GET http://localhost:8080/v1/customers/reviews/9e06b7d9-de7b-41ac-8562-5dca07b8919f
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTcxNjI0MiwiZXhwIjoxNzU5NzE4MDQyfQ.qRHroql5gPmofZBCLRuKJEIVkJdbssocDfUeXMwfWj4
+
+
+### CUSTOMER REVIEW 전체 조회
+GET http://localhost:8080/v1/customers/reviews
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTcxNDI3NSwiZXhwIjoxNzU5NzE2MDc1fQ.kKSDQFrUMhcPIBresYxCmZga6Lpo01T9LumHRQ_FXSo
+
+##OWNER
 ### OWNER REVIEW REPLY 등록
 POST http://localhost:8080/v1/reviews/9e06b7d9-de7b-41ac-8562-5dca07b8919f/reply
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FUiIsImlhdCI6MTc1OTY3MjAwNywiZXhwIjoxNzU5NjczODA3fQ.V3zE6hZsFUt8rijrUe-xjDG7IN2rc4Qwjp2m4vD2D7w
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FUiIsImlhdCI6MTc1OTcxNTEzNSwiZXhwIjoxNzU5NzE2OTM1fQ.Twk2QCU4tsYXJSpLsbHOV4cjZ9K0ZNLG3RGMt_vpZFU
 
 {
   "content": "맛있다고 해주시니 감사합니다!새로",
@@ -54,6 +63,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FU
 }
 
 ### OWNER REVIEW REPLY 삭제
-DELETE http://localhost:8080/v1/reviews/9e06b7d9-de7b-41ac-8562-5dca07b8919f/reply/ed388426-0e5b-4872-886e-94cb10bc73a4
+DELETE http://localhost:8080/v1/reviews/f9aa6333-eeb3-4b9c-af7c-80a7e9e68133/reply/ed388426-0e5b-4872-886e-94cb10bc73a4
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FUiIsImlhdCI6MTc1OTY2ODY2NywiZXhwIjoxNzU5NjcwNDY3fQ.eTWF68aSe-w45I7AvOIraBw1g4l75KmljLycrSMJ10A
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FUiIsImlhdCI6MTc1OTcxNTEzNSwiZXhwIjoxNzU5NzE2OTM1fQ.Twk2QCU4tsYXJSpLsbHOV4cjZ9K0ZNLG3RGMt_vpZFU
