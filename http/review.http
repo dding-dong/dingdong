@@ -1,17 +1,25 @@
+@reviewId = variable value
+@orderId = variable value
+@replyId = variable value
+@stroeId = variable value
+@customerAuthorization = variable value
+@ownerAuthorization = variable value
+@managerAuthorization = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1IiwidXNlclJvbGUiOiJNQU5BR0VSIiwiaWF0IjoxNzU5NzQ2MTIwLCJleHAiOjE3NTk3NDc5MjB9.62jCDUGSuz9K7TQOeN_FsWqYqa-SvEd0RiSrP5vdO7o
+
 ## COMMON
 ### COMMON REVIEW 상세 조회
-GET http://localhost:8080/v1/reviews/8311d3cd-de38-4b3f-adfa-d22b8ed71764
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTcxOTQ5MiwiZXhwIjoxNzU5NzIxMjkyfQ.WDbprgbBIWrC5K_8N5LMDi2FbBKIxpCJvXfIFA6dmqc
+GET http://localhost:8080/v1/reviews/{{reviewId}}
+Authorization: Bearer {{customerAuthorization}}
 
 ### COMMON REVIEW 전체 조회
 GET http://localhost:8080/v1/reviews
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTcyNTI2MywiZXhwIjoxNzU5NzI3MDYzfQ.C1e2rSTnjBIUOrTW2g8pAVZ79iO3SA1H__d6OFwemB4
+Authorization: Bearer {{customerAuthorization}}
 
 ## CUSTOMER
 ### CUSTOMER REVIEW 등록
-POST http://localhost:8080/v1/orders/f9aa6333-eeb3-4b9c-af7c-80a7e9e68133/reviews
+POST http://localhost:8080/v1/orders/{{orderId}}/reviews
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTczNDk1NywiZXhwIjoxNzU5NzM2NzU3fQ.L74DuVGLEk6hKp7j0q8RIckiZ-qPXSgaQEiCbC3tcMA
+Authorization: Bearer {{customerAuthorization}}
 
 {
   "rating": 5,
@@ -23,9 +31,9 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT
 }
 
 ### CUSTOMER REVIEW 수정
-PUT http://localhost:8080/v1/reviews/31146295-ab5c-4e48-9a53-0647562491c7
+PUT http://localhost:8080/v1/reviews/{{reviewId}}
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTY1ODkyNSwiZXhwIjoxNzU5NjYwNzI1fQ.lqa01xkbaTXnPfEcOJp-b1F3jgGHhE0zRrwjrkWvQ8g
+Authorization: Bearer {{customerAuthorization}}
 
 {
   "rating": 5,
@@ -37,25 +45,22 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwidXNlclJvbGUiOiJDVVNUT
 }
 
 ### CUSTOMER REVIEW 삭제
-DELETE http://localhost:8080/v1/reviews/9e06b7d9-de7b-41ac-8562-5dca07b8919f
+DELETE http://localhost:8080/v1/reviews/{{reviewId}}
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTcxNjI0MiwiZXhwIjoxNzU5NzE4MDQyfQ.qRHroql5gPmofZBCLRuKJEIVkJdbssocDfUeXMwfWj4
-
+Authorization: Bearer {{customerAuthorization}}
 
 ###CUSTOMER REVIEW 상세 조회
-GET http://localhost:8080/v1/customers/reviews/9e06b7d9-de7b-41ac-8562-5dca07b8919f
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTcxNjI0MiwiZXhwIjoxNzU5NzE4MDQyfQ.qRHroql5gPmofZBCLRuKJEIVkJdbssocDfUeXMwfWj4
-
+GET http://localhost:8080/v1/customers/reviews/{{reviewId}}
+Authorization: Bearer {{customerAuthorization}}
 
 ### CUSTOMER REVIEW 전체 조회
 GET http://localhost:8080/v1/customers/reviews
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTcxNDI3NSwiZXhwIjoxNzU5NzE2MDc1fQ.kKSDQFrUMhcPIBresYxCmZga6Lpo01T9LumHRQ_FXSo
-
+Authorization: Bearer {{customerAuthorization}}
 ##OWNER
 ### OWNER REVIEW REPLY 등록
-POST http://localhost:8080/v1/reviews/9e06b7d9-de7b-41ac-8562-5dca07b8919f/reply
+POST http://localhost:8080/v1/reviews/{{reviewId}}/reply
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FUiIsImlhdCI6MTc1OTczNTI3MCwiZXhwIjoxNzU5NzM3MDcwfQ.eB2vcXMv3o02a0c9R3fVeT5gbKC35b_JT0y7TPsnrtw
+Authorization: Bearer {{ownerAuthorization}}
 
 {
   "content": "맛있다고 해주시니 감사합니다!새로",
@@ -63,41 +68,41 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FU
 }
 
 ### OWNER REVIEW REPLY 수정
-PUT http://localhost:8080/v1/reviews/9e06b7d9-de7b-41ac-8562-5dca07b8919f/reply/ed388426-0e5b-4872-886e-94cb10bc73a4
+PUT http://localhost:8080/v1/reviews/{{reviewId}}/reply/{{replyId}}
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FUiIsImlhdCI6MTc1OTY2NzU2OCwiZXhwIjoxNzU5NjY5MzY4fQ.9d_Qv1grhFWIQIjYNIOgjRSaJiQ3A9yTlLCGSvufMlU
+Authorization: Bearer {{ownerAuthorization}}
 
 {
   "content": "맛있다고 해주시니 감사합니다!3333"
 }
 
 ### OWNER REVIEW REPLY 삭제
-DELETE http://localhost:8080/v1/reviews/f9aa6333-eeb3-4b9c-af7c-80a7e9e68133/reply/ed388426-0e5b-4872-886e-94cb10bc73a4
+DELETE http://localhost:8080/v1/reviews/{{reviewId}}reply/{{replyId}}
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FUiIsImlhdCI6MTc1OTcxNTEzNSwiZXhwIjoxNzU5NzE2OTM1fQ.Twk2QCU4tsYXJSpLsbHOV4cjZ9K0ZNLG3RGMt_vpZFU
+Authorization: Bearer {{ownerAuthorization}}
 
 ### OWNER REVIEW 상세 조회
-GET http://localhost:8080/v1/owners/reviews/8311d3cd-de38-4b3f-adfa-d22b8ed71764
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI0IiwidXNlclJvbGUiOiJPV05FUiIsImlhdCI6MTc1OTczMTk0NywiZXhwIjoxNzU5NzMzNzQ3fQ.1qhPFDwIXWr6J4aUqbt2yN3Wvs8KREGmukngk3EJqcs
+GET http://localhost:8080/v1/owners/reviews/{{reviewId}}
+Authorization: Bearer{{ownerAuthorization}}
 
 ### OWNER REVIEW 전체 조회
 GET http://localhost:8080/v1/owners/reviews
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FUiIsImlhdCI6MTc1OTczNDU3MiwiZXhwIjoxNzU5NzM2MzcyfQ.ZVJHl4_huQ4_LqqVPaCYwfdumG6xRVdI1dTZeVrqbmk
+Authorization: Bearer {{ownerAuthorization}}
 
 ### OWNER REVIEW 가게 조회
-GET http://localhost:8080/v1/owners/stores/ee334491-78ef-4aaa-886d-fd0ce593d909/reviews
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FUiIsImlhdCI6MTc1OTczNzA2NCwiZXhwIjoxNzU5NzM4ODY0fQ.hPJO4vMt2N54wYKurhd-31AsjlofNaDjzrOL9UqHkzk
+GET http://localhost:8080/v1/owners/stores/{{storeId}}/reviews
+Authorization: Bearer {{ownerAuthorization}}
+
 
 ## MASTER
-
 ### REVIEW 숨김 처리
-PATCH http://localhost:8080/v1/admin/reviews/8311d3cd-de38-4b3f-adfa-d22b8ed71764
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1IiwidXNlclJvbGUiOiJNQU5BR0VSIiwiaWF0IjoxNzU5NzQyMjk0LCJleHAiOjE3NTk3NDQwOTR9.1x3sFBfFW95BqMiK6RrZl680uJGHoh-r1pqMD13Ezys
+PATCH http://localhost:8080/v1/admin/reviews/{{reviewId}}
+Authorization: Bearer {{managerAuthorization}}
 
 ### REVIEW 상세 조회
-GET http://localhost:8080/v1/admin/reviews/8311d3cd-de38-4b3f-adfa-d22b8ed71764
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1IiwidXNlclJvbGUiOiJNQU5BR0VSIiwiaWF0IjoxNzU5NzQzMTYyLCJleHAiOjE3NTk3NDQ5NjJ9.v79ogq277NJWzJPun3XWB6rff6ZIm3AIUj-XUJQS0jM
+GET http://localhost:8080/v1/admin/reviews/{{reviewId}}
+Authorization: Bearer {{managerAuthorization}}
 
 ### REVIEW 상세 조회
 GET http://localhost:8080/v1/admin/reviews
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1IiwidXNlclJvbGUiOiJNQU5BR0VSIiwiaWF0IjoxNzU5NzQzMTYyLCJleHAiOjE3NTk3NDQ5NjJ9.v79ogq277NJWzJPun3XWB6rff6ZIm3AIUj-XUJQS0jM
+Authorization: Bearer {{managerAuthorization}}
