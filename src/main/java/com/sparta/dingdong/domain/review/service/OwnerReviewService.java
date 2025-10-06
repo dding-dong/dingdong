@@ -17,4 +17,6 @@ public interface OwnerReviewService {
 	OwnerReviewDto.ReviewDetails getReviewDetails(UUID reviewId, UserAuth userDetails);
 
 	List<OwnerReviewDto.StoreReviews> getOwnerReviews(UserAuth userDetails);
+
+	OwnerReviewDto.StoreReviews getOwnerStoreReviews(UserAuth userDetails, UUID storeId);
 }

@@ -1,6 +1,7 @@
 package com.sparta.dingdong.domain.review.repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Repository;
 
@@ -173,4 +174,43 @@ public class ReviewQueryRepository {
 			)
 			.fetch();
 	}
+
+	public List<OwnerReviewWithReplyVo> findAllActiveReviewsWithReplyByStore(UUID storeId, Long ownerId) {
+		QStore store = QStore.store;
+		QReview review = QReview.review;
+		QReviewReply reply = QReviewReply.reviewReply;
+
+		return queryFactory
+			.select(Projections.constructor(
+				OwnerReviewWithReplyVo.class,
+				store.id,
+				store.name,
+				review.id,
+				review.user.id,
+				review.rating,
+				review.content,
+				review.imageUrl1,
+				review.imageUrl2,
+				review.imageUrl3,
+				review.isDisplayed,
+				reply.id,
+				reply.owner.id,
+				reply.content,
+				reply.isDisplayed
+			))
+			.from(store)
+			.join(store.reviews, review)
+			.leftJoin(review.reviewReply, reply)
+			.on(reply.deletedAt.isNull()
+				.and(reply.deletedBy.isNull()))
+			.where(
+				store.id.eq(storeId)
+					.and(store.owner.id.eq(ownerId))
+					.and(review.deletedAt.isNull())
+					.and(review.deletedBy.isNull())
+					.and(review.isDisplayed.isTrue())
+			)
+			.fetch();
+	}
+
 }

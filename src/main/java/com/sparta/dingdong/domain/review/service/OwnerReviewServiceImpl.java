@@ -196,4 +196,44 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 
 		return new ArrayList<>(grouped.values());
 	}
+
+	// TODO: 해당 코드 고쳐야 합니다. Store 합치면 Store에서 findByStore 한다음에 정보 넣어줄 예정입니다. 일단 만들어둠..
+	@Override
+	public OwnerReviewDto.StoreReviews getOwnerStoreReviews(UserAuth userDetails, UUID storeId) {
+		Long ownerId = userService.findByUser(userDetails).getId();
+
+		// TODO: store에서 정보 가져와야함
+
+		List<OwnerReviewWithReplyVo> voList = reviewQueryRepository.findAllActiveReviewsWithReplyByStore(storeId,
+			ownerId);
+
+		List<OwnerReviewDto.Review> reviewDtos = voList.stream()
+			.map(vo -> OwnerReviewDto.Review.builder()
+				.reviewId(vo.getReviewId())
+				.userId(vo.getUserId())
+				.rating(vo.getRating())
+				.content(vo.getContent())
+				.imageUrl1(vo.getImageUrl1())
+				.imageUrl2(vo.getImageUrl2())
+				.imageUrl3(vo.getImageUrl3())
+				.isDisplayed(vo.getIsReviewDisplayed())
+				.reply(vo.getReplyId() != null ? OwnerReviewDto.ReviewReply.builder()
+					.replyId(vo.getReplyId())
+					.ownerId(vo.getOwnerId())
+					.content(vo.getReplyContent())
+					.isDisplayed(vo.getIsReviewReplyDisplayed())
+					.build()
+					: null)
+				.build())
+			.toList();
+
+		// 일단 voList 에서 storeId, storeName은 동일하므로 첫 번째 값 꺼내서 DTO 구성
+		OwnerReviewWithReplyVo firstVo = voList.get(0);
+
+		return OwnerReviewDto.StoreReviews.builder()
+			.storeId(firstVo.getStoreId())
+			.storeName(firstVo.getStoreName())
+			.reviews(reviewDtos)
+			.build();
+	}
 }

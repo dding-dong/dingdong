@@ -80,4 +80,12 @@ public class OwnerReviewControllerV1 {
 		List<OwnerReviewDto.StoreReviews> reviews = ownerReviewService.getOwnerReviews(userDetails);
 		return ResponseEntity.ok(BaseResponseDto.success("오너 리뷰 전체 조회입니다.", reviews));
 	}
+
+	@Operation(summary = "가게 리뷰 조회 API", description = "가게 주인이 가게의 리뷰를 조회합니다.")
+	@GetMapping("/owners/stores/{storeId}/reviews")
+	public ResponseEntity<BaseResponseDto<?>> getOwnerStoreReviews(@PathVariable UUID storeId,
+		@AuthenticationPrincipal UserAuth userDetails) {
+		OwnerReviewDto.StoreReviews reviews = ownerReviewService.getOwnerStoreReviews(userDetails, storeId);
+		return ResponseEntity.ok(BaseResponseDto.success("오너 가게 리뷰 조회입니다.", reviews));
+	}
 }
