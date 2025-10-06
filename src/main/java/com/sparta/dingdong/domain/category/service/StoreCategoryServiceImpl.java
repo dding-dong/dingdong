@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.auth.service.AuthService;
 import com.sparta.dingdong.domain.category.dto.StoreCategoryDto;
@@ -25,34 +26,35 @@ public class StoreCategoryServiceImpl implements StoreCategoryService {
 	private final StoreCategoryRepository storeCategoryRepository;
 	private final AuthService authService;
 
-	@Override
 	@Transactional(readOnly = true)
-	public List<StoreCategoryDto.Response> getAll() {
-		return storeCategoryRepository.findAllByDeletedAtIsNull().stream()
+	@Override
+	public BaseResponseDto<List<StoreCategoryDto.Response>> getAll() {
+		List<StoreCategoryDto.Response> storeCategories = storeCategoryRepository.findAllByDeletedAtIsNull().stream()
 			.map(this::map)
 			.collect(Collectors.toList());
+		return BaseResponseDto.success("가게 카테고리 목록 조회 성공", storeCategories);
 	}
 
 	@Override
-	public StoreCategoryDto.Response getById(UUID id) {
+	public BaseResponseDto<StoreCategoryDto.Response> getById(UUID id) {
 		StoreCategory sc = storeCategoryRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new IllegalArgumentException("삭제되었거나 존재하지 않는 카테고리입니다: " + id));
-		return map(sc);
+		return BaseResponseDto.success("가게 카테고리 조회 성공", map(sc));
 	}
 
 	@Override
-	public StoreCategoryDto.Response create(StoreCategoryDto.Request req) {
-		StoreCategory entity = StoreCategory.builder()
+	public BaseResponseDto<StoreCategoryDto.Response> create(StoreCategoryDto.Request req) {
+		StoreCategory sc = StoreCategory.builder()
 			.name(req.getName())
 			.description(req.getDescription())
 			.imageUrl(req.getImageUrl())
 			.build();
-		StoreCategory saved = storeCategoryRepository.save(entity);
-		return map(saved);
+		StoreCategory saved = storeCategoryRepository.save(sc);
+		return BaseResponseDto.success("가게 카테고리 생성 성공", map(saved));
 	}
 
 	@Override
-	public StoreCategoryDto.Response update(UUID id, StoreCategoryDto.Request req) {
+	public BaseResponseDto<StoreCategoryDto.Response> update(UUID id, StoreCategoryDto.Request req) {
 		StoreCategory sc = storeCategoryRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException("가게 카테고리를 찾을 수 없습니다: " + id));
 
@@ -60,29 +62,30 @@ public class StoreCategoryServiceImpl implements StoreCategoryService {
 		sc.setDescription(req.getDescription());
 		sc.setImageUrl(req.getImageUrl());
 
-		return map(sc);
+		return BaseResponseDto.success("가게 카테고리 수정 성공", map(sc));
 	}
 
 	@Override
-	public void delete(UUID id) {
+	public BaseResponseDto<Void> delete(UUID id) {
 		StoreCategory sc = storeCategoryRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException("가게 카테고리를 찾을 수 없습니다: " + id));
 		UserAuth user = authService.getCurrentUser();
 		sc.softDelete(user.getId());
 		storeCategoryRepository.save(sc);
+		return BaseResponseDto.success("가게 카테고리 삭제 성공");
 	}
 
 	@Override
-	public StoreCategoryDto.Response restore(UUID id) {
-		// 소프트 삭제된 카테고리만 조회
+	public BaseResponseDto<StoreCategoryDto.Response> restore(UUID id) {
 		StoreCategory sc = storeCategoryRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException("가게 카테고리를 찾을 수 없습니다: " + id));
+
 		if (!sc.isDeleted()) {
 			throw new IllegalStateException("이미 활성화된 카테고리입니다.");
 		}
 		UserAuth user = authService.getCurrentUser();
 		sc.restore(user.getId());
-		return map(sc);
+		return BaseResponseDto.success("가게 카테고리 복구 성공", map(sc));
 	}
 
 	/* ==================== 유틸 메서드 ==================== */

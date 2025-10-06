@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.auth.service.AuthService;
 import com.sparta.dingdong.domain.category.dto.MenuCategoryDto;
@@ -25,22 +26,27 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Transactional
 public class MenuCategoryItemServiceImpl implements MenuCategoryItemService {
+
 	private final MenuCategoryRepository menuCategoryRepository;
 	private final MenuCategoryItemRepository menuCategoryItemRepository;
 	private final MenuItemRepository menuItemRepository;
 	private final AuthService authService;
 
-	@Override
 	@Transactional(readOnly = true)
-	public List<MenuCategoryDto.ItemResponse> getItemsByCategory(UUID categoryId) {
-		return menuCategoryItemRepository.findByMenuCategoryIdOrderByOrderNoAsc(categoryId)
+	@Override
+	public BaseResponseDto<List<MenuCategoryDto.ItemResponse>> getItemsByCategory(UUID categoryId) {
+		List<MenuCategoryDto.ItemResponse> items = menuCategoryItemRepository
+			.findByMenuCategoryIdOrderByOrderNoAsc(categoryId)
 			.stream()
 			.map(this::map)
 			.collect(Collectors.toList());
+
+		return BaseResponseDto.success("카테고리별 메뉴 목록 조회 성공", items);
 	}
 
 	@Override
-	public MenuCategoryDto.ItemResponse addMenuToCategory(UUID categoryId, MenuCategoryDto.ItemRequest req) {
+	public BaseResponseDto<MenuCategoryDto.ItemResponse> addMenuToCategory(UUID categoryId,
+		MenuCategoryDto.ItemRequest req) {
 		// MenuCategory + Store fetch join
 		MenuCategory mc = menuCategoryRepository.findByIdWithStore(categoryId)
 			.orElseThrow(() -> new IllegalArgumentException("메뉴 카테고리를 찾을 수 없습니다: " + categoryId));
@@ -64,11 +70,11 @@ public class MenuCategoryItemServiceImpl implements MenuCategoryItemService {
 			.build();
 
 		MenuCategoryItem saved = menuCategoryItemRepository.save(mci);
-		return map(saved);
+		return BaseResponseDto.success("메뉴 카테고리에 메뉴 추가 성공", map(saved));
 	}
 
 	@Override
-	public void removeMenuFromCategory(UUID menuCategoryItemId) {
+	public BaseResponseDto<Void> removeMenuFromCategory(UUID menuCategoryItemId) {
 		// MenuCategoryItem -> MenuCategory -> Store fetch join
 		MenuCategoryItem mci = menuCategoryItemRepository.findByIdWithMenuCategoryAndStore(menuCategoryItemId)
 			.orElseThrow(() -> new IllegalArgumentException("해당 카테고리의 메뉴아이템이 존재하지 않습니다: " + menuCategoryItemId));
@@ -77,6 +83,7 @@ public class MenuCategoryItemServiceImpl implements MenuCategoryItemService {
 		authService.validateStoreOwnership(user, mci.getMenuCategory().getStore().getOwner().getId());
 
 		menuCategoryItemRepository.delete(mci);
+		return BaseResponseDto.success("메뉴 카테고리에서 메뉴 제거 성공");
 	}
 
 	/* ==================== 유틸 메서드 ==================== */

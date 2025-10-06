@@ -16,8 +16,7 @@ import com.sparta.dingdong.domain.store.entity.Store;
 public interface MenuCategoryRepository extends JpaRepository<MenuCategory, UUID> {
 
 	// 삭제되지 않은 카테고리 조회
-	@Query("select mc from MenuCategory mc where mc.store.id = :storeId and mc.deletedAt is null order by mc.sortMenuCategory asc")
-	List<MenuCategory> findActiveByStoreIdOrderBySortMenuCategoryAsc(@Param("storeId") UUID storeId);
+	List<MenuCategory> findByStoreIdAndDeletedAtIsNullOrderBySortMenuCategoryAsc(UUID storeId);
 
 	// 특정 ID로 fetch join (store 포함)
 	@Query("select mc from MenuCategory mc join fetch mc.store where mc.id = :id")
