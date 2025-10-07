@@ -18,7 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
-import com.sparta.dingdong.domain.review.dto.OwnerReviewDto;
+import com.sparta.dingdong.domain.review.dto.request.OwnerCreateReplyRequestDto;
+import com.sparta.dingdong.domain.review.dto.request.OwnerUpdateReplyRequestDto;
+import com.sparta.dingdong.domain.review.dto.response.OwnerReviewDetailsResponseDto;
+import com.sparta.dingdong.domain.review.dto.response.OwnerStoreReviewsDto;
 import com.sparta.dingdong.domain.review.service.OwnerReviewService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,7 +43,7 @@ public class OwnerReviewControllerV1 {
 	public ResponseEntity<BaseResponseDto<?>> createReply(
 		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId,
 		@AuthenticationPrincipal UserAuth userDetails,
-		@Validated @RequestBody OwnerReviewDto.CreateReply request) {
+		@Validated @RequestBody OwnerCreateReplyRequestDto request) {
 
 		ownerReviewService.createReply(reviewId, userDetails, request);
 		return ResponseEntity.ok(BaseResponseDto.success("오너 리뷰에 댓글이 등록되었습니다."));
@@ -53,7 +56,7 @@ public class OwnerReviewControllerV1 {
 		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId,
 		@Parameter(description = "리뷰 답글 UUID") @PathVariable UUID replyId,
 		@AuthenticationPrincipal UserAuth userDetails,
-		@Validated @RequestBody OwnerReviewDto.UpdateReply request) {
+		@Validated @RequestBody OwnerUpdateReplyRequestDto request) {
 
 		ownerReviewService.updateReply(reviewId, replyId, userDetails, request);
 		return ResponseEntity.ok(BaseResponseDto.success("오너 리뷰에 댓글이 수정되었습니다."));
@@ -76,14 +79,14 @@ public class OwnerReviewControllerV1 {
 	public ResponseEntity<BaseResponseDto<?>> getOwnerReviewDetails(
 		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId,
 		@AuthenticationPrincipal UserAuth userDetails) {
-		OwnerReviewDto.ReviewDetails details = ownerReviewService.getReviewDetails(reviewId, userDetails);
+		OwnerReviewDetailsResponseDto details = ownerReviewService.getReviewDetails(reviewId, userDetails);
 		return ResponseEntity.ok(BaseResponseDto.success("오너 리뷰 상세 조회입니다.", details));
 	}
 
 	@Operation(summary = "가게 주인 리뷰 전체 조회 API", description = "가게 주인이 리뷰를 전체 조회합니다.")
 	@GetMapping("/owners/reviews")
 	public ResponseEntity<BaseResponseDto<?>> getOwnerReviews(@AuthenticationPrincipal UserAuth userDetails) {
-		List<OwnerReviewDto.StoreReviews> reviews = ownerReviewService.getOwnerReviews(userDetails);
+		List<OwnerStoreReviewsDto> reviews = ownerReviewService.getOwnerReviews(userDetails);
 		return ResponseEntity.ok(BaseResponseDto.success("오너 리뷰 전체 조회입니다.", reviews));
 	}
 
@@ -92,7 +95,7 @@ public class OwnerReviewControllerV1 {
 	public ResponseEntity<BaseResponseDto<?>> getOwnerStoreReviews(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@AuthenticationPrincipal UserAuth userDetails) {
-		OwnerReviewDto.StoreReviews reviews = ownerReviewService.getOwnerStoreReviews(userDetails, storeId);
+		OwnerStoreReviewsDto reviews = ownerReviewService.getOwnerStoreReviews(userDetails, storeId);
 		return ResponseEntity.ok(BaseResponseDto.success("오너 가게 리뷰 조회입니다.", reviews));
 	}
 }

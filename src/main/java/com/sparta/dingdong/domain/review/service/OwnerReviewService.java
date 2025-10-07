@@ -4,19 +4,22 @@ import java.util.List;
 import java.util.UUID;
 
 import com.sparta.dingdong.common.jwt.UserAuth;
-import com.sparta.dingdong.domain.review.dto.OwnerReviewDto;
+import com.sparta.dingdong.domain.review.dto.request.OwnerCreateReplyRequestDto;
+import com.sparta.dingdong.domain.review.dto.request.OwnerUpdateReplyRequestDto;
+import com.sparta.dingdong.domain.review.dto.response.OwnerReviewDetailsResponseDto;
+import com.sparta.dingdong.domain.review.dto.response.OwnerStoreReviewsDto;
 
 public interface OwnerReviewService {
 
-	void createReply(UUID reviewId, UserAuth userDetails, OwnerReviewDto.CreateReply request);
+	void createReply(UUID reviewId, UserAuth userDetails, OwnerCreateReplyRequestDto request);
 
-	void updateReply(UUID reviewId, UUID replyId, UserAuth userDetails, OwnerReviewDto.UpdateReply request);
+	void updateReply(UUID reviewId, UUID replyId, UserAuth userDetails, OwnerUpdateReplyRequestDto request);
 
 	void deleteReply(UUID reviewId, UUID replyId, UserAuth userDetails);
 
-	OwnerReviewDto.ReviewDetails getReviewDetails(UUID reviewId, UserAuth userDetails);
+	OwnerReviewDetailsResponseDto getReviewDetails(UUID reviewId, UserAuth userDetails);
 
-	List<OwnerReviewDto.StoreReviews> getOwnerReviews(UserAuth userDetails);
+	List<OwnerStoreReviewsDto> getOwnerReviews(UserAuth userDetails);
 
-	OwnerReviewDto.StoreReviews getOwnerStoreReviews(UserAuth userDetails, UUID storeId);
+	OwnerStoreReviewsDto getOwnerStoreReviews(UserAuth userDetails, UUID storeId);
 }

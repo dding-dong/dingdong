@@ -10,7 +10,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.dingdong.common.jwt.UserAuth;
-import com.sparta.dingdong.domain.review.dto.OwnerReviewDto;
+import com.sparta.dingdong.domain.review.dto.request.OwnerCreateReplyRequestDto;
+import com.sparta.dingdong.domain.review.dto.request.OwnerUpdateReplyRequestDto;
+import com.sparta.dingdong.domain.review.dto.response.OwnerReviewDetailsResponseDto;
+import com.sparta.dingdong.domain.review.dto.response.OwnerReviewReplyDetailsResponseDto;
+import com.sparta.dingdong.domain.review.dto.response.OwnerReviewReplyResponseDto;
+import com.sparta.dingdong.domain.review.dto.response.OwnerReviewResponseDto;
+import com.sparta.dingdong.domain.review.dto.response.OwnerStoreReviewsDto;
 import com.sparta.dingdong.domain.review.entity.Review;
 import com.sparta.dingdong.domain.review.entity.ReviewReply;
 import com.sparta.dingdong.domain.review.exception.NotReviewReplyOwnerException;
@@ -55,7 +61,7 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 	 * - 삭제되지 않은 답글이 있으면 예외 발생
 	 * - 삭제된 답글이면 재활성화 후 true 반환
 	 */
-	private boolean handleExistingReply(Review review, User user, OwnerReviewDto.CreateReply request) {
+	private boolean handleExistingReply(Review review, User user, OwnerCreateReplyRequestDto request) {
 		ReviewReply existingReply = review.getReviewReply();
 
 		if (existingReply == null) {
@@ -73,7 +79,7 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 
 	@Override
 	@Transactional
-	public void createReply(UUID reviewId, UserAuth userDetails, OwnerReviewDto.CreateReply request) {
+	public void createReply(UUID reviewId, UserAuth userDetails, OwnerCreateReplyRequestDto request) {
 		Review review = findReview(reviewId);
 
 		User user = userService.findByUser(userDetails);
@@ -92,7 +98,7 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 
 	@Override
 	@Transactional
-	public void updateReply(UUID reviewId, UUID replyId, UserAuth userDetails, OwnerReviewDto.UpdateReply request) {
+	public void updateReply(UUID reviewId, UUID replyId, UserAuth userDetails, OwnerUpdateReplyRequestDto request) {
 
 		ReviewReply reply = findReviewReply(replyId);
 
@@ -126,7 +132,7 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public OwnerReviewDto.ReviewDetails getReviewDetails(UUID reviewId, UserAuth userDetails) {
+	public OwnerReviewDetailsResponseDto getReviewDetails(UUID reviewId, UserAuth userDetails) {
 		Review review = findReview(reviewId);
 
 		User user = userService.findByUser(userDetails);
@@ -142,9 +148,9 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 
 		ReviewReply reviewReply = findActiveReviewReply(review);
 
-		OwnerReviewDto.ReviewReplyDetails replyDetails = null;
+		OwnerReviewReplyDetailsResponseDto replyDetails = null;
 		if (reviewReply != null) {
-			replyDetails = OwnerReviewDto.ReviewReplyDetails.builder()
+			replyDetails = OwnerReviewReplyDetailsResponseDto.builder()
 				.replyId(reviewReply.getId())
 				.ownerId(reviewReply.getOwner().getId())
 				.content(reviewReply.getContent())
@@ -152,7 +158,7 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 				.build();
 		}
 
-		OwnerReviewDto.ReviewDetails reviewDetails = OwnerReviewDto.ReviewDetails.builder()
+		OwnerReviewDetailsResponseDto reviewDetails = OwnerReviewDetailsResponseDto.builder()
 			.reviewId(review.getId())
 			.userId(review.getUser().getId())
 			.orderId(review.getOrder().getId())
@@ -171,27 +177,27 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<OwnerReviewDto.StoreReviews> getOwnerReviews(UserAuth userDetails) {
+	public List<OwnerStoreReviewsDto> getOwnerReviews(UserAuth userDetails) {
 		Long ownerId = userService.findByUser(userDetails).getId();
 
 		List<OwnerReviewWithReplyVo> voList = reviewQueryRepository.findAllActiveReviewsWithReplyByOwner(ownerId);
 
 		// StoreId 기준으로 그룹핑
-		Map<UUID, OwnerReviewDto.StoreReviews> grouped = new LinkedHashMap<>();
+		Map<UUID, OwnerStoreReviewsDto> grouped = new LinkedHashMap<>();
 
 		for (OwnerReviewWithReplyVo vo : voList) {
-			OwnerReviewDto.StoreReviews storeDto = grouped.computeIfAbsent(
+			OwnerStoreReviewsDto storeDto = grouped.computeIfAbsent(
 				vo.getStoreId(),
-				id -> OwnerReviewDto.StoreReviews.builder()
+				id -> OwnerStoreReviewsDto.builder()
 					.storeId(vo.getStoreId())
 					.storeName(vo.getStoreName())
 					.reviews(new ArrayList<>())
 					.build()
 			);
 
-			OwnerReviewDto.ReviewReply replyDto = null;
+			OwnerReviewReplyResponseDto replyDto = null;
 			if (vo.getReplyId() != null) {
-				replyDto = OwnerReviewDto.ReviewReply.builder()
+				replyDto = OwnerReviewReplyResponseDto.builder()
 					.replyId(vo.getReplyId())
 					.ownerId(vo.getOwnerId())
 					.content(vo.getReplyContent())
@@ -199,7 +205,7 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 					.build();
 			}
 
-			OwnerReviewDto.Review reviewDto = OwnerReviewDto.Review.builder()
+			OwnerReviewResponseDto reviewDto = OwnerReviewResponseDto.builder()
 				.reviewId(vo.getReviewId())
 				.userId(vo.getUserId())
 				.rating(vo.getRating())
@@ -220,7 +226,7 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 	// TODO: 해당 코드 고쳐야 합니다. Store 합치면 Store에서 findByStore 한다음에 정보 넣어줄 예정입니다. 일단 만들어둠..
 	@Override
 	@Transactional(readOnly = true)
-	public OwnerReviewDto.StoreReviews getOwnerStoreReviews(UserAuth userDetails, UUID storeId) {
+	public OwnerStoreReviewsDto getOwnerStoreReviews(UserAuth userDetails, UUID storeId) {
 		Long ownerId = userService.findByUser(userDetails).getId();
 
 		// TODO: store에서 정보 가져와야함
@@ -228,8 +234,8 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 		List<OwnerReviewWithReplyVo> voList = reviewQueryRepository.findAllActiveReviewsWithReplyByStore(storeId,
 			ownerId);
 
-		List<OwnerReviewDto.Review> reviewDtos = voList.stream()
-			.map(vo -> OwnerReviewDto.Review.builder()
+		List<OwnerReviewResponseDto> reviewDtos = voList.stream()
+			.map(vo -> OwnerReviewResponseDto.builder()
 				.reviewId(vo.getReviewId())
 				.userId(vo.getUserId())
 				.rating(vo.getRating())
@@ -238,7 +244,7 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 				.imageUrl2(vo.getImageUrl2())
 				.imageUrl3(vo.getImageUrl3())
 				.isDisplayed(vo.getIsReviewDisplayed())
-				.reply(vo.getReplyId() != null ? OwnerReviewDto.ReviewReply.builder()
+				.reply(vo.getReplyId() != null ? OwnerReviewReplyResponseDto.builder()
 					.replyId(vo.getReplyId())
 					.ownerId(vo.getOwnerId())
 					.content(vo.getReplyContent())
@@ -251,7 +257,7 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 		// 일단 voList 에서 storeId, storeName은 동일하므로 첫 번째 값 꺼내서 DTO 구성
 		OwnerReviewWithReplyVo firstVo = voList.get(0);
 
-		return OwnerReviewDto.StoreReviews.builder()
+		return OwnerStoreReviewsDto.builder()
 			.storeId(firstVo.getStoreId())
 			.storeName(firstVo.getStoreName())
 			.reviews(reviewDtos)

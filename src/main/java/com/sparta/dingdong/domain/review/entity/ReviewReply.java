@@ -4,7 +4,8 @@ import java.util.UUID;
 
 import com.sparta.dingdong.common.base.BaseEntity;
 import com.sparta.dingdong.domain.order.entity.Order;
-import com.sparta.dingdong.domain.review.dto.OwnerReviewDto;
+import com.sparta.dingdong.domain.review.dto.request.OwnerCreateReplyRequestDto;
+import com.sparta.dingdong.domain.review.dto.request.OwnerUpdateReplyRequestDto;
 import com.sparta.dingdong.domain.store.entity.Store;
 import com.sparta.dingdong.domain.user.entity.User;
 
@@ -54,7 +55,7 @@ public class ReviewReply extends BaseEntity {
 
 	private boolean isDisplayed;
 
-	public static ReviewReply createReviewReply(Review review, User user, OwnerReviewDto.CreateReply request) {
+	public static ReviewReply createReviewReply(Review review, User user, OwnerCreateReplyRequestDto request) {
 		return ReviewReply.builder()
 			.review(review)
 			.owner(user)
@@ -65,7 +66,7 @@ public class ReviewReply extends BaseEntity {
 			.build();
 	}
 
-	public void updateReply(OwnerReviewDto.UpdateReply request) {
+	public void updateReply(OwnerUpdateReplyRequestDto request) {
 		this.content = request.getContent() != null ? request.getContent() : this.content;
 		this.isDisplayed = request.isDisplayed();
 	}
@@ -75,7 +76,7 @@ public class ReviewReply extends BaseEntity {
 		softDelete();
 	}
 
-	public void reactivate(Review review, User user, OwnerReviewDto.CreateReply request) {
+	public void reactivate(Review review, User user, OwnerCreateReplyRequestDto request) {
 		this.review = review;
 		this.owner = user;
 		this.order = review.getOrder();
