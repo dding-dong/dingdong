@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.store.dto.request.StoreRequestDto;
 import com.sparta.dingdong.domain.store.dto.request.StoreUpdateStatusRequestDto;
@@ -14,41 +13,41 @@ import com.sparta.dingdong.domain.store.dto.response.StoreResponseDto;
 import jakarta.validation.Valid;
 
 public interface StoreService {
-	@Transactional(readOnly = true)
-	BaseResponseDto<List<StoreResponseDto>> getActiveStores(UserAuth user);
 
 	@Transactional(readOnly = true)
-	BaseResponseDto<List<StoreResponseDto>> getActiveStoresByCategory(UUID storeCategoryId, UserAuth user);
-
-	BaseResponseDto<StoreResponseDto> create(StoreRequestDto req, UserAuth user);
+	List<StoreResponseDto> getActiveStores(UserAuth user);
 
 	@Transactional(readOnly = true)
-	BaseResponseDto<List<StoreResponseDto>> getMyStores(UserAuth user);
+	List<StoreResponseDto> getActiveStoresByCategory(UUID storeCategoryId, UserAuth user);
 
-	BaseResponseDto<StoreResponseDto> update(UUID id, StoreRequestDto req, UserAuth user);
-
-	BaseResponseDto<StoreResponseDto> updateStatus(UUID id, StoreUpdateStatusRequestDto req, UserAuth user);
-
-	BaseResponseDto<StoreResponseDto> getMyStore(UUID id, UserAuth user);
-
-	BaseResponseDto<StoreResponseDto> addDeliveryArea(UUID storeId, String dongId, UserAuth user);
-
-	BaseResponseDto<StoreResponseDto> removeDeliveryArea(UUID storeId, UUID deliveryAreaId, UserAuth user);
+	StoreResponseDto create(StoreRequestDto req, UserAuth user);
 
 	@Transactional(readOnly = true)
-	BaseResponseDto<List<StoreResponseDto>> getAll(UserAuth user);
+	List<StoreResponseDto> getMyStores(UserAuth user);
+
+	StoreResponseDto update(UUID storeId, StoreRequestDto req, UserAuth user);
+
+	StoreResponseDto updateStatus(UUID storeId, StoreUpdateStatusRequestDto req, UserAuth user);
+
+	StoreResponseDto getMyStore(UUID storeId, UserAuth user);
+
+	StoreResponseDto addDeliveryArea(UUID storeId, String dongId, UserAuth user);
+
+	StoreResponseDto removeDeliveryArea(UUID storeId, UUID deliveryAreaId, UserAuth user);
 
 	@Transactional(readOnly = true)
-	BaseResponseDto<List<StoreResponseDto>> getAllByCategory(UUID storeCategoryId, UserAuth user);
+	List<StoreResponseDto> getAll(UserAuth user);
 
-	BaseResponseDto<StoreResponseDto> forceUpdateStatus(UUID id, StoreUpdateStatusRequestDto req,
-		UserAuth user);
+	@Transactional(readOnly = true)
+	List<StoreResponseDto> getAllByCategory(UUID storeCategoryId, UserAuth user);
 
-	BaseResponseDto<StoreResponseDto> manageUpdate(UUID id, @Valid StoreRequestDto req, UserAuth user);
+	StoreResponseDto forceUpdateStatus(UUID storeId, StoreUpdateStatusRequestDto req, UserAuth user);
 
-	BaseResponseDto<Void> delete(UUID id, UserAuth user);
+	StoreResponseDto manageUpdate(UUID storeId, @Valid StoreRequestDto req, UserAuth user);
 
-	BaseResponseDto<StoreResponseDto> getById(UUID id, UserAuth user);
+	void delete(UUID storeId, UserAuth user);
 
-	BaseResponseDto<StoreResponseDto> restore(UUID storeId, UserAuth user);
+	StoreResponseDto getById(UUID storeId, UserAuth user);
+
+	StoreResponseDto restore(UUID storeId, UserAuth user);
 }

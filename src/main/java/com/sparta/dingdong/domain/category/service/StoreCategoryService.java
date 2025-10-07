@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.category.dto.request.StoreCategoryRequestDto;
 import com.sparta.dingdong.domain.category.dto.response.StoreCategoryResponseDto;
 
@@ -19,7 +20,7 @@ public interface StoreCategoryService {
 
 	StoreCategoryResponseDto update(UUID id, StoreCategoryRequestDto req);
 
-	void delete(UUID id);
+	void delete(UUID id, UserAuth user);
 
-	StoreCategoryResponseDto restore(UUID id);
+	StoreCategoryResponseDto restore(UUID id, UserAuth user);
 }

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.dingdong.common.jwt.UserAuth;
-import com.sparta.dingdong.domain.auth.service.AuthService;
 import com.sparta.dingdong.domain.category.dto.request.StoreCategoryRequestDto;
 import com.sparta.dingdong.domain.category.dto.response.StoreCategoryResponseDto;
 import com.sparta.dingdong.domain.category.entity.StoreCategory;
@@ -24,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 public class StoreCategoryServiceImpl implements StoreCategoryService {
 
 	private final StoreCategoryRepository storeCategoryRepository;
-	private final AuthService authService;
 
 	@Transactional(readOnly = true)
 	@Override
@@ -37,8 +35,7 @@ public class StoreCategoryServiceImpl implements StoreCategoryService {
 	@Transactional(readOnly = true)
 	@Override
 	public StoreCategoryResponseDto getById(UUID id) {
-		StoreCategory sc = storeCategoryRepository.findByIdAndDeletedAtIsNull(id)
-			.orElseThrow(() -> new IllegalArgumentException("삭제되었거나 존재하지 않는 카테고리입니다: " + id));
+		StoreCategory sc = getCategoryOrThrow(id);
 		return map(sc);
 	}
 
@@ -55,39 +52,36 @@ public class StoreCategoryServiceImpl implements StoreCategoryService {
 
 	@Override
 	public StoreCategoryResponseDto update(UUID id, StoreCategoryRequestDto req) {
-		StoreCategory sc = storeCategoryRepository.findById(id)
-			.orElseThrow(() -> new IllegalArgumentException("가게 카테고리를 찾을 수 없습니다: " + id));
-
+		StoreCategory sc = getCategoryOrThrow(id);
 		sc.setName(req.getName());
 		sc.setDescription(req.getDescription());
 		sc.setImageUrl(req.getImageUrl());
-
 		return map(sc);
 	}
 
 	@Override
-	public void delete(UUID id) {
-		StoreCategory sc = storeCategoryRepository.findById(id)
-			.orElseThrow(() -> new IllegalArgumentException("가게 카테고리를 찾을 수 없습니다: " + id));
-		UserAuth user = authService.getCurrentUser();
+	public void delete(UUID id, UserAuth user) {
+		StoreCategory sc = getCategoryOrThrow(id);
 		sc.softDelete(user.getId());
 		storeCategoryRepository.save(sc);
 	}
 
 	@Override
-	public StoreCategoryResponseDto restore(UUID id) {
-		StoreCategory sc = storeCategoryRepository.findById(id)
-			.orElseThrow(() -> new IllegalArgumentException("가게 카테고리를 찾을 수 없습니다: " + id));
-
+	public StoreCategoryResponseDto restore(UUID id, UserAuth user) {
+		StoreCategory sc = getCategoryOrThrow(id);
 		if (!sc.isDeleted()) {
 			throw new IllegalStateException("이미 활성화된 카테고리입니다.");
 		}
-
-		UserAuth user = authService.getCurrentUser();
 		sc.restore(user.getId());
 		storeCategoryRepository.save(sc);
-
 		return map(sc);
+	}
+
+	/* ==================== 유틸 메서드 ==================== */
+
+	private StoreCategory getCategoryOrThrow(UUID id) {
+		return storeCategoryRepository.findById(id)
+			.orElseThrow(() -> new IllegalArgumentException("가게 카테고리를 찾을 수 없습니다: " + id));
 	}
 
 	private StoreCategoryResponseDto map(StoreCategory sc) {
