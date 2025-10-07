@@ -8,9 +8,9 @@ import lombok.Data;
 public class MenuCategoryRequestDto {
 
 	@NotBlank
-	@Schema(example = "메인 메뉴", description = "메뉴카테고리명")
+	@Schema(example = "메인 메뉴", description = "메뉴 카테고리명")
 	private String name;
 
-	@Schema(example = "1", description = "메뉴카테고리 정렬 순서")
+	@Schema(example = "1", description = "메뉴 카테고리 정렬 순서")
 	private Integer sortMenuCategory;
 }

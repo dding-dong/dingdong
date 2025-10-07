@@ -7,10 +7,10 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.auth.service.AuthService;
-import com.sparta.dingdong.domain.category.dto.MenuCategoryDto;
+import com.sparta.dingdong.domain.category.dto.request.MenuCategoryRequestDto;
+import com.sparta.dingdong.domain.category.dto.response.MenuCategoryResponseDto;
 import com.sparta.dingdong.domain.category.entity.MenuCategory;
 import com.sparta.dingdong.domain.category.repository.MenuCategoryRepository;
 import com.sparta.dingdong.domain.store.entity.Store;
@@ -31,18 +31,15 @@ public class MenuCategoryServiceImpl implements MenuCategoryService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public BaseResponseDto<List<MenuCategoryDto.Response>> getByStore(UUID storeId) {
-		List<MenuCategoryDto.Response> menuCategories = menuCategoryRepository
-			.findByStoreIdAndDeletedAtIsNullOrderBySortMenuCategoryAsc(storeId)
+	public List<MenuCategoryResponseDto> getByStore(UUID storeId) {
+		return menuCategoryRepository.findByStoreIdAndDeletedAtIsNullOrderBySortMenuCategoryAsc(storeId)
 			.stream()
 			.map(this::map)
 			.collect(Collectors.toList());
-
-		return BaseResponseDto.success("메뉴 카테고리 목록 조회 성공", menuCategories);
 	}
 
 	@Override
-	public BaseResponseDto<MenuCategoryDto.Response> create(UUID storeId, MenuCategoryDto.Request req) {
+	public MenuCategoryResponseDto create(UUID storeId, MenuCategoryRequestDto req) {
 		Store store = storeRepository.findById(storeId)
 			.orElseThrow(() -> new IllegalArgumentException("가게를 찾을 수 없습니다: " + storeId));
 
@@ -61,11 +58,11 @@ public class MenuCategoryServiceImpl implements MenuCategoryService {
 			.build();
 
 		MenuCategory saved = menuCategoryRepository.save(mc);
-		return BaseResponseDto.success("메뉴 카테고리 생성 성공", map(saved));
+		return map(saved);
 	}
 
 	@Override
-	public BaseResponseDto<MenuCategoryDto.Response> update(UUID categoryId, MenuCategoryDto.Request req) {
+	public MenuCategoryResponseDto update(UUID categoryId, MenuCategoryRequestDto req) {
 		MenuCategory mc = menuCategoryRepository.findByIdWithStore(categoryId)
 			.orElseThrow(() -> new IllegalArgumentException("메뉴 카테고리를 찾을 수 없습니다: " + categoryId));
 
@@ -74,12 +71,11 @@ public class MenuCategoryServiceImpl implements MenuCategoryService {
 
 		mc.setName(req.getName());
 		mc.setSortMenuCategory(req.getSortMenuCategory());
-
-		return BaseResponseDto.success("메뉴 카테고리 수정 성공", map(mc));
+		return map(mc);
 	}
 
 	@Override
-	public BaseResponseDto<Void> delete(UUID categoryId) {
+	public void delete(UUID categoryId) {
 		MenuCategory mc = menuCategoryRepository.findByIdWithStore(categoryId)
 			.orElseThrow(() -> new IllegalArgumentException("메뉴 카테고리를 찾을 수 없습니다: " + categoryId));
 
@@ -87,24 +83,21 @@ public class MenuCategoryServiceImpl implements MenuCategoryService {
 		authService.validateStoreOwnership(user, mc.getStore().getOwner().getId());
 
 		mc.softDelete(user.getId());
-		return BaseResponseDto.success("메뉴 카테고리 삭제 성공");
 	}
 
 	@Override
-	public BaseResponseDto<MenuCategoryDto.Response> restore(UUID categoryId) {
+	public MenuCategoryResponseDto restore(UUID categoryId) {
 		MenuCategory mc = menuCategoryRepository.findDeletedById(categoryId)
 			.orElseThrow(() -> new IllegalArgumentException("삭제된 메뉴 카테고리를 찾을 수 없습니다: " + categoryId));
 
 		UserAuth user = authService.getCurrentUser();
 		mc.restore(user.getId());
 
-		return BaseResponseDto.success("메뉴 카테고리 복구 성공", map(mc));
+		return map(mc);
 	}
 
-	/* ==================== 유틸 메서드 ==================== */
-
-	private MenuCategoryDto.Response map(MenuCategory mc) {
-		return MenuCategoryDto.Response.builder()
+	private MenuCategoryResponseDto map(MenuCategory mc) {
+		return MenuCategoryResponseDto.builder()
 			.id(mc.getId())
 			.storeId(mc.getStore() != null ? mc.getStore().getId() : null)
 			.name(mc.getName())

@@ -5,15 +5,14 @@ import java.util.UUID;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sparta.dingdong.common.dto.BaseResponseDto;
-import com.sparta.dingdong.domain.category.dto.MenuCategoryDto;
+import com.sparta.dingdong.domain.category.dto.request.MenuCategoryItemRequestDto;
+import com.sparta.dingdong.domain.category.dto.response.MenuCategoryItemResponseDto;
 
 public interface MenuCategoryItemService {
 	@Transactional(readOnly = true)
-	BaseResponseDto<List<MenuCategoryDto.ItemResponse>> getItemsByCategory(UUID categoryId);
+	List<MenuCategoryItemResponseDto> getItemsByCategory(UUID categoryId);
 
-	BaseResponseDto<MenuCategoryDto.ItemResponse> addMenuToCategory(UUID categoryId,
-		MenuCategoryDto.ItemRequest req);
+	MenuCategoryItemResponseDto addMenuToCategory(UUID categoryId, MenuCategoryItemRequestDto req);
 
-	BaseResponseDto<Void> removeMenuFromCategory(UUID menuCategoryItemId);
+	void removeMenuFromCategory(UUID menuCategoryItemId);
 }

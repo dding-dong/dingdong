@@ -8,12 +8,12 @@ import lombok.Data;
 public class StoreCategoryRequestDto {
 
 	@NotBlank
-	@Schema(example = "한식", description = "가게카테고리명")
+	@Schema(example = "한식", description = "가게 카테고리명")
 	private String name;
 
-	@Schema(example = "한식 전문점", description = "가게카테고리 설명")
+	@Schema(example = "한식 전문점", description = "가게 카테고리 설명")
 	private String description;
 
-	@Schema(example = "https://image.url/korean.jpg", description = "가게카테고리 이미지 URL")
+	@Schema(example = "https://image.url/korean.jpg", description = "가게 카테고리 이미지 URL")
 	private String imageUrl;
 }

@@ -7,10 +7,10 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.auth.service.AuthService;
-import com.sparta.dingdong.domain.category.dto.StoreCategoryDto;
+import com.sparta.dingdong.domain.category.dto.request.StoreCategoryRequestDto;
+import com.sparta.dingdong.domain.category.dto.response.StoreCategoryResponseDto;
 import com.sparta.dingdong.domain.category.entity.StoreCategory;
 import com.sparta.dingdong.domain.category.repository.StoreCategoryRepository;
 
@@ -28,33 +28,33 @@ public class StoreCategoryServiceImpl implements StoreCategoryService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public BaseResponseDto<List<StoreCategoryDto.Response>> getAll() {
-		List<StoreCategoryDto.Response> storeCategories = storeCategoryRepository.findAllByDeletedAtIsNull().stream()
+	public List<StoreCategoryResponseDto> getAll() {
+		return storeCategoryRepository.findAllByDeletedAtIsNull().stream()
 			.map(this::map)
 			.collect(Collectors.toList());
-		return BaseResponseDto.success("가게 카테고리 목록 조회 성공", storeCategories);
 	}
 
+	@Transactional(readOnly = true)
 	@Override
-	public BaseResponseDto<StoreCategoryDto.Response> getById(UUID id) {
+	public StoreCategoryResponseDto getById(UUID id) {
 		StoreCategory sc = storeCategoryRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new IllegalArgumentException("삭제되었거나 존재하지 않는 카테고리입니다: " + id));
-		return BaseResponseDto.success("가게 카테고리 조회 성공", map(sc));
+		return map(sc);
 	}
 
 	@Override
-	public BaseResponseDto<StoreCategoryDto.Response> create(StoreCategoryDto.Request req) {
+	public StoreCategoryResponseDto create(StoreCategoryRequestDto req) {
 		StoreCategory sc = StoreCategory.builder()
 			.name(req.getName())
 			.description(req.getDescription())
 			.imageUrl(req.getImageUrl())
 			.build();
 		StoreCategory saved = storeCategoryRepository.save(sc);
-		return BaseResponseDto.success("가게 카테고리 생성 성공", map(saved));
+		return map(saved);
 	}
 
 	@Override
-	public BaseResponseDto<StoreCategoryDto.Response> update(UUID id, StoreCategoryDto.Request req) {
+	public StoreCategoryResponseDto update(UUID id, StoreCategoryRequestDto req) {
 		StoreCategory sc = storeCategoryRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException("가게 카테고리를 찾을 수 없습니다: " + id));
 
@@ -62,36 +62,36 @@ public class StoreCategoryServiceImpl implements StoreCategoryService {
 		sc.setDescription(req.getDescription());
 		sc.setImageUrl(req.getImageUrl());
 
-		return BaseResponseDto.success("가게 카테고리 수정 성공", map(sc));
+		return map(sc);
 	}
 
 	@Override
-	public BaseResponseDto<Void> delete(UUID id) {
+	public void delete(UUID id) {
 		StoreCategory sc = storeCategoryRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException("가게 카테고리를 찾을 수 없습니다: " + id));
 		UserAuth user = authService.getCurrentUser();
 		sc.softDelete(user.getId());
 		storeCategoryRepository.save(sc);
-		return BaseResponseDto.success("가게 카테고리 삭제 성공");
 	}
 
 	@Override
-	public BaseResponseDto<StoreCategoryDto.Response> restore(UUID id) {
+	public StoreCategoryResponseDto restore(UUID id) {
 		StoreCategory sc = storeCategoryRepository.findById(id)
 			.orElseThrow(() -> new IllegalArgumentException("가게 카테고리를 찾을 수 없습니다: " + id));
 
 		if (!sc.isDeleted()) {
 			throw new IllegalStateException("이미 활성화된 카테고리입니다.");
 		}
+
 		UserAuth user = authService.getCurrentUser();
 		sc.restore(user.getId());
-		return BaseResponseDto.success("가게 카테고리 복구 성공", map(sc));
+		storeCategoryRepository.save(sc);
+
+		return map(sc);
 	}
 
-	/* ==================== 유틸 메서드 ==================== */
-
-	private StoreCategoryDto.Response map(StoreCategory sc) {
-		return StoreCategoryDto.Response.builder()
+	private StoreCategoryResponseDto map(StoreCategory sc) {
+		return StoreCategoryResponseDto.builder()
 			.id(sc.getId())
 			.name(sc.getName())
 			.description(sc.getDescription())

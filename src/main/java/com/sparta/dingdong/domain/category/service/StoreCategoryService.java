@@ -5,21 +5,21 @@ import java.util.UUID;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sparta.dingdong.common.dto.BaseResponseDto;
-import com.sparta.dingdong.domain.category.dto.StoreCategoryDto;
+import com.sparta.dingdong.domain.category.dto.request.StoreCategoryRequestDto;
+import com.sparta.dingdong.domain.category.dto.response.StoreCategoryResponseDto;
 
 public interface StoreCategoryService {
+	@Transactional(readOnly = true)
+	List<StoreCategoryResponseDto> getAll();
 
 	@Transactional(readOnly = true)
-	BaseResponseDto<List<StoreCategoryDto.Response>> getAll();
+	StoreCategoryResponseDto getById(UUID id);
 
-	BaseResponseDto<StoreCategoryDto.Response> getById(UUID id);
+	StoreCategoryResponseDto create(StoreCategoryRequestDto req);
 
-	BaseResponseDto<StoreCategoryDto.Response> create(StoreCategoryDto.Request req);
+	StoreCategoryResponseDto update(UUID id, StoreCategoryRequestDto req);
 
-	BaseResponseDto<StoreCategoryDto.Response> update(UUID id, StoreCategoryDto.Request req);
+	void delete(UUID id);
 
-	BaseResponseDto<Void> delete(UUID id);
-
-	BaseResponseDto<StoreCategoryDto.Response> restore(UUID id);
+	StoreCategoryResponseDto restore(UUID id);
 }

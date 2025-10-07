@@ -15,7 +15,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.dingdong.common.dto.BaseResponseDto;
-import com.sparta.dingdong.domain.category.dto.MenuCategoryDto;
+import com.sparta.dingdong.domain.category.dto.request.MenuCategoryItemRequestDto;
+import com.sparta.dingdong.domain.category.dto.request.MenuCategoryRequestDto;
+import com.sparta.dingdong.domain.category.dto.response.MenuCategoryItemResponseDto;
+import com.sparta.dingdong.domain.category.dto.response.MenuCategoryResponseDto;
 import com.sparta.dingdong.domain.category.service.MenuCategoryItemService;
 import com.sparta.dingdong.domain.category.service.MenuCategoryService;
 
@@ -36,80 +39,86 @@ public class MenuCategoryControllerV1 {
 
 	/* ===================== 메뉴 카테고리 ===================== */
 
-	@Operation(summary = "메뉴 카테고리 조회", description = "모든 사용자가 특정 가게의 메뉴 카테고리를 조회할 수 있습니다.")
+	@Operation(summary = "메뉴 카테고리 조회", description = "가게의 메뉴 카테고리를 조회합니다.")
 	@GetMapping
 	@PreAuthorize("true")
-	public ResponseEntity<BaseResponseDto<List<MenuCategoryDto.Response>>> getAll(
+	public ResponseEntity<BaseResponseDto<List<MenuCategoryResponseDto>>> getAll(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId) {
 
-		return ResponseEntity.ok(menuCategoryService.getByStore(storeId));
+		List<MenuCategoryResponseDto> result = menuCategoryService.getByStore(storeId);
+		return ResponseEntity.ok(BaseResponseDto.success("메뉴 카테고리 목록 조회 성공", result));
 	}
 
-	@Operation(summary = "메뉴 카테고리 생성", description = "OWNER, MANAGER, MASTER 는 메뉴 카테고리를 생성할 수 있습니다.")
+	@Operation(summary = "메뉴 카테고리 생성", description = "사장님과 관리자는 메뉴 카테고리를 생성할 수 있습니다.")
 	@PostMapping
 	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
-	public ResponseEntity<BaseResponseDto<MenuCategoryDto.Response>> create(
+	public ResponseEntity<BaseResponseDto<MenuCategoryResponseDto>> create(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
-		@Valid @RequestBody MenuCategoryDto.Request req) {
+		@Valid @RequestBody MenuCategoryRequestDto req) {
 
-		return ResponseEntity.ok(menuCategoryService.create(storeId, req));
+		MenuCategoryResponseDto result = menuCategoryService.create(storeId, req);
+		return ResponseEntity.ok(BaseResponseDto.success("메뉴 카테고리 생성 성공", result));
 	}
 
-	@Operation(summary = "메뉴 카테고리 수정", description = "OWNER, MANAGER, MASTER 는 메뉴 카테고리를 수정할 수 있습니다.")
+	@Operation(summary = "메뉴 카테고리 수정", description = "사장님과 관리자는 메뉴 카테고리를 수정할 수 있습니다.")
 	@PutMapping("/{menuCategoryId}")
 	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
-	public ResponseEntity<BaseResponseDto<MenuCategoryDto.Response>> update(
+	public ResponseEntity<BaseResponseDto<MenuCategoryResponseDto>> update(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId,
-		@Valid @RequestBody MenuCategoryDto.Request req) {
+		@Valid @RequestBody MenuCategoryRequestDto req) {
 
-		return ResponseEntity.ok(menuCategoryService.update(menuCategoryId, req));
+		MenuCategoryResponseDto result = menuCategoryService.update(menuCategoryId, req);
+		return ResponseEntity.ok(BaseResponseDto.success("메뉴 카테고리 수정 성공", result));
 	}
 
-	@Operation(summary = "메뉴 카테고리 삭제", description = "OWNER, MANAGER, MASTER 는 메뉴 카테고리를 삭제할 수 있습니다.")
+	@Operation(summary = "메뉴 카테고리 삭제", description = "사장님과 관리자는 메뉴 카테고리를 삭제할 수 있습니다.")
 	@DeleteMapping("/{menuCategoryId}")
 	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
 	public ResponseEntity<BaseResponseDto<Void>> delete(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId) {
 
-		return ResponseEntity.ok(menuCategoryService.delete(menuCategoryId));
+		menuCategoryService.delete(menuCategoryId);
+		return ResponseEntity.ok(BaseResponseDto.success("메뉴 카테고리 삭제 성공"));
 	}
 
-	@Operation(summary = "메뉴 카테고리 복구", description = "OWNER, MANAGER, MASTER 는 삭제된 메뉴 카테고리를 복구할 수 있습니다.")
+	@Operation(summary = "메뉴 카테고리 복구", description = "사장님과 관리자는 삭제된 메뉴 카테고리를 복구할 수 있습니다.")
 	@PutMapping("/{menuCategoryId}/restore")
 	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
-	public ResponseEntity<BaseResponseDto<MenuCategoryDto.Response>> restore(
+	public ResponseEntity<BaseResponseDto<MenuCategoryResponseDto>> restore(
 		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId) {
 
-		return ResponseEntity.ok(menuCategoryService.restore(menuCategoryId));
+		MenuCategoryResponseDto result = menuCategoryService.restore(menuCategoryId);
+		return ResponseEntity.ok(BaseResponseDto.success("메뉴 카테고리 복구 성공", result));
 	}
 
-	/* ===================== (메뉴)카테고리 내 메뉴 아이템 ===================== */
-	// 메뉴 아이템 수정은 메뉴 패키지에서
+	/* ===================== 메뉴 카테고리 내 메뉴 아이템 ===================== */
 
-	@Operation(summary = "(메뉴)카테고리 메뉴 조회", description = "모든 사용자가 메뉴를 조회할 수 있습니다.")
+	@Operation(summary = "카테고리별 메뉴 조회", description = "모든 사용자가 메뉴를 조회할 수 있습니다.")
 	@GetMapping("/{menuCategoryId}/items")
 	@PreAuthorize("true")
-	public ResponseEntity<BaseResponseDto<List<MenuCategoryDto.ItemResponse>>> getItems(
+	public ResponseEntity<BaseResponseDto<List<MenuCategoryItemResponseDto>>> getItems(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId) {
 
-		return ResponseEntity.ok(menuCategoryItemService.getItemsByCategory(menuCategoryId));
+		List<MenuCategoryItemResponseDto> result = menuCategoryItemService.getItemsByCategory(menuCategoryId);
+		return ResponseEntity.ok(BaseResponseDto.success("카테고리별 메뉴 조회 성공", result));
 	}
 
-	@Operation(summary = "(메뉴)카테고리에 메뉴 추가", description = "OWNER, MANAGER, MASTER 는 메뉴를 추가할 수 있습니다.")
+	@Operation(summary = "카테고리에 메뉴 추가", description = "사장님과 관리자는 메뉴를 추가할 수 있습니다.")
 	@PostMapping("/{menuCategoryId}/items")
 	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
-	public ResponseEntity<BaseResponseDto<MenuCategoryDto.ItemResponse>> addItem(
+	public ResponseEntity<BaseResponseDto<MenuCategoryItemResponseDto>> addItem(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId,
-		@Valid @RequestBody MenuCategoryDto.ItemRequest req) {
+		@Valid @RequestBody MenuCategoryItemRequestDto req) {
 
-		return ResponseEntity.ok(menuCategoryItemService.addMenuToCategory(menuCategoryId, req));
+		MenuCategoryItemResponseDto result = menuCategoryItemService.addMenuToCategory(menuCategoryId, req);
+		return ResponseEntity.ok(BaseResponseDto.success("카테고리에 메뉴 추가 성공", result));
 	}
 
-	@Operation(summary = "(메뉴)카테고리 메뉴 삭제", description = "OWNER, MANAGER, MASTER 는 메뉴를 삭제할 수 있습니다.")
+	@Operation(summary = "카테고리 내 메뉴 삭제", description = "사장님과 관리자는 메뉴를 삭제할 수 있습니다.")
 	@DeleteMapping("/{menuCategoryId}/items/{menuCategoryItemId}")
 	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
 	public ResponseEntity<BaseResponseDto<Void>> removeItem(
@@ -117,6 +126,7 @@ public class MenuCategoryControllerV1 {
 		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId,
 		@Parameter(description = "메뉴아이템 UUID") @PathVariable UUID menuCategoryItemId) {
 
-		return ResponseEntity.ok(menuCategoryItemService.removeMenuFromCategory(menuCategoryItemId));
+		menuCategoryItemService.removeMenuFromCategory(menuCategoryItemId);
+		return ResponseEntity.ok(BaseResponseDto.success("카테고리 메뉴 삭제 성공"));
 	}
 }

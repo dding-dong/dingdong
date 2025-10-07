@@ -14,15 +14,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class StoreCategoryResponseDto {
 
-	@Schema(example = "abb3b4cf-c378-4c55-b7da-123456789012", description = "가게카테고리 UUID")
+	@Schema(example = "abb3b4cf-c378-4c55-b7da-123456789012", description = "가게 카테고리 UUID")
 	private UUID id;
 
-	@Schema(example = "한식", description = "가게카테고리명")
+	@Schema(example = "한식", description = "가게 카테고리명")
 	private String name;
 
-	@Schema(example = "한식 전문점", description = "가게카테고리 설명")
+	@Schema(example = "한식 전문점", description = "가게 카테고리 설명")
 	private String description;
 
-	@Schema(example = "https://image.url/korean.jpg", description = "가게카테고리 이미지 URL")
+	@Schema(example = "https://image.url/korean.jpg", description = "가게 카테고리 이미지 URL")
 	private String imageUrl;
 }
