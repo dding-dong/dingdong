@@ -80,4 +80,8 @@ public class UserServiceImpl implements UserService {
 		User findUser = userRepository.findByIdOrElseThrow(userAuth.getId());
 		return UserResponseDto.from(findUser);
 	}
+
+	public User findByUser(UserAuth userAuth) {
+		return userRepository.findByIdOrElseThrow(userAuth.getId());
+	}
 }
