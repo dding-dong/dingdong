@@ -28,4 +28,10 @@ public class MenuExceptionHandler {
 		return ResponseEntity.status(CommonErrorCode.DELETED_STORE_MENU_ACCESS.getStatus())
 			.body(BaseResponseDto.error(CommonErrorCode.DELETED_STORE_MENU_ACCESS));
 	}
+
+	@ExceptionHandler(MenuItemSoldOutException.class)
+	public ResponseEntity<BaseResponseDto<Void>> handleMenuItemSolddOutException(MenuItemSoldOutException ex) {
+		return ResponseEntity.status(CommonErrorCode.MENU_ITEM_SOLD_OUT.getStatus())
+			.body(BaseResponseDto.error(CommonErrorCode.MENU_ITEM_SOLD_OUT));
+	}
 }

@@ -33,6 +33,7 @@ public enum CommonErrorCode implements ErrorCode {
 	MENU_ITEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "2100", "해당 메뉴 아이템을 찾을 수 없습니다."),
 	HIDDEN_MENU_ACCESS_DENIED(HttpStatus.FORBIDDEN, "2101", "숨김 메뉴 아이템 조회 권한이 없습니다."),
 	DELETED_STORE_MENU_ACCESS(HttpStatus.FORBIDDEN, "2102", "삭제된 가게의 메뉴 아이템에 접근 권한이 없습니다."),
+	MENU_ITEM_SOLD_OUT(HttpStatus.BAD_REQUEST, "2103", "해당 메뉴는 품절입니다."),
 
 	STORE_CATEGORY_NOT_FOUND(HttpStatus.BAD_REQUEST, "2200", "해당 가게 카테고리를 찾을 수 없습니다."),
 	STORE_CATEGORY_ALREADY_ACTIVE(HttpStatus.BAD_REQUEST, "2201", "이미 활성화된 가게 카테고리입니다."),
