@@ -33,7 +33,6 @@ public abstract class BaseEntity {
 
 	private LocalDateTime deletedAt;
 
-	@LastModifiedDate
 	private Long deletedBy;
 
 	public void softDelete() {
@@ -42,5 +41,14 @@ public abstract class BaseEntity {
 
 	public boolean isDeleted() {
 		return deletedAt != null;
+	}
+
+	public void softDeleteBy(Long deletedBy) {
+		this.deletedBy = deletedBy;
+	}
+
+	public void reactivate() {
+		this.deletedAt = null;
+		this.deletedBy = null;
 	}
 }
