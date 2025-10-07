@@ -2,12 +2,16 @@ package com.sparta.dingdong.domain.store.entity;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import com.sparta.dingdong.common.base.BaseEntity;
 import com.sparta.dingdong.domain.category.entity.StoreCategory;
+import com.sparta.dingdong.domain.review.entity.Review;
+import com.sparta.dingdong.domain.review.entity.ReviewReply;
 import com.sparta.dingdong.domain.store.entity.enums.DayOfWeek;
 import com.sparta.dingdong.domain.store.entity.enums.StoreStatus;
 import com.sparta.dingdong.domain.user.entity.User;
@@ -80,6 +84,14 @@ public class Store extends BaseEntity {
 
 	private LocalDateTime openedAt;
 	private LocalDateTime closedAt;
+
+	@OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<Review> reviews = new ArrayList<>();
+
+	@OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<ReviewReply> reviewReplies = new ArrayList<>();
 
 	// CSV로 요일 저장 → AttributeConverter로 리팩터링 가능 --> 안 쓰기로.
 	@Column(name = "day_of_week")
