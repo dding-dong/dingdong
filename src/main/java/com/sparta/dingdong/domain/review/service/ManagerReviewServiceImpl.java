@@ -55,6 +55,7 @@ public class ManagerReviewServiceImpl implements ManagerReviewService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public Page<ManagerReviewResponseDto> getSearchReviews(Long userId, Long ownerId, UUID storeId, UUID orderId,
 		Integer rating, String keyword, Pageable pageable) {
 		Page<ManagerSearchReviewVo> reviewPage = reviewQueryRepository.searchReviewsAll(userId, ownerId, storeId,
