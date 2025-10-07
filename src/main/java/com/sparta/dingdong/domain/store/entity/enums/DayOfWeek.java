@@ -1,5 +1,6 @@
 package com.sparta.dingdong.domain.store.entity.enums;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum DayOfWeek {
+public enum DayOfWeek {        // 이 기능 안 쓰기로.
 	MONDAY("월요일"),
 	TUESDAY("화요일"),
 	WEDNESDAY("수요일"),
@@ -32,8 +33,8 @@ public enum DayOfWeek {
 	// Enum Set → CSV(한글)
 	public static String toCsv(Set<DayOfWeek> days) {
 		return days.stream()
-			.map(DayOfWeek::getLabel) // label 기준으로 변환
-			.sorted()
+			.sorted(Comparator.comparingInt(DayOfWeek::ordinal)) // Enum 순서로 정렬 - 월 화 수 ...
+			.map(DayOfWeek::getLabel)
 			.reduce((a, b) -> a + "," + b)
 			.orElse("");
 	}

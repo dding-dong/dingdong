@@ -1,5 +1,6 @@
 package com.sparta.dingdong.domain.auth.service;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +11,7 @@ import com.sparta.dingdong.domain.auth.dto.request.LoginRequestDto;
 import com.sparta.dingdong.domain.auth.dto.response.TokenResponse;
 import com.sparta.dingdong.domain.auth.exception.AuthErrorCode;
 import com.sparta.dingdong.domain.user.entity.User;
+import com.sparta.dingdong.domain.user.entity.enums.UserRole;
 import com.sparta.dingdong.domain.user.exception.UserErrorCode;
 import com.sparta.dingdong.domain.user.repository.RedisRepository;
 import com.sparta.dingdong.domain.user.repository.UserRepository;
@@ -88,5 +90,29 @@ public class AuthService {
 		tokenService.saveRefreshToken(userAuth.getId(), newTokens.getRefreshToken());
 
 		return newTokens;
+	}
+
+	/** OWNER는 본인 가게만 접근 가능 (MANAGER, MASTER는 전체 접근 가능) */
+	public void validateStoreOwnership(UserAuth user, Long storeOwnerId) {
+		UserRole role = user.getUserRole();
+
+		if (role == UserRole.OWNER) {
+			if (!storeOwnerId.equals(user.getId())) {
+				throw new AccessDeniedException("본인 가게만 접근 가능합니다.");
+			}
+		}
+	}
+
+	/** 관리자 여부 확인 */
+	public boolean isAdmin(UserAuth user) {
+		return user != null &&
+			(user.getUserRole() == UserRole.MASTER || user.getUserRole() == UserRole.MANAGER);
+	}
+
+	/** 관리자만 접근 가능하도록 강제 */
+	public void ensureAdmin(UserAuth user) {
+		if (!isAdmin(user)) {
+			throw new AccessDeniedException("관리자 권한이 필요합니다.");
+		}
 	}
 }

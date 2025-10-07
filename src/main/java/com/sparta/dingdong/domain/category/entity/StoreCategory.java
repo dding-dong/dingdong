@@ -33,5 +33,5 @@ public class StoreCategory extends BaseEntity {
 	private String name;
 
 	private String imageUrl;
-
+	private String description;
 }

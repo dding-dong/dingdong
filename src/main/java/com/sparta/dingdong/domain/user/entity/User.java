@@ -55,6 +55,7 @@ public class User extends BaseEntity {
 	private String phone;
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
 	private List<Address> addressList = new ArrayList<>();
 
 	// 양방향 연관관계: 매니저 권한 필드 접근 가능
