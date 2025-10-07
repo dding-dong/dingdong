@@ -12,8 +12,12 @@ import com.sparta.dingdong.domain.auth.service.AuthService;
 import com.sparta.dingdong.domain.menu.dto.request.MenuItemRequestDto;
 import com.sparta.dingdong.domain.menu.dto.response.MenuItemResponseDto;
 import com.sparta.dingdong.domain.menu.entity.MenuItem;
+import com.sparta.dingdong.domain.menu.exception.DeletedStoreMenuAccessException;
+import com.sparta.dingdong.domain.menu.exception.HiddenMenuAccessDeniedException;
+import com.sparta.dingdong.domain.menu.exception.MenuItemNotFoundException;
 import com.sparta.dingdong.domain.menu.repository.MenuItemRepository;
 import com.sparta.dingdong.domain.store.entity.Store;
+import com.sparta.dingdong.domain.store.exception.StoreNotFoundException;
 import com.sparta.dingdong.domain.store.repository.StoreRepository;
 import com.sparta.dingdong.domain.user.entity.enums.UserRole;
 
@@ -35,11 +39,11 @@ public class MenuItemServiceImpl implements MenuItemService {
 	@Override
 	public List<MenuItemResponseDto> getAllByStore(UUID storeId, boolean includeHidden, UserAuth user) {
 		Store store = storeRepository.findById(storeId)
-			.orElseThrow(() -> new IllegalArgumentException("가게를 찾을 수 없습니다."));
+			.orElseThrow(StoreNotFoundException::new);
 
 		// 해당 가게가 삭제됐으면 메뉴 조회되면 안됨
 		if (store.getDeletedAt() != null) {
-			throw new IllegalStateException("삭제된 가게의 메뉴는 조회할 수 없습니다.");
+			throw new DeletedStoreMenuAccessException();
 		}
 
 		List<MenuItem> items;
@@ -58,7 +62,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 					authService.validateStoreOwnership(user, store.getOwner().getId());
 					items = menuItemRepository.findAllByStoreIdIncludingDeleted(storeId);
 				}
-				default -> throw new SecurityException("숨김 메뉴 조회 권한이 없습니다.");
+				default -> throw new HiddenMenuAccessDeniedException();
 			}
 
 		} else {
@@ -74,7 +78,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 	@Override
 	public MenuItemResponseDto create(UUID storeId, MenuItemRequestDto req, UserAuth user) {
 		Store store = storeRepository.findById(storeId)
-			.orElseThrow(() -> new IllegalArgumentException("가게를 찾을 수 없습니다."));
+			.orElseThrow(StoreNotFoundException::new);
 		authService.validateStoreOwnership(user, store.getOwner().getId());
 
 		String aiContent = null;
@@ -104,7 +108,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 	@Override
 	public MenuItemResponseDto getById(UUID menuId, UserAuth user) {
 		MenuItem menu = menuItemRepository.findById(menuId)
-			.orElseThrow(() -> new IllegalArgumentException("메뉴를 찾을 수 없습니다."));
+			.orElseThrow(MenuItemNotFoundException::new);
 
 		authService.validateStoreOwnership(user, menu.getStore().getOwner().getId());
 		return map(menu);
@@ -113,7 +117,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 	@Override
 	public MenuItemResponseDto update(UUID menuId, MenuItemRequestDto req, UserAuth user) {
 		MenuItem menu = menuItemRepository.findById(menuId)
-			.orElseThrow(() -> new IllegalArgumentException("메뉴를 찾을 수 없습니다."));
+			.orElseThrow(MenuItemNotFoundException::new);
 
 		authService.validateStoreOwnership(user, menu.getStore().getOwner().getId());
 
@@ -137,7 +141,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 	@Override
 	public void delete(UUID menuId, UserAuth user) {
 		MenuItem menu = menuItemRepository.findById(menuId)
-			.orElseThrow(() -> new IllegalArgumentException("메뉴를 찾을 수 없습니다."));
+			.orElseThrow(MenuItemNotFoundException::new);
 
 		authService.validateStoreOwnership(user, menu.getStore().getOwner().getId());
 
