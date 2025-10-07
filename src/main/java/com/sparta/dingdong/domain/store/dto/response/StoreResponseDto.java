@@ -40,7 +40,7 @@ public class StoreResponseDto {
 	private StoreStatus status;
 
 	@Schema(example = "abb3b4cf-c378-4c55-b7da-123456789012", description = "카테고리 UUID")
-	private UUID categoryId;
+	private UUID storeCategoryId;
 
 	@Schema(example = "1001", description = "매장 소유자 ID")
 	private Long ownerId;

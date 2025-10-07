@@ -51,8 +51,8 @@ public class Store extends BaseEntity {
 	private User owner;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "category_id", nullable = false)
-	private StoreCategory category;
+	@JoinColumn(name = "store_category_id", nullable = false)
+	private StoreCategory storeCategory;
 
 	@Column(nullable = false)
 	private String name;

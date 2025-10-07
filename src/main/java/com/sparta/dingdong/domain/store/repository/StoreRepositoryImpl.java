@@ -19,13 +19,6 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 	private final QStore store = QStore.store;
 
 	@Override
-	public List<Store> findAll() {
-		return queryFactory.selectFrom(store)
-			.orderBy(store.name.asc())
-			.fetch();
-	}
-
-	@Override
 	public List<Store> findAllActive() {
 		return queryFactory.selectFrom(store)
 			.where(store.deletedAt.isNull())
@@ -34,18 +27,18 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 	}
 
 	@Override
-	public List<Store> findAllActiveByCategory(UUID categoryId) {
+	public List<Store> findAllActiveByStoreCategory(UUID storeCategoryId) {
 		return queryFactory.selectFrom(store)
 			.where(store.deletedAt.isNull()
-				.and(store.category.id.eq(categoryId)))
+				.and(store.storeCategory.id.eq(storeCategoryId)))
 			.orderBy(store.name.asc())
 			.fetch();
 	}
 
 	@Override
-	public List<Store> findAllByCategory(UUID categoryId) {
+	public List<Store> findAllByStoreCategory(UUID storeCategoryId) {
 		return queryFactory.selectFrom(store)
-			.where(store.category.id.eq(categoryId))
+			.where(store.storeCategory.id.eq(storeCategoryId))
 			.orderBy(store.name.asc())
 			.fetch();
 	}

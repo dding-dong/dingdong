@@ -6,11 +6,9 @@ import java.util.UUID;
 import com.sparta.dingdong.domain.store.entity.Store;
 
 public interface StoreRepositoryCustom {
-	List<Store> findAll();
-
 	List<Store> findAllActive();
 
-	List<Store> findAllActiveByCategory(UUID categoryId);
+	List<Store> findAllActiveByStoreCategory(UUID categoryId);
 
-	List<Store> findAllByCategory(UUID categoryId);
+	List<Store> findAllByStoreCategory(UUID categoryId);
 }
