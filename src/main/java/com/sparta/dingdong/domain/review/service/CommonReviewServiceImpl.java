@@ -6,7 +6,10 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sparta.dingdong.domain.review.dto.CommonReviewDto;
+import com.sparta.dingdong.domain.review.dto.response.CommonReviewDetailsResponseDto;
+import com.sparta.dingdong.domain.review.dto.response.CommonReviewReplyDetailsResponseDto;
+import com.sparta.dingdong.domain.review.dto.response.CommonReviewReplyResponseDto;
+import com.sparta.dingdong.domain.review.dto.response.CommonReviewResponseDto;
 import com.sparta.dingdong.domain.review.entity.Review;
 import com.sparta.dingdong.domain.review.entity.ReviewReply;
 import com.sparta.dingdong.domain.review.exception.ReviewNotFoundException;
@@ -36,7 +39,7 @@ public class CommonReviewServiceImpl implements CommonReviewService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public CommonReviewDto.ReviewDetails selectReview(UUID reviewId) {
+	public CommonReviewDetailsResponseDto selectReview(UUID reviewId) {
 		Review review = findReview(reviewId);
 
 		// 고객은 삭제 및 비활성화된 리뷰는 볼 수 없다.
@@ -45,18 +48,18 @@ public class CommonReviewServiceImpl implements CommonReviewService {
 		}
 
 		ReviewReply reviewReply = review.getReviewReply();
-		CommonReviewDto.ReviewReplyDetails reviewReplyDetails = null;
+		CommonReviewReplyDetailsResponseDto reviewReplyDetails = null;
 
 		// 달린 리뷰가 있고 활성화 되어있으면 DTO로 변환
 		if (reviewReply != null && reviewReply.isActive()) {
-			reviewReplyDetails = CommonReviewDto.ReviewReplyDetails.builder()
+			reviewReplyDetails = CommonReviewReplyDetailsResponseDto.builder()
 				.replyId(reviewReply.getId())
 				.ownerId(reviewReply.getOwner().getId())
 				.content(reviewReply.getContent())
 				.build();
 		}
 
-		return CommonReviewDto.ReviewDetails.builder()
+		return CommonReviewDetailsResponseDto.builder()
 			.reviewId(review.getId())
 			.userId(review.getUser().getId())
 			.orderId(review.getOrder().getId())
@@ -72,14 +75,14 @@ public class CommonReviewServiceImpl implements CommonReviewService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CommonReviewDto.Review> selectReviews() {
+	public List<CommonReviewResponseDto> selectReviews() {
 		List<ReviewWithReplyActiveVo> voList = reviewQueryRepository.findAllActiveReviewWithReply();
 		return voList.stream()
 			.map(vo -> {
 				// ReviewReply DTO 생성 (답글이 있을 경우만)
-				CommonReviewDto.ReviewReply replyDto = null;
+				CommonReviewReplyResponseDto replyDto = null;
 				if (vo.getReplyId() != null) {
-					replyDto = CommonReviewDto.ReviewReply.builder()
+					replyDto = CommonReviewReplyResponseDto.builder()
 						.replyId(vo.getReplyId())
 						.ownerId(vo.getOwnerId())
 						.content(vo.getReplyContent())
@@ -87,7 +90,7 @@ public class CommonReviewServiceImpl implements CommonReviewService {
 				}
 
 				// Review DTO 생성
-				return CommonReviewDto.Review.builder()
+				return CommonReviewResponseDto.builder()
 					.reviewId(vo.getReviewId())
 					.userId(vo.getUserId())
 					.orderId(vo.getOrderId())

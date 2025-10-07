@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.dingdong.common.dto.BaseResponseDto;
-import com.sparta.dingdong.domain.review.dto.CommonReviewDto;
+import com.sparta.dingdong.domain.review.dto.response.CommonReviewDetailsResponseDto;
+import com.sparta.dingdong.domain.review.dto.response.CommonReviewResponseDto;
 import com.sparta.dingdong.domain.review.service.CommonReviewService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,7 +33,7 @@ public class CommonReviewControllerV1 {
 	@PreAuthorize("hasAnyRole('ROLE_CUSTOMER', 'ROLE_OWNER')")
 	public ResponseEntity<BaseResponseDto<?>> selectReview(
 		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId) {
-		CommonReviewDto.ReviewDetails details = commonReviewService.selectReview(reviewId);
+		CommonReviewDetailsResponseDto details = commonReviewService.selectReview(reviewId);
 		return ResponseEntity.ok(BaseResponseDto.success("리뷰를 상세 조회합니다.", details));
 	}
 
@@ -40,7 +41,7 @@ public class CommonReviewControllerV1 {
 	@GetMapping("/reviews")
 	@PreAuthorize("hasAnyRole('ROLE_CUSTOMER', 'ROLE_OWNER')")
 	public ResponseEntity<BaseResponseDto<?>> selectReviews() {
-		List<CommonReviewDto.Review> list = commonReviewService.selectReviews();
+		List<CommonReviewResponseDto> list = commonReviewService.selectReviews();
 		return ResponseEntity.ok(BaseResponseDto.success("리뷰를 상세 조회합니다.", list));
 	}
 }
