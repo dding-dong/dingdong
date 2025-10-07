@@ -3,7 +3,6 @@ package com.sparta.dingdong.domain.store.service;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +10,7 @@ import com.sparta.dingdong.common.entity.Dong;
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.auth.service.AuthService;
 import com.sparta.dingdong.domain.category.entity.StoreCategory;
+import com.sparta.dingdong.domain.category.exception.storecategory.StoreCategoryNotFoundException;
 import com.sparta.dingdong.domain.category.repository.StoreCategoryRepository;
 import com.sparta.dingdong.domain.store.dto.request.StoreRequestDto;
 import com.sparta.dingdong.domain.store.dto.request.StoreUpdateStatusRequestDto;
@@ -18,6 +18,10 @@ import com.sparta.dingdong.domain.store.dto.response.StoreResponseDto;
 import com.sparta.dingdong.domain.store.entity.Store;
 import com.sparta.dingdong.domain.store.entity.StoreDeliveryArea;
 import com.sparta.dingdong.domain.store.entity.enums.StoreStatus;
+import com.sparta.dingdong.domain.store.exception.DeletedStoreNotFoundException;
+import com.sparta.dingdong.domain.store.exception.DeliveryAreaNotFoundException;
+import com.sparta.dingdong.domain.store.exception.NotStoreOwnerException;
+import com.sparta.dingdong.domain.store.exception.StoreNotFoundException;
 import com.sparta.dingdong.domain.store.repository.StoreDeliveryAreaRepository;
 import com.sparta.dingdong.domain.store.repository.StoreRepository;
 import com.sparta.dingdong.domain.user.entity.User;
@@ -72,7 +76,7 @@ public class StoreServiceImpl implements StoreService {
 		boolean isAdmin = authService.isAdmin(user);
 		User currentUser = userRepository.findById(user.getId())
 			.orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-		StoreCategory storeCategory = getCategoryOrThrow(req.getStoreCategoryId());
+		StoreCategory storeCategory = getStoreCategoryOrThrow(req.getStoreCategoryId());
 
 		Store store = Store.builder()
 			.name(req.getName())
@@ -171,9 +175,9 @@ public class StoreServiceImpl implements StoreService {
 		authService.validateStoreOwnership(user, store.getOwner().getId());
 
 		StoreDeliveryArea area = storeDeliveryAreaRepository.findById(deliveryAreaId)
-			.orElseThrow(() -> new IllegalArgumentException("배달지역을 찾을 수 없습니다."));
+			.orElseThrow(DeliveryAreaNotFoundException::new);
 		if (!area.getStore().getId().equals(storeId)) {
-			throw new AccessDeniedException("본인 가게의 배달지역만 삭제 가능합니다.");
+			throw new NotStoreOwnerException("본인 가게의 배달지역만 삭제 가능합니다.");
 		}
 
 		store.getDeliveryAreas().remove(area);
@@ -218,7 +222,7 @@ public class StoreServiceImpl implements StoreService {
 		authService.ensureAdmin(user);
 		boolean isAdmin = true;
 		Store store = getStoreOrThrow(storeId);
-		StoreCategory storeCategory = getCategoryOrThrow(req.getStoreCategoryId());
+		StoreCategory storeCategory = getStoreCategoryOrThrow(req.getStoreCategoryId());
 		store.setName(req.getName());
 		store.setDescription(req.getDescription());
 		store.setAddress(req.getAddress());
@@ -254,17 +258,17 @@ public class StoreServiceImpl implements StoreService {
 
 	private Store getStoreOrThrow(UUID storeId) {
 		return storeRepository.findById(storeId)
-			.orElseThrow(() -> new IllegalArgumentException("가게를 찾을 수 없습니다: " + storeId));
+			.orElseThrow(StoreNotFoundException::new);
 	}
 
-	private StoreCategory getCategoryOrThrow(UUID categoryId) {
-		return storeCategoryRepository.findById(categoryId)
-			.orElseThrow(() -> new IllegalArgumentException("카테고리를 찾을 수 없습니다: " + categoryId));
+	private StoreCategory getStoreCategoryOrThrow(UUID storeCategoryId) {
+		return storeCategoryRepository.findById(storeCategoryId)
+			.orElseThrow(StoreCategoryNotFoundException::new);
 	}
 
 	private Store getDeletedStoreOrThrow(UUID storeId) {
 		return storeRepository.findDeletedById(storeId)
-			.orElseThrow(() -> new IllegalArgumentException("삭제된 가게를 찾을 수 없습니다: " + storeId));
+			.orElseThrow(DeletedStoreNotFoundException::new);
 	}
 
 	private StoreResponseDto map(Store store, boolean isAdmin) {
