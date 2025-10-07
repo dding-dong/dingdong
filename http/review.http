@@ -1,10 +1,10 @@
 @reviewId = 31146295-ab5c-4e48-9a53-0647562491c7
 @orderId = variable value
 @replyId = variable value
-@stroeId = variable value
-@customerAuthorization = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTc1MzkxMSwiZXhwIjoxNzU5NzU1NzExfQ.st06EbizJ4hEY-LJNfYhpxJnxIdRn07QXy34V49LUWs
-@ownerAuthorization = variable value
-@managerAuthorization = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1IiwidXNlclJvbGUiOiJNQU5BR0VSIiwiaWF0IjoxNzU5NzQ2MTIwLCJleHAiOjE3NTk3NDc5MjB9.62jCDUGSuz9K7TQOeN_FsWqYqa-SvEd0RiSrP5vdO7o
+@storeId = ee334491-78ef-4aaa-886d-fd0ce593d909
+@customerAuthorization =eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTgxMzM0NCwiZXhwIjoxNzU5ODE1MTQ0fQ.AgK3Ya0S5vLc6oneBwP1Vp-R81uq468TRqAAXC1k7g8
+@ownerAuthorization = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FUiIsImlhdCI6MTc1OTgxMzE4NiwiZXhwIjoxNzU5ODE0OTg2fQ.suRnSPONgWnfZ7rpdjqn8W1hFAF5FQijSjJrIxfmKgs
+@managerAuthorization = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1IiwidXNlclJvbGUiOiJNQU5BR0VSIiwiaWF0IjoxNzU5ODE1MjcxLCJleHAiOjE3NTk4MTcwNzF9.LxhNmkiT2KlJ-LoxPrP_4jX3n7XOWv83IUkyhDnNpws
 
 ## COMMON
 ### COMMON REVIEW 상세 조회
@@ -103,6 +103,12 @@ Authorization: Bearer {{managerAuthorization}}
 GET http://localhost:8080/v1/admin/reviews/{{reviewId}}
 Authorization: Bearer {{managerAuthorization}}
 
-### REVIEW 상세 조회
+### REVIEW 전체 조회
 GET http://localhost:8080/v1/admin/reviews
 Authorization: Bearer {{managerAuthorization}}
+
+### REVIEW 검색
+GET http://localhost:8080/v1/admin/reviews/search?userId=1&keyword=맛있어요&rating=5
+Authorization: Bearer {{managerAuthorization}}
+
+### GET http://localhost:8080/v1/admin/reviews/search?userId=1&keyword=맛있어요&rating=5&orderId=1dalsdj&storeId=ajdfalkjd

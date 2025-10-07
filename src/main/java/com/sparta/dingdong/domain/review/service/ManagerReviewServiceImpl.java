@@ -1,17 +1,19 @@
 package com.sparta.dingdong.domain.review.service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sparta.dingdong.domain.review.dto.response.ManagerReviewReplyResponseDto;
 import com.sparta.dingdong.domain.review.dto.response.ManagerReviewResponseDto;
 import com.sparta.dingdong.domain.review.entity.Review;
 import com.sparta.dingdong.domain.review.exception.ReviewNotFoundException;
+import com.sparta.dingdong.domain.review.repository.ReviewQueryRepository;
 import com.sparta.dingdong.domain.review.repository.ReviewRepository;
+import com.sparta.dingdong.domain.review.repository.vo.ManagerSearchReviewVo;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class ManagerReviewServiceImpl implements ManagerReviewService {
 
 	private final ReviewRepository reviewRepository;
+	private final ReviewQueryRepository reviewQueryRepository;
 
 	public Review findReview(UUID reviewId) {
 		return reviewRepository.findById(reviewId).orElseThrow(ReviewNotFoundException::new);
@@ -37,31 +40,7 @@ public class ManagerReviewServiceImpl implements ManagerReviewService {
 	@Transactional(readOnly = true)
 	public ManagerReviewResponseDto getReviewDetails(UUID reviewId) {
 		Review review = findReview(reviewId);
-
-		ManagerReviewReplyResponseDto replyDto = Optional.ofNullable(review.getReviewReply())
-			.map(reply -> ManagerReviewReplyResponseDto.builder()
-				.replyId(reply.getId())
-				.ownerId(reply.getOwner().getId())
-				.content(reply.getContent())
-				.isDisplayed(reply.isDisplayed())
-				.build())
-			.orElse(null);
-
-		ManagerReviewResponseDto reviewDto = ManagerReviewResponseDto.builder()
-			.reviewId(review.getId())
-			.userId(review.getUser().getId())
-			.orderId(review.getOrder().getId())
-			.storeId(review.getStore().getId())
-			.rating(review.getRating())
-			.content(review.getContent())
-			.imageUrl1(review.getImageUrl1())
-			.imageUrl2(review.getImageUrl2())
-			.imageUrl3(review.getImageUrl3())
-			.reply(replyDto)
-			.isDisplayed(review.isDisplayed())
-			.build();
-
-		return reviewDto;
+		return ManagerReviewResponseDto.from(review);
 	}
 
 	@Override
@@ -71,33 +50,15 @@ public class ManagerReviewServiceImpl implements ManagerReviewService {
 		List<Review> reviews = reviewRepository.findAll();
 
 		return reviews.stream()
-			.map(review -> {
-				// Optional을 활용하여 리뷰 답글 DTO 생성
-				ManagerReviewReplyResponseDto replyDto = Optional.ofNullable(review.getReviewReply())
-					.map(reply -> ManagerReviewReplyResponseDto.builder()
-						.replyId(reply.getId())
-						.ownerId(reply.getOwner().getId())
-						.content(reply.getContent())
-						.isDisplayed(reply.isDisplayed())
-						.build())
-					.orElse(null);
-
-				// 리뷰 DTO 생성
-				return ManagerReviewResponseDto.builder()
-					.reviewId(review.getId())
-					.userId(review.getUser().getId())
-					.orderId(review.getOrder().getId())
-					.storeId(review.getStore().getId())
-					.rating(review.getRating())
-					.content(review.getContent())
-					.imageUrl1(review.getImageUrl1())
-					.imageUrl2(review.getImageUrl2())
-					.imageUrl3(review.getImageUrl3())
-					.reply(replyDto)
-					.isDisplayed(review.isDisplayed())
-					.build();
-			})
+			.map(ManagerReviewResponseDto::from)
 			.toList();
 	}
 
+	@Override
+	public Page<ManagerReviewResponseDto> getSearchReviews(Long userId, Long ownerId, UUID storeId, UUID orderId,
+		Integer rating, String keyword, Pageable pageable) {
+		Page<ManagerSearchReviewVo> reviewPage = reviewQueryRepository.searchReviewsAll(userId, ownerId, storeId,
+			orderId, rating, keyword, pageable);
+		return reviewPage.map(ManagerReviewResponseDto::from);
+	}
 }

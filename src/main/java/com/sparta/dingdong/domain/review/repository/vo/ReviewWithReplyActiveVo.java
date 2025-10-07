@@ -2,6 +2,8 @@ package com.sparta.dingdong.domain.review.repository.vo;
 
 import java.util.UUID;
 
+import com.querydsl.core.annotations.QueryProjection;
+
 import lombok.Getter;
 
 @Getter
@@ -21,6 +23,7 @@ public class ReviewWithReplyActiveVo {
 	private final Long ownerId;
 	private final String replyContent;
 
+	@QueryProjection
 	public ReviewWithReplyActiveVo(
 		UUID reviewId,
 		Long userId,

@@ -3,13 +3,21 @@ package com.sparta.dingdong.domain.review.repository;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
-import com.querydsl.core.types.Projections;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.dingdong.domain.review.entity.QReview;
 import com.sparta.dingdong.domain.review.entity.QReviewReply;
+import com.sparta.dingdong.domain.review.repository.vo.ManagerSearchReviewVo;
 import com.sparta.dingdong.domain.review.repository.vo.OwnerReviewWithReplyVo;
+import com.sparta.dingdong.domain.review.repository.vo.QManagerSearchReviewVo;
+import com.sparta.dingdong.domain.review.repository.vo.QOwnerReviewWithReplyVo;
+import com.sparta.dingdong.domain.review.repository.vo.QReviewWithReplyActiveVo;
+import com.sparta.dingdong.domain.review.repository.vo.QReviewWithReplyVo;
 import com.sparta.dingdong.domain.review.repository.vo.ReviewWithReplyActiveVo;
 import com.sparta.dingdong.domain.review.repository.vo.ReviewWithReplyVo;
 import com.sparta.dingdong.domain.store.entity.QStore;
@@ -54,8 +62,7 @@ public class ReviewQueryRepository {
 		QReviewReply reply = QReviewReply.reviewReply;
 
 		return queryFactory
-			.select(Projections.constructor(
-				ReviewWithReplyVo.class,
+			.select(new QReviewWithReplyVo(
 				review.id,
 				review.user.id,
 				review.order.id,
@@ -112,8 +119,7 @@ public class ReviewQueryRepository {
 		QReviewReply reply = QReviewReply.reviewReply;
 
 		return queryFactory
-			.select(Projections.constructor(
-				ReviewWithReplyActiveVo.class,
+			.select(new QReviewWithReplyActiveVo(
 				review.id,
 				review.user.id,
 				review.order.id,
@@ -144,23 +150,23 @@ public class ReviewQueryRepository {
 		QReviewReply reply = QReviewReply.reviewReply;
 
 		return queryFactory
-			.select(Projections.constructor(
-				OwnerReviewWithReplyVo.class,
-				store.id,
-				store.name,
-				review.id,
-				review.user.id,
-				review.rating,
-				review.content,
-				review.imageUrl1,
-				review.imageUrl2,
-				review.imageUrl3,
-				review.isDisplayed,
-				reply.id,
-				reply.owner.id,
-				reply.content,
-				reply.isDisplayed
-			))
+			.select(
+				new QOwnerReviewWithReplyVo(
+					store.id,
+					store.name,
+					review.id,
+					review.user.id,
+					review.rating,
+					review.content,
+					review.imageUrl1,
+					review.imageUrl2,
+					review.imageUrl3,
+					review.isDisplayed,
+					reply.id,
+					reply.owner.id,
+					reply.content,
+					reply.isDisplayed
+				))
 			.from(store)
 			.join(store.reviews, review)
 			.leftJoin(review.reviewReply, reply)
@@ -181,8 +187,7 @@ public class ReviewQueryRepository {
 		QReviewReply reply = QReviewReply.reviewReply;
 
 		return queryFactory
-			.select(Projections.constructor(
-				OwnerReviewWithReplyVo.class,
+			.select(new QOwnerReviewWithReplyVo(
 				store.id,
 				store.name,
 				review.id,
@@ -213,4 +218,76 @@ public class ReviewQueryRepository {
 			.fetch();
 	}
 
+	public Page<ManagerSearchReviewVo> searchReviewsAll(
+		Long userId,
+		Long ownerId,
+		UUID storeId,
+		UUID orderId,
+		Integer rating,
+		String keyword,
+		Pageable pageable
+	) {
+		QReview review = QReview.review;
+		QReviewReply reply = QReviewReply.reviewReply;
+
+		BooleanBuilder builder = new BooleanBuilder();
+
+		System.out.println(keyword);
+
+		// 삭제 여부 조건 제거 → 모든 리뷰/답글 조회
+		if (userId != null)
+			builder.and(review.user.id.eq(userId));
+		if (ownerId != null)
+			builder.and(reply.owner.id.eq(ownerId));
+		if (storeId != null)
+			builder.and(review.store.id.eq(storeId));
+		if (orderId != null)
+			builder.and(review.order.id.eq(orderId));
+		if (rating != null)
+			builder.and(review.rating.eq(rating));
+		if (keyword != null && !keyword.isBlank())
+			builder.and(review.content.containsIgnoreCase(keyword));
+
+		var query = queryFactory
+			.select(new QManagerSearchReviewVo(
+				review.id,
+				review.user.id,
+				review.order.id,
+				review.store.id,
+				review.rating,
+				review.content,
+				review.imageUrl1,
+				review.imageUrl2,
+				review.imageUrl3,
+				review.isDisplayed,
+				review.createdAt,
+				review.createdBy,
+				review.updatedAt,
+				review.updatedBy,
+				review.deletedAt,
+				review.deletedBy,
+				reply.id,
+				reply.owner.id,
+				reply.content,
+				reply.isDisplayed,
+				reply.createdAt,
+				reply.createdBy,
+				reply.updatedAt,
+				reply.updatedBy,
+				reply.deletedAt,
+				reply.deletedBy
+			))
+			.from(review)
+			.leftJoin(review.reviewReply, reply) // 답글이 없더라도 review는 가져오기
+			.where(builder);
+
+		long total = query.fetch().size();
+
+		var result = query
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.fetch();
+
+		return new PageImpl<>(result, pageable, total);
+	}
 }
