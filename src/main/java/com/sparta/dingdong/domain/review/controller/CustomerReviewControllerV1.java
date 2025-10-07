@@ -18,7 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
-import com.sparta.dingdong.domain.review.dto.CustomerReviewDto;
+import com.sparta.dingdong.domain.review.dto.request.CustomerCreateReviewRequestDto;
+import com.sparta.dingdong.domain.review.dto.request.CustomerUpdateReviewRequestDto;
+import com.sparta.dingdong.domain.review.dto.response.CustomerReviewDetailsResponseDto;
+import com.sparta.dingdong.domain.review.dto.response.CustomerReviewResponseDto;
 import com.sparta.dingdong.domain.review.service.CustomerReviewService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,7 +43,7 @@ public class CustomerReviewControllerV1 {
 	public ResponseEntity<BaseResponseDto<?>> createReview(
 		@Parameter(description = "주문 UUID") @PathVariable UUID orderId,
 		@AuthenticationPrincipal UserAuth userDetails,
-		@Validated @RequestBody CustomerReviewDto.CreateReview request) {
+		@Validated @RequestBody CustomerCreateReviewRequestDto request) {
 
 		customerReviewService.createReview(orderId, userDetails, request);
 
@@ -53,7 +56,7 @@ public class CustomerReviewControllerV1 {
 	public ResponseEntity<BaseResponseDto<?>> updateReview(
 		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId,
 		@AuthenticationPrincipal UserAuth userDetails,
-		@Validated @RequestBody CustomerReviewDto.UpdateReview request) {
+		@Validated @RequestBody CustomerUpdateReviewRequestDto request) {
 
 		customerReviewService.updateReview(reviewId, userDetails, request);
 
@@ -79,7 +82,7 @@ public class CustomerReviewControllerV1 {
 		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId,
 		@AuthenticationPrincipal UserAuth userDetails) {
 
-		CustomerReviewDto.ReviewDetails details = customerReviewService.selectReviewDetails(reviewId, userDetails);
+		CustomerReviewDetailsResponseDto details = customerReviewService.selectReviewDetails(reviewId, userDetails);
 		return ResponseEntity.ok(BaseResponseDto.success("리뷰를 상세 조회합니다.", details));
 	}
 
@@ -88,7 +91,7 @@ public class CustomerReviewControllerV1 {
 	@GetMapping("/customers/reviews")
 	public ResponseEntity<BaseResponseDto<?>> selectReviews(@AuthenticationPrincipal UserAuth userDetails) {
 
-		List<CustomerReviewDto.Review> reviews = customerReviewService.selectActiveReviews(userDetails);
+		List<CustomerReviewResponseDto> reviews = customerReviewService.selectActiveReviews(userDetails);
 
 		return ResponseEntity.ok(BaseResponseDto.success("리뷰 전체 조회입니다.", reviews));
 	}

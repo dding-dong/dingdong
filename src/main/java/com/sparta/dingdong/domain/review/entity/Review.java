@@ -4,7 +4,8 @@ import java.util.UUID;
 
 import com.sparta.dingdong.common.base.BaseEntity;
 import com.sparta.dingdong.domain.order.entity.Order;
-import com.sparta.dingdong.domain.review.dto.CustomerReviewDto;
+import com.sparta.dingdong.domain.review.dto.request.CustomerCreateReviewRequestDto;
+import com.sparta.dingdong.domain.review.dto.request.CustomerUpdateReviewRequestDto;
 import com.sparta.dingdong.domain.store.entity.Store;
 import com.sparta.dingdong.domain.user.entity.User;
 
@@ -62,7 +63,7 @@ public class Review extends BaseEntity {
 	@OneToOne(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
 	private ReviewReply reviewReply;
 
-	public static Review create(User user, Order order, CustomerReviewDto.CreateReview request) {
+	public static Review create(User user, Order order, CustomerCreateReviewRequestDto request) {
 		return Review.builder()
 			.user(user)
 			.order(order)
@@ -76,7 +77,7 @@ public class Review extends BaseEntity {
 			.build();
 	}
 
-	public void updateReview(CustomerReviewDto.UpdateReview request) {
+	public void updateReview(CustomerUpdateReviewRequestDto request) {
 		this.rating = request.getRating() != null ? request.getRating() : this.rating;
 		this.content = request.getContent() != null ? request.getContent() : this.content;
 		this.imageUrl1 = request.getImageUrl1() != null ? request.getImageUrl1() : this.imageUrl1;
@@ -90,7 +91,7 @@ public class Review extends BaseEntity {
 		softDelete();
 	}
 
-	public void reactivate(User user, CustomerReviewDto.CreateReview request) {
+	public void reactivate(User user, CustomerCreateReviewRequestDto request) {
 		this.user = user;
 		this.rating = request.getRating();
 		this.content = request.getContent();

@@ -9,7 +9,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.order.entity.Order;
 import com.sparta.dingdong.domain.order.service.OrderService;
-import com.sparta.dingdong.domain.review.dto.CustomerReviewDto;
+import com.sparta.dingdong.domain.review.dto.request.CustomerCreateReviewRequestDto;
+import com.sparta.dingdong.domain.review.dto.request.CustomerUpdateReviewRequestDto;
+import com.sparta.dingdong.domain.review.dto.response.CustomerReviewDetailsResponseDto;
+import com.sparta.dingdong.domain.review.dto.response.CustomerReviewReplyDetailsResponseDto;
+import com.sparta.dingdong.domain.review.dto.response.CustomerReviewReplyResponseDto;
+import com.sparta.dingdong.domain.review.dto.response.CustomerReviewResponseDto;
 import com.sparta.dingdong.domain.review.entity.Review;
 import com.sparta.dingdong.domain.review.entity.ReviewReply;
 import com.sparta.dingdong.domain.review.exception.NotReviewOwnerException;
@@ -48,7 +53,7 @@ public class CustomerReviewServiceImpl implements CustomerReviewService {
 	 * 삭제/숨김된 리뷰 -> 재활성화 후 true 반환
 	 * 존재하지 않으면 false 반환
 	 */
-	private boolean handleExistingReview(Review existingReview, User user, CustomerReviewDto.CreateReview request,
+	private boolean handleExistingReview(Review existingReview, User user, CustomerCreateReviewRequestDto request,
 		UUID orderId) {
 
 		if (existingReview == null) {
@@ -64,7 +69,7 @@ public class CustomerReviewServiceImpl implements CustomerReviewService {
 
 	@Override
 	@Transactional
-	public void createReview(UUID orderId, UserAuth userDetails, CustomerReviewDto.CreateReview request) {
+	public void createReview(UUID orderId, UserAuth userDetails, CustomerCreateReviewRequestDto request) {
 		User user = userService.findByUser(userDetails);
 		Order order = orderService.findByOrder(orderId);
 
@@ -80,7 +85,7 @@ public class CustomerReviewServiceImpl implements CustomerReviewService {
 
 	@Override
 	@Transactional
-	public void updateReview(UUID reviewId, UserAuth userDetails, CustomerReviewDto.UpdateReview request) {
+	public void updateReview(UUID reviewId, UserAuth userDetails, CustomerUpdateReviewRequestDto request) {
 		Review review = findReview(reviewId);
 
 		User user = userService.findByUser(userDetails);
@@ -108,7 +113,7 @@ public class CustomerReviewServiceImpl implements CustomerReviewService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public CustomerReviewDto.ReviewDetails selectReviewDetails(UUID reviewId, UserAuth userDetails) {
+	public CustomerReviewDetailsResponseDto selectReviewDetails(UUID reviewId, UserAuth userDetails) {
 		User user = userService.findByUser(userDetails);
 		Review review = findReview(reviewId);
 
@@ -123,11 +128,11 @@ public class CustomerReviewServiceImpl implements CustomerReviewService {
 		}
 
 		ReviewReply reviewReply = findActiveReviewReply(review);
-		CustomerReviewDto.ReviewReplyDetails reviewReplyDto = null;
+		CustomerReviewReplyDetailsResponseDto reviewReplyDto = null;
 
 		// 리뷰 답글 노출 여부
 		if (reviewReply != null && reviewReply.isDisplayed()) {
-			reviewReplyDto = CustomerReviewDto.ReviewReplyDetails.builder()
+			reviewReplyDto = CustomerReviewReplyDetailsResponseDto.builder()
 				.replyId(reviewReply.getId())
 				.ownerId(reviewReply.getOwner().getId())
 				.content(reviewReply.getContent())
@@ -135,7 +140,7 @@ public class CustomerReviewServiceImpl implements CustomerReviewService {
 				.build();
 		}
 
-		CustomerReviewDto.ReviewDetails reviewDetailsDto = CustomerReviewDto.ReviewDetails.builder()
+		CustomerReviewDetailsResponseDto reviewDetailsDto = CustomerReviewDetailsResponseDto.builder()
 			.reviewId(review.getId())
 			.userId(review.getUser().getId())
 			.orderId(review.getOrder().getId())
@@ -154,15 +159,15 @@ public class CustomerReviewServiceImpl implements CustomerReviewService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<CustomerReviewDto.Review> selectActiveReviews(UserAuth userDetails) {
+	public List<CustomerReviewResponseDto> selectActiveReviews(UserAuth userDetails) {
 		User user = userService.findByUser(userDetails);
 		List<ReviewWithReplyVo> voList = reviewQueryRepository.findAllActiveReviewsWithReplyByUser(user.getId());
 
 		return voList.stream().map(vo -> {
 			// 답글이 없으면 null 처리
-			CustomerReviewDto.ReviewReply replyDto = null;
+			CustomerReviewReplyResponseDto replyDto = null;
 			if (vo.getReplyId() != null && vo.getReplyContent() != null) {
-				replyDto = CustomerReviewDto.ReviewReply.builder()
+				replyDto = CustomerReviewReplyResponseDto.builder()
 					.replyId(vo.getReplyId())
 					.ownerId(vo.getOwnerId())
 					.content(vo.getReplyContent())
@@ -170,7 +175,7 @@ public class CustomerReviewServiceImpl implements CustomerReviewService {
 					.build();
 			}
 
-			return CustomerReviewDto.Review.builder()
+			return CustomerReviewResponseDto.builder()
 				.reviewId(vo.getReviewId())
 				.userId(vo.getUserId())
 				.orderId(vo.getOrderId())
