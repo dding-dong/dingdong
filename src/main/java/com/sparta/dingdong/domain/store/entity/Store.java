@@ -81,7 +81,7 @@ public class Store extends BaseEntity {
 	private LocalDateTime openedAt;
 	private LocalDateTime closedAt;
 
-	// CSV로 요일 저장 → AttributeConverter로 리팩터링 가능
+	// CSV로 요일 저장 → AttributeConverter로 리팩터링 가능 --> 안 쓰기로.
 	@Column(name = "day_of_week")
 	private String daysOfWeekCsv;
 

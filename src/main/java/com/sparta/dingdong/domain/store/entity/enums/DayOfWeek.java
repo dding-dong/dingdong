@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum DayOfWeek {
+public enum DayOfWeek {        // 이 기능 안 쓰기로.
 	MONDAY("월요일"),
 	TUESDAY("화요일"),
 	WEDNESDAY("수요일"),
