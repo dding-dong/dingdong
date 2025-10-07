@@ -39,11 +39,9 @@ public class MenuCategoryServiceImpl implements MenuCategoryService {
 	}
 
 	@Override
-	public MenuCategoryResponseDto create(UUID storeId, MenuCategoryRequestDto req) {
+	public MenuCategoryResponseDto create(UUID storeId, MenuCategoryRequestDto req, UserAuth user) {
 		Store store = storeRepository.findById(storeId)
 			.orElseThrow(() -> new IllegalArgumentException("가게를 찾을 수 없습니다: " + storeId));
-
-		UserAuth user = authService.getCurrentUser();
 		authService.validateStoreOwnership(user, store.getOwner().getId());
 
 		boolean exists = menuCategoryRepository.existsByStoreAndSortMenuCategory(store, req.getSortMenuCategory());
@@ -62,37 +60,29 @@ public class MenuCategoryServiceImpl implements MenuCategoryService {
 	}
 
 	@Override
-	public MenuCategoryResponseDto update(UUID categoryId, MenuCategoryRequestDto req) {
-		MenuCategory mc = menuCategoryRepository.findByIdWithStore(categoryId)
-			.orElseThrow(() -> new IllegalArgumentException("메뉴 카테고리를 찾을 수 없습니다: " + categoryId));
-
-		UserAuth user = authService.getCurrentUser();
+	public MenuCategoryResponseDto update(UUID menuCategoryId, MenuCategoryRequestDto req, UserAuth user) {
+		MenuCategory mc = menuCategoryRepository.findByIdWithStore(menuCategoryId)
+			.orElseThrow(() -> new IllegalArgumentException("메뉴 카테고리를 찾을 수 없습니다: " + menuCategoryId));
 		authService.validateStoreOwnership(user, mc.getStore().getOwner().getId());
-
 		mc.setName(req.getName());
 		mc.setSortMenuCategory(req.getSortMenuCategory());
 		return map(mc);
 	}
 
 	@Override
-	public void delete(UUID categoryId) {
-		MenuCategory mc = menuCategoryRepository.findByIdWithStore(categoryId)
-			.orElseThrow(() -> new IllegalArgumentException("메뉴 카테고리를 찾을 수 없습니다: " + categoryId));
-
-		UserAuth user = authService.getCurrentUser();
+	public void delete(UUID menuCategoryId, UserAuth user) {
+		MenuCategory mc = menuCategoryRepository.findByIdWithStore(menuCategoryId)
+			.orElseThrow(() -> new IllegalArgumentException("메뉴 카테고리를 찾을 수 없습니다: " + menuCategoryId));
 		authService.validateStoreOwnership(user, mc.getStore().getOwner().getId());
 
 		mc.softDelete(user.getId());
 	}
 
 	@Override
-	public MenuCategoryResponseDto restore(UUID categoryId) {
-		MenuCategory mc = menuCategoryRepository.findDeletedById(categoryId)
-			.orElseThrow(() -> new IllegalArgumentException("삭제된 메뉴 카테고리를 찾을 수 없습니다: " + categoryId));
-
-		UserAuth user = authService.getCurrentUser();
+	public MenuCategoryResponseDto restore(UUID menuCategoryId, UserAuth user) {
+		MenuCategory mc = menuCategoryRepository.findDeletedById(menuCategoryId)
+			.orElseThrow(() -> new IllegalArgumentException("삭제된 메뉴 카테고리를 찾을 수 없습니다: " + menuCategoryId));
 		mc.restore(user.getId());
-
 		return map(mc);
 	}
 

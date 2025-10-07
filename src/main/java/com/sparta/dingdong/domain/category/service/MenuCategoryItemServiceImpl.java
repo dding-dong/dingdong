@@ -34,47 +34,39 @@ public class MenuCategoryItemServiceImpl implements MenuCategoryItemService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public List<MenuCategoryItemResponseDto> getItemsByCategory(UUID categoryId) {
-		return menuCategoryItemRepository.findByMenuCategoryIdOrderByOrderNoAsc(categoryId)
+	public List<MenuCategoryItemResponseDto> getItemsByCategory(UUID menuCategoryId) {
+		return menuCategoryItemRepository.findByMenuCategoryIdOrderByOrderNoAsc(menuCategoryId)
 			.stream()
 			.map(this::map)
 			.collect(Collectors.toList());
 	}
 
 	@Override
-	public MenuCategoryItemResponseDto addMenuToCategory(UUID categoryId, MenuCategoryItemRequestDto req) {
+	public MenuCategoryItemResponseDto addMenuToCategory(UUID categoryId, MenuCategoryItemRequestDto req,
+		UserAuth user) {
 		MenuCategory mc = menuCategoryRepository.findByIdWithStore(categoryId)
 			.orElseThrow(() -> new IllegalArgumentException("메뉴 카테고리를 찾을 수 없습니다: " + categoryId));
-
-		UserAuth user = authService.getCurrentUser();
 		authService.validateStoreOwnership(user, mc.getStore().getOwner().getId());
-
 		MenuItem item = menuItemRepository.findById(req.getMenuItemId())
 			.orElseThrow(() -> new IllegalArgumentException("메뉴 아이템을 찾을 수 없습니다: " + req.getMenuItemId()));
-
 		boolean exists = menuCategoryItemRepository.existsByMenuCategoryIdAndOrderNo(categoryId, req.getOrderNo());
 		if (exists) {
 			throw new IllegalArgumentException("해당 카테고리에서 이미 같은 순서(orderNo)의 메뉴가 존재합니다.");
 		}
-
 		MenuCategoryItem mci = MenuCategoryItem.builder()
 			.menuCategory(mc)
 			.menuItem(item)
 			.orderNo(req.getOrderNo())
 			.build();
-
 		MenuCategoryItem saved = menuCategoryItemRepository.save(mci);
 		return map(saved);
 	}
 
 	@Override
-	public void removeMenuFromCategory(UUID menuCategoryItemId) {
+	public void removeMenuFromCategory(UUID menuCategoryItemId, UserAuth user) {
 		MenuCategoryItem mci = menuCategoryItemRepository.findByIdWithMenuCategoryAndStore(menuCategoryItemId)
 			.orElseThrow(() -> new IllegalArgumentException("해당 카테고리의 메뉴아이템이 존재하지 않습니다: " + menuCategoryItemId));
-
-		UserAuth user = authService.getCurrentUser();
 		authService.validateStoreOwnership(user, mci.getMenuCategory().getStore().getOwner().getId());
-
 		menuCategoryItemRepository.delete(mci);
 	}
 

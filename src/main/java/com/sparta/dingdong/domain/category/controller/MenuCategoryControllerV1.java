@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.dingdong.common.dto.BaseResponseDto;
+import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.category.dto.request.MenuCategoryItemRequestDto;
 import com.sparta.dingdong.domain.category.dto.request.MenuCategoryRequestDto;
 import com.sparta.dingdong.domain.category.dto.response.MenuCategoryItemResponseDto;
@@ -44,7 +46,6 @@ public class MenuCategoryControllerV1 {
 	@PreAuthorize("true")
 	public ResponseEntity<BaseResponseDto<List<MenuCategoryResponseDto>>> getAll(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId) {
-
 		List<MenuCategoryResponseDto> result = menuCategoryService.getByStore(storeId);
 		return ResponseEntity.ok(BaseResponseDto.success("메뉴 카테고리 목록 조회 성공", result));
 	}
@@ -54,9 +55,9 @@ public class MenuCategoryControllerV1 {
 	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
 	public ResponseEntity<BaseResponseDto<MenuCategoryResponseDto>> create(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
-		@Valid @RequestBody MenuCategoryRequestDto req) {
-
-		MenuCategoryResponseDto result = menuCategoryService.create(storeId, req);
+		@Valid @RequestBody MenuCategoryRequestDto req,
+		@AuthenticationPrincipal UserAuth user) {
+		MenuCategoryResponseDto result = menuCategoryService.create(storeId, req, user);
 		return ResponseEntity.ok(BaseResponseDto.success("메뉴 카테고리 생성 성공", result));
 	}
 
@@ -66,9 +67,9 @@ public class MenuCategoryControllerV1 {
 	public ResponseEntity<BaseResponseDto<MenuCategoryResponseDto>> update(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId,
-		@Valid @RequestBody MenuCategoryRequestDto req) {
-
-		MenuCategoryResponseDto result = menuCategoryService.update(menuCategoryId, req);
+		@Valid @RequestBody MenuCategoryRequestDto req,
+		@AuthenticationPrincipal UserAuth user) {
+		MenuCategoryResponseDto result = menuCategoryService.update(menuCategoryId, req, user);
 		return ResponseEntity.ok(BaseResponseDto.success("메뉴 카테고리 수정 성공", result));
 	}
 
@@ -77,9 +78,9 @@ public class MenuCategoryControllerV1 {
 	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
 	public ResponseEntity<BaseResponseDto<Void>> delete(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
-		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId) {
-
-		menuCategoryService.delete(menuCategoryId);
+		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId,
+		@AuthenticationPrincipal UserAuth user) {
+		menuCategoryService.delete(menuCategoryId, user);
 		return ResponseEntity.ok(BaseResponseDto.success("메뉴 카테고리 삭제 성공"));
 	}
 
@@ -87,9 +88,10 @@ public class MenuCategoryControllerV1 {
 	@PutMapping("/{menuCategoryId}/restore")
 	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
 	public ResponseEntity<BaseResponseDto<MenuCategoryResponseDto>> restore(
-		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId) {
-
-		MenuCategoryResponseDto result = menuCategoryService.restore(menuCategoryId);
+		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
+		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId,
+		@AuthenticationPrincipal UserAuth user) {
+		MenuCategoryResponseDto result = menuCategoryService.restore(menuCategoryId, user);
 		return ResponseEntity.ok(BaseResponseDto.success("메뉴 카테고리 복구 성공", result));
 	}
 
@@ -101,7 +103,6 @@ public class MenuCategoryControllerV1 {
 	public ResponseEntity<BaseResponseDto<List<MenuCategoryItemResponseDto>>> getItems(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId) {
-
 		List<MenuCategoryItemResponseDto> result = menuCategoryItemService.getItemsByCategory(menuCategoryId);
 		return ResponseEntity.ok(BaseResponseDto.success("카테고리별 메뉴 조회 성공", result));
 	}
@@ -112,9 +113,9 @@ public class MenuCategoryControllerV1 {
 	public ResponseEntity<BaseResponseDto<MenuCategoryItemResponseDto>> addItem(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId,
-		@Valid @RequestBody MenuCategoryItemRequestDto req) {
-
-		MenuCategoryItemResponseDto result = menuCategoryItemService.addMenuToCategory(menuCategoryId, req);
+		@Valid @RequestBody MenuCategoryItemRequestDto req,
+		@AuthenticationPrincipal UserAuth user) {
+		MenuCategoryItemResponseDto result = menuCategoryItemService.addMenuToCategory(menuCategoryId, req, user);
 		return ResponseEntity.ok(BaseResponseDto.success("카테고리에 메뉴 추가 성공", result));
 	}
 
@@ -124,9 +125,9 @@ public class MenuCategoryControllerV1 {
 	public ResponseEntity<BaseResponseDto<Void>> removeItem(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId,
-		@Parameter(description = "메뉴아이템 UUID") @PathVariable UUID menuCategoryItemId) {
-
-		menuCategoryItemService.removeMenuFromCategory(menuCategoryItemId);
+		@Parameter(description = "메뉴아이템 UUID") @PathVariable UUID menuCategoryItemId,
+		@AuthenticationPrincipal UserAuth user) {
+		menuCategoryItemService.removeMenuFromCategory(menuCategoryItemId, user);
 		return ResponseEntity.ok(BaseResponseDto.success("카테고리 메뉴 삭제 성공"));
 	}
 }
