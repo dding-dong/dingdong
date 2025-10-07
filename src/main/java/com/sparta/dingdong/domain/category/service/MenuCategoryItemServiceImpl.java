@@ -13,9 +13,13 @@ import com.sparta.dingdong.domain.category.dto.request.MenuCategoryItemRequestDt
 import com.sparta.dingdong.domain.category.dto.response.MenuCategoryItemResponseDto;
 import com.sparta.dingdong.domain.category.entity.MenuCategory;
 import com.sparta.dingdong.domain.category.entity.MenuCategoryItem;
+import com.sparta.dingdong.domain.category.exception.menucategory.MenuCategoryItemNotFoundException;
+import com.sparta.dingdong.domain.category.exception.menucategory.MenuCategoryItemOrderConflictException;
+import com.sparta.dingdong.domain.category.exception.menucategory.MenuCategoryNotFoundException;
 import com.sparta.dingdong.domain.category.repository.MenuCategoryItemRepository;
 import com.sparta.dingdong.domain.category.repository.MenuCategoryRepository;
 import com.sparta.dingdong.domain.menu.entity.MenuItem;
+import com.sparta.dingdong.domain.menu.exception.MenuItemNotFoundException;
 import com.sparta.dingdong.domain.menu.repository.MenuItemRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -45,13 +49,13 @@ public class MenuCategoryItemServiceImpl implements MenuCategoryItemService {
 	public MenuCategoryItemResponseDto addMenuToCategory(UUID categoryId, MenuCategoryItemRequestDto req,
 		UserAuth user) {
 		MenuCategory mc = menuCategoryRepository.findByIdWithStore(categoryId)
-			.orElseThrow(() -> new IllegalArgumentException("메뉴 카테고리를 찾을 수 없습니다: " + categoryId));
+			.orElseThrow(MenuCategoryNotFoundException::new);
 		authService.validateStoreOwnership(user, mc.getStore().getOwner().getId());
 		MenuItem item = menuItemRepository.findById(req.getMenuItemId())
-			.orElseThrow(() -> new IllegalArgumentException("메뉴 아이템을 찾을 수 없습니다: " + req.getMenuItemId()));
+			.orElseThrow(MenuItemNotFoundException::new);
 		boolean exists = menuCategoryItemRepository.existsByMenuCategoryIdAndOrderNo(categoryId, req.getOrderNo());
 		if (exists) {
-			throw new IllegalArgumentException("해당 카테고리에서 이미 같은 순서(orderNo)의 메뉴가 존재합니다.");
+			throw new MenuCategoryItemOrderConflictException();
 		}
 		MenuCategoryItem mci = MenuCategoryItem.builder()
 			.menuCategory(mc)
@@ -65,7 +69,7 @@ public class MenuCategoryItemServiceImpl implements MenuCategoryItemService {
 	@Override
 	public void removeMenuFromCategory(UUID menuCategoryItemId, UserAuth user) {
 		MenuCategoryItem mci = menuCategoryItemRepository.findByIdWithMenuCategoryAndStore(menuCategoryItemId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 카테고리의 메뉴아이템이 존재하지 않습니다: " + menuCategoryItemId));
+			.orElseThrow(MenuCategoryItemNotFoundException::new);
 		authService.validateStoreOwnership(user, mci.getMenuCategory().getStore().getOwner().getId());
 		menuCategoryItemRepository.delete(mci);
 	}

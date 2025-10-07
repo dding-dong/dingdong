@@ -11,7 +11,9 @@ import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.category.dto.request.StoreCategoryRequestDto;
 import com.sparta.dingdong.domain.category.dto.response.StoreCategoryResponseDto;
 import com.sparta.dingdong.domain.category.entity.StoreCategory;
+import com.sparta.dingdong.domain.category.exception.storecategory.StoreCategoryAlreadyActiveException;
 import com.sparta.dingdong.domain.category.repository.StoreCategoryRepository;
+import com.sparta.dingdong.domain.store.exception.StoreNotFoundException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -70,7 +72,7 @@ public class StoreCategoryServiceImpl implements StoreCategoryService {
 	public StoreCategoryResponseDto restore(UUID id, UserAuth user) {
 		StoreCategory sc = getCategoryOrThrow(id);
 		if (!sc.isDeleted()) {
-			throw new IllegalStateException("이미 활성화된 카테고리입니다.");
+			throw new StoreCategoryAlreadyActiveException();
 		}
 		sc.restore(user.getId());
 		storeCategoryRepository.save(sc);
@@ -81,7 +83,7 @@ public class StoreCategoryServiceImpl implements StoreCategoryService {
 
 	private StoreCategory getCategoryOrThrow(UUID id) {
 		return storeCategoryRepository.findById(id)
-			.orElseThrow(() -> new IllegalArgumentException("가게 카테고리를 찾을 수 없습니다: " + id));
+			.orElseThrow(StoreNotFoundException::new);
 	}
 
 	private StoreCategoryResponseDto map(StoreCategory sc) {

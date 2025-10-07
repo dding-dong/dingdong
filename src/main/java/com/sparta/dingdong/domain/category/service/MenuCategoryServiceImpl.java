@@ -12,8 +12,12 @@ import com.sparta.dingdong.domain.auth.service.AuthService;
 import com.sparta.dingdong.domain.category.dto.request.MenuCategoryRequestDto;
 import com.sparta.dingdong.domain.category.dto.response.MenuCategoryResponseDto;
 import com.sparta.dingdong.domain.category.entity.MenuCategory;
+import com.sparta.dingdong.domain.category.exception.menucategory.DeletedMenuCategoryNotFoundException;
+import com.sparta.dingdong.domain.category.exception.menucategory.MenuCategoryNotFoundException;
+import com.sparta.dingdong.domain.category.exception.menucategory.MenuCategorySortConflictException;
 import com.sparta.dingdong.domain.category.repository.MenuCategoryRepository;
 import com.sparta.dingdong.domain.store.entity.Store;
+import com.sparta.dingdong.domain.store.exception.StoreNotFoundException;
 import com.sparta.dingdong.domain.store.repository.StoreRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -41,12 +45,12 @@ public class MenuCategoryServiceImpl implements MenuCategoryService {
 	@Override
 	public MenuCategoryResponseDto create(UUID storeId, MenuCategoryRequestDto req, UserAuth user) {
 		Store store = storeRepository.findById(storeId)
-			.orElseThrow(() -> new IllegalArgumentException("가게를 찾을 수 없습니다: " + storeId));
+			.orElseThrow(StoreNotFoundException::new);
 		authService.validateStoreOwnership(user, store.getOwner().getId());
 
 		boolean exists = menuCategoryRepository.existsByStoreAndSortMenuCategory(store, req.getSortMenuCategory());
 		if (exists) {
-			throw new IllegalArgumentException("이미 해당 정렬 순서를 가진 카테고리가 존재합니다.");
+			throw new MenuCategorySortConflictException();
 		}
 
 		MenuCategory mc = MenuCategory.builder()
@@ -62,7 +66,7 @@ public class MenuCategoryServiceImpl implements MenuCategoryService {
 	@Override
 	public MenuCategoryResponseDto update(UUID menuCategoryId, MenuCategoryRequestDto req, UserAuth user) {
 		MenuCategory mc = menuCategoryRepository.findByIdWithStore(menuCategoryId)
-			.orElseThrow(() -> new IllegalArgumentException("메뉴 카테고리를 찾을 수 없습니다: " + menuCategoryId));
+			.orElseThrow(MenuCategoryNotFoundException::new);
 		authService.validateStoreOwnership(user, mc.getStore().getOwner().getId());
 		mc.setName(req.getName());
 		mc.setSortMenuCategory(req.getSortMenuCategory());
@@ -72,7 +76,7 @@ public class MenuCategoryServiceImpl implements MenuCategoryService {
 	@Override
 	public void delete(UUID menuCategoryId, UserAuth user) {
 		MenuCategory mc = menuCategoryRepository.findByIdWithStore(menuCategoryId)
-			.orElseThrow(() -> new IllegalArgumentException("메뉴 카테고리를 찾을 수 없습니다: " + menuCategoryId));
+			.orElseThrow(MenuCategoryNotFoundException::new);
 		authService.validateStoreOwnership(user, mc.getStore().getOwner().getId());
 
 		mc.softDelete(user.getId());
@@ -81,7 +85,7 @@ public class MenuCategoryServiceImpl implements MenuCategoryService {
 	@Override
 	public MenuCategoryResponseDto restore(UUID menuCategoryId, UserAuth user) {
 		MenuCategory mc = menuCategoryRepository.findDeletedById(menuCategoryId)
-			.orElseThrow(() -> new IllegalArgumentException("삭제된 메뉴 카테고리를 찾을 수 없습니다: " + menuCategoryId));
+			.orElseThrow(DeletedMenuCategoryNotFoundException::new);
 		mc.restore(user.getId());
 		return map(mc);
 	}
