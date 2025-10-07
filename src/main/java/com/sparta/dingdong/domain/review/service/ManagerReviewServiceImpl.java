@@ -7,7 +7,8 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sparta.dingdong.domain.review.dto.ManagerReviewDto;
+import com.sparta.dingdong.domain.review.dto.response.ManagerReviewReplyResponseDto;
+import com.sparta.dingdong.domain.review.dto.response.ManagerReviewResponseDto;
 import com.sparta.dingdong.domain.review.entity.Review;
 import com.sparta.dingdong.domain.review.exception.ReviewNotFoundException;
 import com.sparta.dingdong.domain.review.repository.ReviewRepository;
@@ -34,11 +35,11 @@ public class ManagerReviewServiceImpl implements ManagerReviewService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public ManagerReviewDto.Review getReviewDetails(UUID reviewId) {
+	public ManagerReviewResponseDto getReviewDetails(UUID reviewId) {
 		Review review = findReview(reviewId);
 
-		ManagerReviewDto.ReviewReply replyDto = Optional.ofNullable(review.getReviewReply())
-			.map(reply -> ManagerReviewDto.ReviewReply.builder()
+		ManagerReviewReplyResponseDto replyDto = Optional.ofNullable(review.getReviewReply())
+			.map(reply -> ManagerReviewReplyResponseDto.builder()
 				.replyId(reply.getId())
 				.ownerId(reply.getOwner().getId())
 				.content(reply.getContent())
@@ -46,7 +47,7 @@ public class ManagerReviewServiceImpl implements ManagerReviewService {
 				.build())
 			.orElse(null);
 
-		ManagerReviewDto.Review reviewDto = ManagerReviewDto.Review.builder()
+		ManagerReviewResponseDto reviewDto = ManagerReviewResponseDto.builder()
 			.reviewId(review.getId())
 			.userId(review.getUser().getId())
 			.orderId(review.getOrder().getId())
@@ -65,15 +66,15 @@ public class ManagerReviewServiceImpl implements ManagerReviewService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public List<ManagerReviewDto.Review> getReviews() {
+	public List<ManagerReviewResponseDto> getReviews() {
 		// 모든 리뷰 조회
 		List<Review> reviews = reviewRepository.findAll();
 
 		return reviews.stream()
 			.map(review -> {
 				// Optional을 활용하여 리뷰 답글 DTO 생성
-				ManagerReviewDto.ReviewReply replyDto = Optional.ofNullable(review.getReviewReply())
-					.map(reply -> ManagerReviewDto.ReviewReply.builder()
+				ManagerReviewReplyResponseDto replyDto = Optional.ofNullable(review.getReviewReply())
+					.map(reply -> ManagerReviewReplyResponseDto.builder()
 						.replyId(reply.getId())
 						.ownerId(reply.getOwner().getId())
 						.content(reply.getContent())
@@ -82,7 +83,7 @@ public class ManagerReviewServiceImpl implements ManagerReviewService {
 					.orElse(null);
 
 				// 리뷰 DTO 생성
-				return ManagerReviewDto.Review.builder()
+				return ManagerReviewResponseDto.builder()
 					.reviewId(review.getId())
 					.userId(review.getUser().getId())
 					.orderId(review.getOrder().getId())

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.dingdong.common.dto.BaseResponseDto;
-import com.sparta.dingdong.domain.review.dto.ManagerReviewDto;
+import com.sparta.dingdong.domain.review.dto.response.ManagerReviewResponseDto;
 import com.sparta.dingdong.domain.review.service.ManagerReviewService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,7 +42,7 @@ public class ManagerReviewControllerV1 {
 	@PreAuthorize("hasRole('ROLE_MANAGER')")
 	public ResponseEntity<BaseResponseDto<?>> getReviewDetails(
 		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId) {
-		ManagerReviewDto.Review review = managerReviewService.getReviewDetails(reviewId);
+		ManagerReviewResponseDto review = managerReviewService.getReviewDetails(reviewId);
 		return ResponseEntity.ok(BaseResponseDto.success("리뷰가 숨김처리 되었습니다.", review));
 	}
 
@@ -50,7 +50,7 @@ public class ManagerReviewControllerV1 {
 	@GetMapping("/admin/reviews")
 	@PreAuthorize("hasRole('ROLE_MANAGER')")
 	public ResponseEntity<BaseResponseDto<?>> getReviews() {
-		List<ManagerReviewDto.Review> list = managerReviewService.getReviews();
+		List<ManagerReviewResponseDto> list = managerReviewService.getReviews();
 		return ResponseEntity.ok(BaseResponseDto.success("리뷰가 숨김처리 되었습니다.", list));
 	}
 }
