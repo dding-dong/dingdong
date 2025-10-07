@@ -37,6 +37,6 @@ public class StoreRequestDto {
 	@Schema(example = "abb3b4cf-c378-4c55-b7da-123456789012", description = "가게카테고리 UUID")
 	private UUID storeCategoryId;
 
-	@Schema(example = "[\"강남구\", \"서초구\"]", description = "배달 가능 지역 목록")
+	@Schema(example = "[\"500\", \"400\"]", description = "배달 가능 지역 목록")
 	private List<String> deliveryAreaIds;
 }

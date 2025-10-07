@@ -37,6 +37,11 @@ public class MenuItemServiceImpl implements MenuItemService {
 		Store store = storeRepository.findById(storeId)
 			.orElseThrow(() -> new IllegalArgumentException("가게를 찾을 수 없습니다."));
 
+		// 해당 가게가 삭제됐으면 메뉴 조회되면 안됨
+		if (store.getDeletedAt() != null) {
+			throw new IllegalStateException("삭제된 가게의 메뉴는 조회할 수 없습니다.");
+		}
+
 		List<MenuItem> items;
 
 		if (includeHidden) {
@@ -137,7 +142,8 @@ public class MenuItemServiceImpl implements MenuItemService {
 		authService.validateStoreOwnership(user, menu.getStore().getOwner().getId());
 
 		menu.softDelete(user.getId());
-		menu.setIsDisplayed(false); // 삭제 시 비노출 처리
+		menu.setIsDisplayed(false); // 삭제 시 비노출
+		menu.setIsActive(false); // 삭제 시 비활성화
 	}
 
 	private MenuItemResponseDto map(MenuItem m) {

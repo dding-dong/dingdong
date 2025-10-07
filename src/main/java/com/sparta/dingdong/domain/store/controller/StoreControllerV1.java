@@ -24,6 +24,7 @@ import com.sparta.dingdong.domain.store.dto.response.StoreResponseDto;
 import com.sparta.dingdong.domain.store.service.StoreService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/v1/stores")
 @RequiredArgsConstructor
-@Tag(name = "Store", description = "가게 관련 API")
+@Tag(name = "Store", description = "가게 API")
 public class StoreControllerV1 {
 
 	private final StoreService storeService;
@@ -52,7 +53,8 @@ public class StoreControllerV1 {
 	@GetMapping("/{storeCategoryId}/list")
 	@PreAuthorize("true")
 	public ResponseEntity<BaseResponseDto<List<StoreResponseDto>>> getActiveStoresByCategory(
-		@PathVariable UUID storeCategoryId, @AuthenticationPrincipal UserAuth user) {
+		@Parameter(description = "가게 카테고리 UUID") @PathVariable UUID storeCategoryId,
+		@AuthenticationPrincipal UserAuth user) {
 		List<StoreResponseDto> stores = storeService.getActiveStoresByCategory(storeCategoryId, user);
 		return ResponseEntity.ok(BaseResponseDto.success("활성화된 카테고리 가게 목록 조회 성공", stores));
 	}
@@ -81,7 +83,7 @@ public class StoreControllerV1 {
 	@GetMapping("/my/{storeId}")
 	@PreAuthorize("hasRole('OWNER')")
 	public ResponseEntity<BaseResponseDto<StoreResponseDto>> getMyStore(
-		@PathVariable UUID storeId,
+		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@AuthenticationPrincipal UserAuth user) {
 		StoreResponseDto store = storeService.getMyStore(storeId, user);
 		return ResponseEntity.ok(BaseResponseDto.success("내 가게 조회 성공", store));
@@ -91,7 +93,7 @@ public class StoreControllerV1 {
 	@PutMapping("/my/{storeId}")
 	@PreAuthorize("hasRole('OWNER')")
 	public ResponseEntity<BaseResponseDto<StoreResponseDto>> update(
-		@PathVariable UUID storeId,
+		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@Valid @RequestBody StoreRequestDto req,
 		@AuthenticationPrincipal UserAuth user) {
 		StoreResponseDto updated = storeService.update(storeId, req, user);
@@ -102,7 +104,7 @@ public class StoreControllerV1 {
 	@PatchMapping("/my/{storeId}/status")
 	@PreAuthorize("hasRole('OWNER')")
 	public ResponseEntity<BaseResponseDto<StoreResponseDto>> updateStatus(
-		@PathVariable UUID storeId,
+		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@RequestBody StoreUpdateStatusRequestDto req,
 		@AuthenticationPrincipal UserAuth user) {
 		StoreResponseDto store = storeService.updateStatus(storeId, req, user);
@@ -123,7 +125,7 @@ public class StoreControllerV1 {
 	@GetMapping("/admin/{storeCategoryId}/list")
 	@PreAuthorize("hasAnyRole('MANAGER','MASTER')")
 	public ResponseEntity<BaseResponseDto<List<StoreResponseDto>>> getAllByCategory(
-		@PathVariable UUID storeCategoryId,
+		@Parameter(description = "가게 키테고리 UUID") @PathVariable UUID storeCategoryId,
 		@AuthenticationPrincipal UserAuth user) {
 		List<StoreResponseDto> stores = storeService.getAllByCategory(storeCategoryId, user);
 		return ResponseEntity.ok(BaseResponseDto.success("카테고리별 가게 조회 성공", stores));
@@ -133,7 +135,7 @@ public class StoreControllerV1 {
 	@GetMapping("/admin/{storeId}")
 	@PreAuthorize("hasAnyRole('MANAGER','MASTER')")
 	public ResponseEntity<BaseResponseDto<StoreResponseDto>> getById(
-		@PathVariable UUID storeId,
+		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@AuthenticationPrincipal UserAuth user) {
 		StoreResponseDto store = storeService.getById(storeId, user);
 		return ResponseEntity.ok(BaseResponseDto.success("가게 조회 성공", store));
@@ -143,7 +145,7 @@ public class StoreControllerV1 {
 	@PutMapping("/admin/{storeId}")
 	@PreAuthorize("hasAnyRole('MANAGER','MASTER')")
 	public ResponseEntity<BaseResponseDto<StoreResponseDto>> manageUpdate(
-		@PathVariable UUID storeId,
+		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@Valid @RequestBody StoreRequestDto req,
 		@AuthenticationPrincipal UserAuth user) {
 		StoreResponseDto updated = storeService.manageUpdate(storeId, req, user);
@@ -154,7 +156,7 @@ public class StoreControllerV1 {
 	@PatchMapping("/admin/{storeId}/force-status")
 	@PreAuthorize("hasAnyRole('MANAGER','MASTER')")
 	public ResponseEntity<BaseResponseDto<StoreResponseDto>> forceUpdateStatus(
-		@PathVariable UUID storeId,
+		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@RequestBody StoreUpdateStatusRequestDto req,
 		@AuthenticationPrincipal UserAuth user) {
 		StoreResponseDto store = storeService.forceUpdateStatus(storeId, req, user);
@@ -165,7 +167,7 @@ public class StoreControllerV1 {
 	@DeleteMapping("/admin/{storeId}")
 	@PreAuthorize("hasAnyRole('MANAGER','MASTER')")
 	public ResponseEntity<BaseResponseDto<Void>> delete(
-		@PathVariable UUID storeId,
+		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@AuthenticationPrincipal UserAuth user) {
 		storeService.delete(storeId, user);
 		return ResponseEntity.ok(BaseResponseDto.success("가게 삭제 성공"));
@@ -175,7 +177,7 @@ public class StoreControllerV1 {
 	@PutMapping("/admin/{storeId}/restore")
 	@PreAuthorize("hasAnyRole('MANAGER', 'MASTER')")
 	public ResponseEntity<BaseResponseDto<StoreResponseDto>> restore(
-		@PathVariable UUID storeId,
+		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@AuthenticationPrincipal UserAuth user) {
 		StoreResponseDto store = storeService.restore(storeId, user);
 		return ResponseEntity.ok(BaseResponseDto.success("가게 복구 성공", store));

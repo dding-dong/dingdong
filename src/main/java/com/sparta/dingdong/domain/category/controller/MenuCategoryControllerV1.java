@@ -33,7 +33,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/v1/stores/{storeId}/menu-categories")
 @RequiredArgsConstructor
-@Tag(name = "Menu Category", description = "메뉴 카테고리 관련 API")
+@Tag(name = "Menu Category", description = "메뉴 카테고리 API")
 public class MenuCategoryControllerV1 {
 
 	private final MenuCategoryService menuCategoryService;
@@ -66,7 +66,7 @@ public class MenuCategoryControllerV1 {
 	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
 	public ResponseEntity<BaseResponseDto<MenuCategoryResponseDto>> update(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
-		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId,
+		@Parameter(description = "메뉴 카테고리 UUID") @PathVariable UUID menuCategoryId,
 		@Valid @RequestBody MenuCategoryRequestDto req,
 		@AuthenticationPrincipal UserAuth user) {
 		MenuCategoryResponseDto result = menuCategoryService.update(menuCategoryId, req, user);
@@ -78,7 +78,7 @@ public class MenuCategoryControllerV1 {
 	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
 	public ResponseEntity<BaseResponseDto<Void>> delete(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
-		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId,
+		@Parameter(description = "메뉴 카테고리 UUID") @PathVariable UUID menuCategoryId,
 		@AuthenticationPrincipal UserAuth user) {
 		menuCategoryService.delete(menuCategoryId, user);
 		return ResponseEntity.ok(BaseResponseDto.success("메뉴 카테고리 삭제 성공"));
@@ -89,7 +89,7 @@ public class MenuCategoryControllerV1 {
 	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
 	public ResponseEntity<BaseResponseDto<MenuCategoryResponseDto>> restore(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
-		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId,
+		@Parameter(description = "메뉴 카테고리 UUID") @PathVariable UUID menuCategoryId,
 		@AuthenticationPrincipal UserAuth user) {
 		MenuCategoryResponseDto result = menuCategoryService.restore(menuCategoryId, user);
 		return ResponseEntity.ok(BaseResponseDto.success("메뉴 카테고리 복구 성공", result));
@@ -102,7 +102,7 @@ public class MenuCategoryControllerV1 {
 	@PreAuthorize("true")
 	public ResponseEntity<BaseResponseDto<List<MenuCategoryItemResponseDto>>> getItems(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
-		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId) {
+		@Parameter(description = "메뉴 카테고리 UUID") @PathVariable UUID menuCategoryId) {
 		List<MenuCategoryItemResponseDto> result = menuCategoryItemService.getItemsByCategory(menuCategoryId);
 		return ResponseEntity.ok(BaseResponseDto.success("카테고리별 메뉴 조회 성공", result));
 	}
@@ -112,7 +112,7 @@ public class MenuCategoryControllerV1 {
 	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
 	public ResponseEntity<BaseResponseDto<MenuCategoryItemResponseDto>> addItem(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
-		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId,
+		@Parameter(description = "메뉴 카테고리 UUID") @PathVariable UUID menuCategoryId,
 		@Valid @RequestBody MenuCategoryItemRequestDto req,
 		@AuthenticationPrincipal UserAuth user) {
 		MenuCategoryItemResponseDto result = menuCategoryItemService.addMenuToCategory(menuCategoryId, req, user);
@@ -124,8 +124,8 @@ public class MenuCategoryControllerV1 {
 	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
 	public ResponseEntity<BaseResponseDto<Void>> removeItem(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
-		@Parameter(description = "카테고리 UUID") @PathVariable UUID menuCategoryId,
-		@Parameter(description = "메뉴아이템 UUID") @PathVariable UUID menuCategoryItemId,
+		@Parameter(description = "메뉴 카테고리 UUID") @PathVariable UUID menuCategoryId,
+		@Parameter(description = "메뉴 카테고리 아이템 UUID") @PathVariable UUID menuCategoryItemId,
 		@AuthenticationPrincipal UserAuth user) {
 		menuCategoryItemService.removeMenuFromCategory(menuCategoryItemId, user);
 		return ResponseEntity.ok(BaseResponseDto.success("카테고리 메뉴 삭제 성공"));

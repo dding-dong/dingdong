@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/v1/store-categories")
 @RequiredArgsConstructor
-@Tag(name = "Store Category", description = "가게 카테고리 관련 API")
+@Tag(name = "Store Category", description = "가게 카테고리 API")
 public class StoreCategoryControllerV1 {
 
 	private final StoreCategoryService storeCategoryService;

@@ -67,7 +67,7 @@ public class MenuItemControllerV1 {
 	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
 	public ResponseEntity<BaseResponseDto<MenuItemResponseDto>> getDetail(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
-		@Parameter(description = "메뉴 UUID") @PathVariable UUID menuItemId,
+		@Parameter(description = "메뉴 아이템 UUID") @PathVariable UUID menuItemId,
 		@AuthenticationPrincipal UserAuth user
 	) {
 		MenuItemResponseDto detail = menuItemService.getById(menuItemId, user);
@@ -79,7 +79,7 @@ public class MenuItemControllerV1 {
 	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
 	public ResponseEntity<BaseResponseDto<MenuItemResponseDto>> update(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
-		@Parameter(description = "메뉴 UUID") @PathVariable UUID menuItemId,
+		@Parameter(description = "메뉴 아이템 UUID") @PathVariable UUID menuItemId,
 		@Valid @RequestBody MenuItemRequestDto req,
 		@AuthenticationPrincipal UserAuth user
 	) {
@@ -92,7 +92,7 @@ public class MenuItemControllerV1 {
 	@PreAuthorize("hasAnyRole('OWNER', 'MANAGER', 'MASTER')")
 	public ResponseEntity<BaseResponseDto<Void>> delete(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
-		@Parameter(description = "메뉴 UUID") @PathVariable UUID menuItemId,
+		@Parameter(description = "메뉴 아이템 UUID") @PathVariable UUID menuItemId,
 		@AuthenticationPrincipal UserAuth user
 	) {
 		menuItemService.delete(menuItemId, user);
