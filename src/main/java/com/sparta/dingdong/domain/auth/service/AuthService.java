@@ -10,6 +10,7 @@ import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.auth.dto.request.LoginRequestDto;
 import com.sparta.dingdong.domain.auth.dto.response.TokenResponse;
 import com.sparta.dingdong.domain.auth.exception.AuthErrorCode;
+import com.sparta.dingdong.domain.store.exception.NotStoreOwnerException;
 import com.sparta.dingdong.domain.user.entity.User;
 import com.sparta.dingdong.domain.user.entity.enums.UserRole;
 import com.sparta.dingdong.domain.user.exception.UserErrorCode;
@@ -98,7 +99,7 @@ public class AuthService {
 
 		if (role == UserRole.OWNER) {
 			if (!storeOwnerId.equals(user.getId())) {
-				throw new AccessDeniedException("본인 가게만 접근 가능합니다.");
+				throw new NotStoreOwnerException();
 			}
 		}
 	}
