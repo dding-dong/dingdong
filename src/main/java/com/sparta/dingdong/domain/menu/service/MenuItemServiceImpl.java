@@ -19,7 +19,9 @@ import com.sparta.dingdong.domain.menu.repository.MenuItemRepository;
 import com.sparta.dingdong.domain.store.entity.Store;
 import com.sparta.dingdong.domain.store.exception.StoreNotFoundException;
 import com.sparta.dingdong.domain.store.repository.StoreRepository;
+import com.sparta.dingdong.domain.user.entity.User;
 import com.sparta.dingdong.domain.user.entity.enums.UserRole;
+import com.sparta.dingdong.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +36,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 	private final StoreRepository storeRepository;
 	private final AIService aiMenuDescriptionService;
 	private final AuthService authService;
+	private final UserRepository userRepository;
 
 	@Transactional(readOnly = true)
 	@Override
@@ -81,10 +84,13 @@ public class MenuItemServiceImpl implements MenuItemService {
 			.orElseThrow(StoreNotFoundException::new);
 		authService.validateStoreOwnership(user, store.getOwner().getId());
 
+		User currentUser = userRepository.findById(user.getId())
+			.orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
 		String aiContent = null;
 		boolean usedAi = false;
 		if (Boolean.TRUE.equals(req.getUseAi())) {
-			aiContent = aiMenuDescriptionService.generateDescription(req.getName(), req.getContent());
+			aiContent = aiMenuDescriptionService.generateDescription(req.getName(), req.getContent(), currentUser);
 			usedAi = true;
 		}
 
@@ -118,8 +124,10 @@ public class MenuItemServiceImpl implements MenuItemService {
 	public MenuItemResponseDto update(UUID menuId, MenuItemRequestDto req, UserAuth user) {
 		MenuItem menu = menuItemRepository.findById(menuId)
 			.orElseThrow(MenuItemNotFoundException::new);
-
 		authService.validateStoreOwnership(user, menu.getStore().getOwner().getId());
+
+		User currentUser = userRepository.findById(user.getId())
+			.orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
 		menu.setName(req.getName());
 		menu.setContent(req.getContent());
@@ -130,7 +138,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 		menu.setIsSoldout(req.getIsSoldout());
 
 		if (Boolean.TRUE.equals(req.getUseAi())) {
-			String aiDesc = aiMenuDescriptionService.generateDescription(req.getName(), req.getContent());
+			String aiDesc = aiMenuDescriptionService.generateDescription(req.getName(), req.getContent(), currentUser);
 			menu.setAiContent(aiDesc);
 			menu.setIsAiUsed(true);
 		}
