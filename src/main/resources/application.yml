@@ -32,3 +32,8 @@ springdoc:
   swagger-ui:
     tags-sorter: alpha
     operations-sorter: alpha
+
+google:
+  ai:
+    api-key: ${GOOGLE_API_KEY}
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
