@@ -15,6 +15,8 @@ import org.springframework.web.client.RestTemplate;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sparta.dingdong.domain.AI.config.GoogleAIProperties;
+import com.sparta.dingdong.domain.AI.exception.GoogleApiCallException;
+import com.sparta.dingdong.domain.AI.exception.GoogleApiKeyMissingException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +40,7 @@ public class GoogleAIService {
 
 		try {
 			if (apiKey == null || apiKey.isBlank()) {
-				throw new IllegalStateException("Google API 키가 설정되어 있지 않습니다.");
+				throw new GoogleApiKeyMissingException();
 			}
 
 			// 요청 헤더 구성
@@ -71,7 +73,7 @@ public class GoogleAIService {
 
 		} catch (Exception e) {
 			log.error("[GoogleAIService] Google AI API 호출 실패: {}", e.getMessage());
-			return "AI 응답 생성 중 오류가 발생했습니다.";
+			throw new GoogleApiCallException("AI 응답 생성 중 오류가 발생했습니다.", e);
 		}
 	}
 }

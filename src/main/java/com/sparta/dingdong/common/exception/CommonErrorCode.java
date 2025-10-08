@@ -42,6 +42,9 @@ public enum CommonErrorCode implements ErrorCode {
 	MENU_CATEGORY_SORT_CONFLICT(HttpStatus.BAD_REQUEST, "2302", "해당 정렬 순서를 가진 메뉴 카테고리가 이미 존재합니다."),
 	MENU_CATEGORY_ITEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "2400", "해당 메뉴 카테고리의 메뉴 아이템이 존재하지 않습니다."),
 	MENU_CATEGORY_ITEM_ORDER_CONFLICT(HttpStatus.BAD_REQUEST, "2401", "해당 카테고리에서 이미 같은 순서(orderNo)의 메뉴 아이템이 존재합니다."),
+
+	GOOGLE_API_KEY_MISSING(HttpStatus.BAD_REQUEST, "3000", "Google API 키가 설정되어 있지 않습니다."),
+	GOOGLE_API_CALL_FAIL(HttpStatus.BAD_REQUEST, "3001", "Google AI API 호출 실패"),
 	;
 
 	private final HttpStatus status;
