@@ -105,7 +105,10 @@ public class PaymentServiceImpl implements PaymentService {
 
 		fakeTossCall(request, order, payment);
 
-		// Payment Paid 로 상태 변경 && Order Status 변경
+		// 현재 시간 받아서 approve_at 시간 저장
+
+		// Payment 승인시간 저장 && Paid 로 상태 변경 && Order Status 변경
+		payment.setApprovedAt();
 		payment.changeStatus(PaymentStatus.PAID);
 		order.changeStatus(OrderStatus.REQUESTED);
 
@@ -129,7 +132,7 @@ public class PaymentServiceImpl implements PaymentService {
 				TossPaymentResponseDto fakeResponse = new TossPaymentResponseDto(
 					request.getOrderId(),
 					"DONE",
-					"fake-payment-key-123"
+					request.getPaymentKey()
 				);
 
 				// 응답 후 처리 로직 (ex. 로그 남기기)
@@ -151,5 +154,15 @@ public class PaymentServiceImpl implements PaymentService {
 				paymentTransactionService.markPaymentFailed(payment);
 			}
 		}).start();
+	}
+
+	@Transactional
+	public void refundPayment(Order order, String refundReason) {
+		// POST: /v1/payments/{paymentKey}/cancel 결제 취소 됐다고 생각하고
+		// payment refundReason = client한테 받은 refundReason값, paymentStatus = "REFUNDED"
+		Payment payment = findByPayment(order);
+
+		payment.setRefundReason(refundReason);
+		payment.changeStatus(PaymentStatus.REFUNDED);
 	}
 }

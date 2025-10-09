@@ -90,4 +90,12 @@ public class Payment {
 	public void setFailReason(FailReason failReason) {
 		this.failReason = failReason;
 	}
+
+	public void setRefundReason(String refundReason) {
+		this.refundReason = refundReason;
+	}
+
+	public void setApprovedAt() {
+		this.approvedAt = LocalDateTime.now();
+	}
 }
