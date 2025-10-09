@@ -5,6 +5,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.dingdong.domain.payment.entity.Payment;
+import com.sparta.dingdong.domain.payment.entity.enums.FailReason;
 import com.sparta.dingdong.domain.payment.entity.enums.PaymentStatus;
 import com.sparta.dingdong.domain.payment.repository.PaymentRepository;
 
@@ -19,6 +20,7 @@ public class PaymentTransactionServiceImpl implements PaymentTransactionService 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public void markPaymentFailed(Payment payment) {
 		payment.changeStatus(PaymentStatus.FAILED);
+		payment.setFailReason(FailReason.PAY_PROCESS_ABORTED);
 		paymentRepository.save(payment);
 	}
 }

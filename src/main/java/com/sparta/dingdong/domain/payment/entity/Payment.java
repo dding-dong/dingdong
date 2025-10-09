@@ -82,4 +82,8 @@ public class Payment {
 		this.paymentType = paymentType;
 		this.paymentKey = paymentKey;
 	}
+
+	public void setFailReason(FailReason failReason) {
+		this.failReason = failReason;
+	}
 }
