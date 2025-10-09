@@ -73,4 +73,13 @@ public class Payment {
 			.paymentStatus(PaymentStatus.PENDING)
 			.build();
 	}
+
+	public void changeStatus(PaymentStatus paymentStatus) {
+		this.paymentStatus = paymentStatus;
+	}
+
+	public void confirmSuccess(String paymentKey, PaymentType paymentType) {
+		this.paymentType = paymentType;
+		this.paymentKey = paymentKey;
+	}
 }

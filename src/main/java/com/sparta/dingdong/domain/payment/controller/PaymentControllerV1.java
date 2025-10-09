@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
+import com.sparta.dingdong.domain.payment.dto.request.ConfirmPaymentsRequestDto;
 import com.sparta.dingdong.domain.payment.dto.request.PaymentRequestDto;
 import com.sparta.dingdong.domain.payment.dto.response.PaymentResponseDto;
 import com.sparta.dingdong.domain.payment.service.PaymentService;
@@ -34,5 +35,14 @@ public class PaymentControllerV1 {
 		@Validated @RequestBody PaymentRequestDto request) {
 		PaymentResponseDto response = paymentService.createPayment(userAuth, request);
 		return ResponseEntity.ok(BaseResponseDto.success("결제를 요청합니다", response));
+	}
+
+	@Operation(summary = "결제 확인 API", description = "고객이 결제를 확인 요청합니다.")
+	@PostMapping("/confirm")
+	@PreAuthorize("hasRole('ROLE_CUSTOMER')")
+	ResponseEntity<BaseResponseDto<?>> createConfirmPayments(@AuthenticationPrincipal UserAuth userAuth,
+		@Validated @RequestBody ConfirmPaymentsRequestDto request) {
+		paymentService.createConfirmPayments(userAuth, request);
+		return ResponseEntity.ok(BaseResponseDto.success("결제를 승인 했습니다."));
 	}
 }

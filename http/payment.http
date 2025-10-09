@@ -3,9 +3,21 @@
 ### 결제 요청
 POST http://localhost:8080/v1/payments
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc2MDAwMDk0NywiZXhwIjoxNzYwMDAyNzQ3fQ.rr30sr4uuKiwdU1T_ExFfceMzfDUoMdCU9MCy37e94U
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc2MDAwNTQ1NSwiZXhwIjoxNzYwMDA3MjU1fQ.HZ8ih-0TzRww1Z0zlpqzXPNZHATe6mtMyUqF4yQqKkA
 
 {
   "orderId": "f7a9d21c-4c3b-4c42-a8a1-1bbf4f56ccf1",
   "amount": 24500
+}
+
+### 결제 승인 요청
+POST http://localhost:8080/v1/payments/confirm
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc2MDAwNDk1NiwiZXhwIjoxNzYwMDA2NzU2fQ.n8kuRED-WJeXTgSyNmEY-n4uDQuekTXDrsMSFvd0IhM
+
+{
+  "orderId": "f7a9d21c-4c3b-4c42-a8a1-1bbf4f56ccf1",
+  "amount": 24500,
+  "paymentKey": "sjklsjdflkajsldkfj",
+  "paymentType": "BRANDPAY"
 }
