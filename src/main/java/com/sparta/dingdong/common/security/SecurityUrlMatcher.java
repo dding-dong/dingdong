@@ -13,7 +13,8 @@ public class SecurityUrlMatcher {
 
 	// CUSTOMER 전용 URL
 	public static final String[] CUSTOMER_URLS = {
-		"/api/customer/**"
+		"/api/customer/**",
+		"/v1/carts/**"
 	};
 
 	// OWNER 전용 URL

@@ -55,4 +55,24 @@ public class CartItem extends BaseEntity {
 		this.quantity = quantity;
 		this.unitPrice = unitPrice;
 	}
+
+	public static CartItem of(MenuItem menuItem, int quantity) {
+		CartItem ci = new CartItem();
+		ci.menuItem = menuItem;
+		ci.unitPrice = menuItem.getPrice();
+		ci.quantity = quantity;
+		return ci;
+	}
+
+	public void setCart(Cart cart) {
+		this.cart = cart;
+	}
+
+	public void increaseQuantity(int q) {
+		this.quantity += q;
+	}
+
+	public void updateQuantity(int q) {
+		this.quantity = q;
+	}
 }
