@@ -46,8 +46,8 @@ public class MenuItemControllerV1 {
 		@Parameter(description = "숨김 포함 여부") @RequestParam(defaultValue = "false") boolean includeHidden,
 		@AuthenticationPrincipal UserAuth user // 비회원 - null
 	) {
-		List<MenuItemResponseDto> menus = menuItemService.getAllByStore(storeId, includeHidden, user);
-		return ResponseEntity.ok(BaseResponseDto.success("메뉴 목록 조회 성공", menus));
+		List<MenuItemResponseDto> result = menuItemService.getAllByStore(storeId, includeHidden, user);
+		return ResponseEntity.ok(BaseResponseDto.success("메뉴 목록 조회 성공", result));
 	}
 
 	@Operation(summary = "메뉴 등록", description = "사장님과 관리자는 메뉴를 등록할 수 있습니다. (AI 설명 생성 옵션 가능)")
@@ -58,8 +58,8 @@ public class MenuItemControllerV1 {
 		@Valid @RequestBody MenuItemRequestDto req,
 		@AuthenticationPrincipal UserAuth user
 	) {
-		MenuItemResponseDto created = menuItemService.create(storeId, req, user);
-		return ResponseEntity.ok(BaseResponseDto.success("메뉴 생성 성공", created));
+		MenuItemResponseDto result = menuItemService.create(storeId, req, user);
+		return ResponseEntity.ok(BaseResponseDto.success("메뉴 생성 성공", result));
 	}
 
 	@Operation(summary = "메뉴 상세 조회", description = "사장님과 관리자는 메뉴 상세정보를 조회할 수 있습니다.")
@@ -70,8 +70,8 @@ public class MenuItemControllerV1 {
 		@Parameter(description = "메뉴 아이템 UUID") @PathVariable UUID menuItemId,
 		@AuthenticationPrincipal UserAuth user
 	) {
-		MenuItemResponseDto detail = menuItemService.getById(menuItemId, user);
-		return ResponseEntity.ok(BaseResponseDto.success("메뉴 조회 성공", detail));
+		MenuItemResponseDto result = menuItemService.getById(menuItemId, user);
+		return ResponseEntity.ok(BaseResponseDto.success("메뉴 조회 성공", result));
 	}
 
 	@Operation(summary = "메뉴 수정", description = "사장님과 관리자는 메뉴를 수정할 수 있습니다. (숨김, 품절, 내용 변경 가능)")
@@ -83,8 +83,8 @@ public class MenuItemControllerV1 {
 		@Valid @RequestBody MenuItemRequestDto req,
 		@AuthenticationPrincipal UserAuth user
 	) {
-		MenuItemResponseDto updated = menuItemService.update(menuItemId, req, user);
-		return ResponseEntity.ok(BaseResponseDto.success("메뉴 수정 성공", updated));
+		MenuItemResponseDto result = menuItemService.update(menuItemId, req, user);
+		return ResponseEntity.ok(BaseResponseDto.success("메뉴 수정 성공", result));
 	}
 
 	@Operation(summary = "메뉴 삭제", description = "사장님과 관리자는 메뉴를 삭제할 수 있습니다.")
