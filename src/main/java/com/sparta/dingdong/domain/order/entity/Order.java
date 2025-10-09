@@ -1,6 +1,6 @@
 package com.sparta.dingdong.domain.order.entity;
 
-import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ public class Order extends BaseEntity {
 	private OrderStatus status = OrderStatus.REQUESTED;
 
 	@Column(nullable = false)
-	private BigDecimal totalPrice;
+	private BigInteger totalPrice;
 
 	@Column(nullable = false)
 	private String deliveryAddress;
