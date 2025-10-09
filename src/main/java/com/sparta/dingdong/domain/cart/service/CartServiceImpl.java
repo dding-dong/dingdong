@@ -36,9 +36,11 @@ public class CartServiceImpl implements CartService {
 	@Transactional(readOnly = true)
 	public CartResponseDto getCart(UserAuth userAuth) {
 		User user = userService.findByUser(userAuth);
-		return cartRepository.findByUserId(user.getId())
-			.map(CartResponseDto::from)
-			.orElseGet(CartResponseDto::empty);
+
+		Cart cart = cartRepository.findByUserId(user.getId())
+			.orElseThrow(CartNotFoundException::new);
+
+		return CartResponseDto.from(cart);
 	}
 
 	@Override
