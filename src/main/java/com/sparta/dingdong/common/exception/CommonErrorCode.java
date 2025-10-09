@@ -50,7 +50,8 @@ public enum CommonErrorCode implements ErrorCode {
 
 	GOOGLE_API_KEY_MISSING(HttpStatus.BAD_REQUEST, "3000", "Google API 키가 설정되어 있지 않습니다."),
 	GOOGLE_API_CALL_FAIL(HttpStatus.BAD_REQUEST, "3001", "Google AI API 호출 실패"),
-	;
+
+	PAYMENT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "4000", "이미 결제 진행 중인 주문입니다.");
 
 	private final HttpStatus status;
 	private final String code;

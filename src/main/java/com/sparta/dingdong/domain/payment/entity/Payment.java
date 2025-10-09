@@ -22,7 +22,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "p_payment")
 public class Payment {
@@ -56,4 +64,13 @@ public class Payment {
 	private String refundReason;
 
 	private LocalDateTime approvedAt;
+
+	public static Payment createPayment(User user, Order order) {
+		return Payment.builder()
+			.user(user)
+			.order(order)
+			.amount(order.getTotalPrice())
+			.paymentStatus(PaymentStatus.PENDING)
+			.build();
+	}
 }

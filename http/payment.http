@@ -1,0 +1,11 @@
+#@customerTonken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTk5OTMzMywiZXhwIjoxNzYwMDAxMTMzfQ.gSWl0mBFPSaV-0XPFlwrzXqVispfAYqXHOw3YQYSQ18
+
+### 결제 요청
+POST http://localhost:8080/v1/payments
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc2MDAwMDk0NywiZXhwIjoxNzYwMDAyNzQ3fQ.rr30sr4uuKiwdU1T_ExFfceMzfDUoMdCU9MCy37e94U
+
+{
+  "orderId": "f7a9d21c-4c3b-4c42-a8a1-1bbf4f56ccf1",
+  "amount": 24500
+}
