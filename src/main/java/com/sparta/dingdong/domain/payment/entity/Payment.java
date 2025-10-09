@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.sparta.dingdong.common.base.BaseEntity;
 import com.sparta.dingdong.domain.order.entity.Order;
 import com.sparta.dingdong.domain.payment.entity.enums.FailReason;
 import com.sparta.dingdong.domain.payment.entity.enums.PaymentStatus;
@@ -33,7 +34,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "p_payment")
-public class Payment {
+public class Payment extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)

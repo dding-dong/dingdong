@@ -17,6 +17,7 @@ import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.payment.dto.request.ConfirmPaymentsRequestDto;
 import com.sparta.dingdong.domain.payment.dto.request.PaymentRequestDto;
+import com.sparta.dingdong.domain.payment.dto.response.AdminPaymentDetailResponseDto;
 import com.sparta.dingdong.domain.payment.dto.response.PaymentDetailResponseDto;
 import com.sparta.dingdong.domain.payment.dto.response.PaymentResponseDto;
 import com.sparta.dingdong.domain.payment.service.PaymentService;
@@ -60,5 +61,16 @@ public class PaymentControllerV1 {
 	) {
 		PaymentDetailResponseDto paymentDetailResponseDto = paymentService.getPaymentDetails(userAuth, orderId);
 		return ResponseEntity.ok(BaseResponseDto.success("결제 상세 조회입니다.", paymentDetailResponseDto));
+	}
+
+	@Operation(summary = "Manager&Master 결제 상세 조회 API", description = "매니저와 마스터가 사용자의 주문 결제 상세조회를 요청합니다.")
+	@GetMapping("/admin/orders/{orderId}/payments")
+	@PreAuthorize("hasAnyRole('ROLE_MANAGER', 'ROLE_MASTER')")
+	ResponseEntity<BaseResponseDto<AdminPaymentDetailResponseDto>> getAdminPaymentDetails(
+		@AuthenticationPrincipal UserAuth userAuth,
+		@PathVariable UUID orderId
+	) {
+		AdminPaymentDetailResponseDto adminPaymentDetailResponseDto = paymentService.getAdminPaymentDetails(orderId);
+		return ResponseEntity.ok(BaseResponseDto.success("결제 상세 조회입니다.", adminPaymentDetailResponseDto));
 	}
 }

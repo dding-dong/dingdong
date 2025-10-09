@@ -12,6 +12,7 @@ import com.sparta.dingdong.domain.order.entity.enums.OrderStatus;
 import com.sparta.dingdong.domain.order.service.OrderService;
 import com.sparta.dingdong.domain.payment.dto.request.ConfirmPaymentsRequestDto;
 import com.sparta.dingdong.domain.payment.dto.request.PaymentRequestDto;
+import com.sparta.dingdong.domain.payment.dto.response.AdminPaymentDetailResponseDto;
 import com.sparta.dingdong.domain.payment.dto.response.FakeTossPaymentFailResponseDto;
 import com.sparta.dingdong.domain.payment.dto.response.PaymentDetailResponseDto;
 import com.sparta.dingdong.domain.payment.dto.response.PaymentResponseDto;
@@ -181,5 +182,13 @@ public class PaymentServiceImpl implements PaymentService {
 
 		// payment -> responseDto
 		return PaymentDetailResponseDto.from(payment);
+	}
+
+	@Override
+	public AdminPaymentDetailResponseDto getAdminPaymentDetails(UUID orderId) {
+		Order order = orderService.findByOrder(orderId);
+		Payment payment = findByPayment(order);
+
+		return AdminPaymentDetailResponseDto.from(payment);
 	}
 }
