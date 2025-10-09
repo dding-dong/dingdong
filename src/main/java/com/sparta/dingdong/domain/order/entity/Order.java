@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import com.sparta.dingdong.common.base.BaseEntity;
 import com.sparta.dingdong.domain.order.entity.enums.OrderStatus;
-import com.sparta.dingdong.domain.payment.entity.enums.PaymentStatus;
 import com.sparta.dingdong.domain.store.entity.Store;
 import com.sparta.dingdong.domain.user.entity.User;
 
@@ -51,8 +50,6 @@ public class Order extends BaseEntity {
 	@Column(nullable = false)
 	private BigDecimal totalPrice;
 
-	private PaymentStatus paymentStatus = PaymentStatus.PENDING;
-
 	@Column(nullable = false)
 	private String deliveryAddress;
 
@@ -60,6 +57,7 @@ public class Order extends BaseEntity {
 	private LocalDateTime placedAt;
 
 	private LocalDateTime deliveredAt;
+
 	private LocalDateTime canceledAt;
 
 	@Column
