@@ -16,9 +16,12 @@ import com.sparta.dingdong.domain.cart.dto.response.CartItemResponseDto;
 import com.sparta.dingdong.domain.cart.dto.response.CartResponseDto;
 import com.sparta.dingdong.domain.cart.entity.Cart;
 import com.sparta.dingdong.domain.cart.entity.CartItem;
+import com.sparta.dingdong.domain.cart.exception.CartNotFoundException;
 import com.sparta.dingdong.domain.cart.repository.CartItemRepository;
 import com.sparta.dingdong.domain.cart.repository.CartRepository;
 import com.sparta.dingdong.domain.menu.entity.MenuItem;
+import com.sparta.dingdong.domain.menu.exception.MenuItemNotFoundException;
+import com.sparta.dingdong.domain.menu.exception.MenuItemSoldOutException;
 import com.sparta.dingdong.domain.menu.repository.MenuItemRepository;
 import com.sparta.dingdong.domain.user.entity.User;
 import com.sparta.dingdong.domain.user.repository.UserRepository;
@@ -53,7 +56,11 @@ public class CartServiceImpl implements CartService {
 	@Transactional
 	public Object addItem(Long userId, AddCartItemRequestDto req, boolean replace) {
 		MenuItem menu = menuItemRepository.findById(req.getMenuItemId())
-			.orElseThrow(() -> new IllegalArgumentException("MenuItem not found"));
+			.orElseThrow(MenuItemNotFoundException::new);
+
+		if (menu.getIsSoldout()) {
+			throw new MenuItemSoldOutException();
+		}
 
 		Cart cart = cartRepository.findByUserId(userId).orElse(null);
 
@@ -81,10 +88,6 @@ public class CartServiceImpl implements CartService {
 			}
 		}
 
-		if (menu.getIsSoldout()) {
-			throw new IllegalStateException("MENU_SOLDOUT");
-		}
-
 		cart.addItem(CartItem.of(menu, req.getQuantity()));
 		Cart saved = cartRepository.save(cart);
 		return toDto(saved);
@@ -94,7 +97,7 @@ public class CartServiceImpl implements CartService {
 	@Transactional
 	public CartResponseDto updateItemQuantity(Long userId, UUID menuItemId, int quantity) {
 		Cart cart = cartRepository.findByUserId(userId)
-			.orElseThrow(() -> new IllegalArgumentException("Cart not found"));
+			.orElseThrow(CartNotFoundException::new);
 
 		CartItem item = cart.getItems().stream()
 			.filter(i -> i.getMenuItem().getId().equals(menuItemId))
@@ -119,7 +122,7 @@ public class CartServiceImpl implements CartService {
 	@Transactional
 	public void removeItem(Long userId, UUID menuItemId) {
 		Cart cart = cartRepository.findByUserId(userId)
-			.orElseThrow(() -> new IllegalArgumentException("Cart not found"));
+			.orElseThrow(CartNotFoundException::new);
 
 		CartItem item = cart.getItems().stream()
 			.filter(i -> i.getMenuItem().getId().equals(menuItemId))
@@ -138,7 +141,7 @@ public class CartServiceImpl implements CartService {
 	@Transactional
 	public void clearCart(Long userId) {
 		Cart cart = cartRepository.findByUserId(userId)
-			.orElseThrow(() -> new IllegalArgumentException("Cart not found"));
+			.orElseThrow(CartNotFoundException::new);
 		cartRepository.delete(cart);
 	}
 
