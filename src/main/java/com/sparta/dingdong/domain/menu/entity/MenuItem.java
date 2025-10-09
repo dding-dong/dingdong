@@ -61,6 +61,9 @@ public class MenuItem extends BaseEntity {
 
 	private Boolean isDisplayed;
 	private Boolean isSoldout;
+
+	@Column(columnDefinition = "text")
 	private String aiContent;
+	
 	private String imageUrl;
 }

@@ -23,12 +23,12 @@ public enum CommonErrorCode implements ErrorCode {
 	REVIEW_ALREADY_REPLIED(HttpStatus.BAD_REQUEST, "803", "이미 해당 리뷰에 대한 답글이 존재합니다."),
 	REVIEW_REPLY_NOT_FOUND(HttpStatus.BAD_REQUEST, "804", "해당 리뷰의 댓글을 찾을 수 없습니다."),
 	NOT_REVIEW_REPLY_OWNER(HttpStatus.BAD_REQUEST, "805", "리뷰 답글의 작성자가 아닙니다."),
-	NOT_STORE_OWNER(HttpStatus.BAD_REQUEST, "806", "해당 리뷰는 가게 사장님만 접근 가능합니다."),
+	NOT_STORE_OWNER(HttpStatus.BAD_REQUEST, "806", "가게 사장님만 접근 가능합니다."),
 
 	STORE_NOT_FOUND(HttpStatus.BAD_REQUEST, "2000", "해당 가게를 찾을 수 없습니다."),
 	DELETED_STORE_NOT_FOUND(HttpStatus.BAD_REQUEST, "2001", "삭제된 가게를 찾을 수 없습니다."),
 	DELIVERY_AREA_NOT_FOUND(HttpStatus.BAD_REQUEST, "2002", "해당 배달가능지역을 찾을 수 없습니다."),
-	NOT_STOREOWNER(HttpStatus.FORBIDDEN, "2003", "해당 가게의 사장님만 접근 가능합니다."),
+//	NOT_STOREOWNER(HttpStatus.FORBIDDEN, "2003", "해당 가게의 사장님만 접근 가능합니다."),
 
 	MENU_ITEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "2100", "해당 메뉴 아이템을 찾을 수 없습니다."),
 	HIDDEN_MENU_ACCESS_DENIED(HttpStatus.FORBIDDEN, "2101", "숨김 메뉴 아이템 조회 권한이 없습니다."),
@@ -42,6 +42,9 @@ public enum CommonErrorCode implements ErrorCode {
 	MENU_CATEGORY_SORT_CONFLICT(HttpStatus.BAD_REQUEST, "2302", "해당 정렬 순서를 가진 메뉴 카테고리가 이미 존재합니다."),
 	MENU_CATEGORY_ITEM_NOT_FOUND(HttpStatus.BAD_REQUEST, "2400", "해당 메뉴 카테고리의 메뉴 아이템이 존재하지 않습니다."),
 	MENU_CATEGORY_ITEM_ORDER_CONFLICT(HttpStatus.BAD_REQUEST, "2401", "해당 카테고리에서 이미 같은 순서(orderNo)의 메뉴 아이템이 존재합니다."),
+
+	GOOGLE_API_KEY_MISSING(HttpStatus.BAD_REQUEST, "3000", "Google API 키가 설정되어 있지 않습니다."),
+	GOOGLE_API_CALL_FAIL(HttpStatus.BAD_REQUEST, "3001", "Google AI API 호출 실패"),
 	;
 
 	private final HttpStatus status;

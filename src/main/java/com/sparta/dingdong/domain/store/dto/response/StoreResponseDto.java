@@ -45,7 +45,7 @@ public class StoreResponseDto {
 	@Schema(example = "1001", description = "매장 소유자 ID")
 	private Long ownerId;
 
-	@Schema(example = "[\"강남구\", \"서초구\"]", description = "배달 가능 지역 목록")
+	@Schema(example = "[\"500\", \"400\"]", description = "배달 가능 지역 목록")
 	private List<String> deliveryAreaIds;
 
 	// 어드민 전용
