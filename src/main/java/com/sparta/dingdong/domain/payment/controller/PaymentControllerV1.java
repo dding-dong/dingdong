@@ -1,9 +1,13 @@
 package com.sparta.dingdong.domain.payment.controller;
 
+import java.util.UUID;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +17,7 @@ import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.payment.dto.request.ConfirmPaymentsRequestDto;
 import com.sparta.dingdong.domain.payment.dto.request.PaymentRequestDto;
+import com.sparta.dingdong.domain.payment.dto.response.PaymentDetailResponseDto;
 import com.sparta.dingdong.domain.payment.dto.response.PaymentResponseDto;
 import com.sparta.dingdong.domain.payment.service.PaymentService;
 
@@ -22,14 +27,14 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/payments")
+@RequestMapping("/v1")
 @Tag(name = "결제 API", description = "결제 API 입니다.")
 public class PaymentControllerV1 {
 
 	private final PaymentService paymentService;
 
 	@Operation(summary = "결제 요청 API", description = "고객이 결제를 요청합니다.")
-	@PostMapping
+	@PostMapping("/payments")
 	@PreAuthorize("hasRole('ROLE_CUSTOMER')")
 	ResponseEntity<BaseResponseDto<?>> createPayment(@AuthenticationPrincipal UserAuth userAuth,
 		@Validated @RequestBody PaymentRequestDto request) {
@@ -38,11 +43,22 @@ public class PaymentControllerV1 {
 	}
 
 	@Operation(summary = "결제 확인 API", description = "고객이 결제를 확인 요청합니다.")
-	@PostMapping("/confirm")
+	@PostMapping("/payments/confirm")
 	@PreAuthorize("hasRole('ROLE_CUSTOMER')")
 	ResponseEntity<BaseResponseDto<?>> createConfirmPayments(@AuthenticationPrincipal UserAuth userAuth,
 		@Validated @RequestBody ConfirmPaymentsRequestDto request) {
 		paymentService.createConfirmPayments(userAuth, request);
 		return ResponseEntity.ok(BaseResponseDto.success("결제를 승인 했습니다."));
+	}
+
+	@Operation(summary = "CUSTOMER 결제 상세 조회 API", description = "고객이 주문에 대해 결제 상세조회를 요청합니다.")
+	@GetMapping("/orders/{orderId}/payments")
+	@PreAuthorize("hasRole('ROLE_CUSTOMER')")
+	ResponseEntity<BaseResponseDto<PaymentDetailResponseDto>> getPaymentDetails(
+		@AuthenticationPrincipal UserAuth userAuth,
+		@PathVariable UUID orderId
+	) {
+		PaymentDetailResponseDto paymentDetailResponseDto = paymentService.getPaymentDetails(userAuth, orderId);
+		return ResponseEntity.ok(BaseResponseDto.success("결제 상세 조회입니다.", paymentDetailResponseDto));
 	}
 }

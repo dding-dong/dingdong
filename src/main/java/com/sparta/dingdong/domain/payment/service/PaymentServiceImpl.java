@@ -1,6 +1,7 @@
 package com.sparta.dingdong.domain.payment.service;
 
 import java.util.Objects;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,7 @@ import com.sparta.dingdong.domain.order.service.OrderService;
 import com.sparta.dingdong.domain.payment.dto.request.ConfirmPaymentsRequestDto;
 import com.sparta.dingdong.domain.payment.dto.request.PaymentRequestDto;
 import com.sparta.dingdong.domain.payment.dto.response.FakeTossPaymentFailResponseDto;
+import com.sparta.dingdong.domain.payment.dto.response.PaymentDetailResponseDto;
 import com.sparta.dingdong.domain.payment.dto.response.PaymentResponseDto;
 import com.sparta.dingdong.domain.payment.dto.response.TossPaymentResponseDto;
 import com.sparta.dingdong.domain.payment.entity.Payment;
@@ -164,5 +166,20 @@ public class PaymentServiceImpl implements PaymentService {
 
 		payment.setRefundReason(refundReason);
 		payment.changeStatus(PaymentStatus.REFUNDED);
+	}
+
+	@Override
+	public PaymentDetailResponseDto getPaymentDetails(UserAuth userAuth, UUID orderId) {
+
+		// orderId에 해당하는 payment가 있는지
+		Order order = orderService.findByOrder(orderId);
+		if (!order.getUser().getId().equals(userAuth.getId())) {
+			throw new RuntimeException("해당 유저의 주문이 아닙니다.");
+		}
+
+		Payment payment = findByPayment(order);
+
+		// payment -> responseDto
+		return PaymentDetailResponseDto.from(payment);
 	}
 }
