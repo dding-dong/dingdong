@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/v1/master/managers")
 @RequiredArgsConstructor
-public class ManagerController {
+public class ManagerControllerV1 {
 
 	private final ManagerService managerService;
 

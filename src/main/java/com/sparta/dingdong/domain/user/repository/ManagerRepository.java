@@ -12,5 +12,5 @@ public interface ManagerRepository extends JpaRepository<Manager, Long> {
 
 	List<Manager> findByManagerStatus(ManagerStatus status);
 
-	Optional<Manager> findByUser_Id(Long userId);
+	Optional<Manager> findById(Long userId);
 }
