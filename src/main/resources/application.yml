@@ -35,5 +35,5 @@ springdoc:
 
 google:
   ai:
-    api-key: ${GOOGLE_API_KEY}
+    api-key: ENC(iAr9GNCjCqTjiQH7zh2sEXW0rE0P7IJZCdmhm+fiw1E6UXw0RSsHjPSePLVIyrpM)
     url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
