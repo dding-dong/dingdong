@@ -76,7 +76,7 @@ public class ManagerService {
 	}
 
 	private Manager getManagerByUserId(Long userId) {
-		return managerRepository.findByUser_Id(userId)
+		return managerRepository.findById(userId)
 			.orElseThrow(() -> new IllegalArgumentException("해당 매니저를 찾을 수 없습니다."));
 	}
 }
