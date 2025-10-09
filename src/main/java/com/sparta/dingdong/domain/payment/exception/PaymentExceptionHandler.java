@@ -32,4 +32,12 @@ public class PaymentExceptionHandler {
 			.body(BaseResponseDto.error(CommonErrorCode.PAYMENT_AMOUNT_MISMATCH));
 	}
 
+	@ExceptionHandler(PaymentStatusNoPendingException.class)
+	public ResponseEntity<BaseResponseDto<Void>> handlePaymentStatusNoPendingException(
+		PaymentStatusNoPendingException ex) {
+		return ResponseEntity
+			.status(CommonErrorCode.PAYMENT_STATUS_NO_PEDNIND.getStatus())
+			.body(BaseResponseDto.error(CommonErrorCode.PAYMENT_STATUS_NO_PEDNIND));
+	}
+
 }

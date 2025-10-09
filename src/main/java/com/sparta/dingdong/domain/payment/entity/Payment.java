@@ -74,6 +74,10 @@ public class Payment {
 			.build();
 	}
 
+	public void deleteFailReason() {
+		this.failReason = null;
+	}
+
 	public void changeStatus(PaymentStatus paymentStatus) {
 		this.paymentStatus = paymentStatus;
 	}
