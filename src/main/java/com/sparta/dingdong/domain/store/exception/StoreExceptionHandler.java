@@ -24,8 +24,8 @@ public class StoreExceptionHandler {
 
 	@ExceptionHandler(NotStoreOwnerException.class)
 	public ResponseEntity<BaseResponseDto<Void>> handleNotStoreOwnerException(NotStoreOwnerException ex) {
-		return ResponseEntity.status(CommonErrorCode.NOT_STOREOWNER.getStatus())
-			.body(BaseResponseDto.error(CommonErrorCode.NOT_STOREOWNER));
+		return ResponseEntity.status(CommonErrorCode.NOT_STORE_OWNER.getStatus())
+			.body(BaseResponseDto.error(CommonErrorCode.NOT_STORE_OWNER));
 	}
 
 	@ExceptionHandler(DeletedStoreNotFoundException.class)
