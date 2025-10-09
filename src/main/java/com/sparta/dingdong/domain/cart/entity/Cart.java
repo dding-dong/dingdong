@@ -72,6 +72,10 @@ public class Cart extends BaseEntity {
 		}
 	}
 
+	public void setStore(Store store) {
+		this.store = store;
+	}
+
 	public void removeItem(UUID itemId) {
 		items.removeIf(i -> i.getId().equals(itemId));
 	}

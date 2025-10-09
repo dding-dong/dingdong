@@ -2,18 +2,19 @@ package com.sparta.dingdong.domain.cart.service;
 
 import java.util.UUID;
 
+import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.cart.dto.request.AddCartItemRequestDto;
 import com.sparta.dingdong.domain.cart.dto.response.CartResponseDto;
 
 public interface CartService {
 
-	CartResponseDto getCart(Long userId);
+	CartResponseDto getCart(UserAuth userAuth);
 
-	Object addItem(Long userId, AddCartItemRequestDto dto, boolean replace);
+	CartResponseDto addItem(UserAuth userAuth, AddCartItemRequestDto req, boolean replace);
 
-	CartResponseDto updateItemQuantity(Long userId, UUID menuItemId, int quantity);
+	CartResponseDto updateItemQuantity(UserAuth userAuth, UUID menuItemId, int quantity);
 
-	void removeItem(Long userId, UUID menuItemId);
+	void removeItem(UserAuth userAuth, UUID menuItemId);
 
-	void clearCart(Long userId);
+	void clearCart(UserAuth userAuth);
 }
