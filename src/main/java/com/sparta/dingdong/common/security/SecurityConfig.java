@@ -50,6 +50,11 @@ public class SecurityConfig {
 					"/swagger-resources/**",
 					"/webjars/**"
 				).permitAll()
+				.requestMatchers(
+					"/toss/**",
+					"/**",
+					"/orders/**"
+				).permitAll()
 				.requestMatchers(HttpMethod.GET, "/v1/store-categories").permitAll()
 				.requestMatchers(HttpMethod.GET, "/v1/store-categories/*").permitAll()
 				.requestMatchers(HttpMethod.GET, "/v1/stores/*/menu-categories").permitAll()

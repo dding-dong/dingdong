@@ -35,6 +35,11 @@ public class UserServiceImpl implements UserService {
 	private final PasswordEncoder passwordEncoder;
 	private final ManagerRepository managerRepository;
 
+	@Override
+	public User findByUser(Long userId) {
+		return userRepository.findByIdOrElseThrow(userId);
+	}
+
 	@Transactional
 	public void createUser(UserCreateRequestDto req) {
 

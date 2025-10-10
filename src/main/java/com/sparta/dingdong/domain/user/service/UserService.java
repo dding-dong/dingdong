@@ -21,4 +21,6 @@ public interface UserService {
 	UserResponseDto findById(UserAuth userAuth);
 
 	User findByUser(UserAuth userAuth);
+
+	User findByUser(Long userId);
 }
