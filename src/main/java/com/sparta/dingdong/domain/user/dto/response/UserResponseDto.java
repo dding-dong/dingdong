@@ -37,9 +37,9 @@ public class UserResponseDto {
 			.email(user.getEmail())
 			.nickname(user.getNickname())
 			.phone(user.getPhone())
-			.city(user.getAddressList().get(0).getDong().getGu().getCity().toString())
-			.gu(user.getAddressList().get(0).getDong().getGu().toString())
-			.dong(user.getAddressList().get(0).getDong().toString())
+			.city(user.getAddressList().get(0).getDong().getGu().getCity().getName())
+			.gu(user.getAddressList().get(0).getDong().getGu().getName())
+			.dong(user.getAddressList().get(0).getDong().getName())
 			.detailAddress(user.getAddressList().get(0).getDetailAddress())
 			.build();
 	}
