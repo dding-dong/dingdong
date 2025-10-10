@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.common.dto.PageResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
+import com.sparta.dingdong.common.util.PageableUtils;
 import com.sparta.dingdong.domain.category.dto.request.MenuCategoryItemRequestDto;
 import com.sparta.dingdong.domain.category.dto.request.MenuCategoryRequestDto;
 import com.sparta.dingdong.domain.category.dto.response.MenuCategoryItemResponseDto;
@@ -52,6 +53,7 @@ public class MenuCategoryControllerV1 {
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@Parameter(description = "검색 키워드 (메뉴 카테고리명)") @RequestParam(required = false) String keyword,
 		@ParameterObject Pageable pageable) {
+		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
 		Page<MenuCategoryResponseDto> list = menuCategoryService.getByStore(storeId, keyword, pageable);
 		PageResponseDto<MenuCategoryResponseDto> result = PageResponseDto.<MenuCategoryResponseDto>builder()
 			.content(list.getContent())
@@ -120,6 +122,7 @@ public class MenuCategoryControllerV1 {
 		@Parameter(description = "메뉴 카테고리 UUID") @PathVariable UUID menuCategoryId,
 		@Parameter(description = "검색 키워드 (메뉴명)") @RequestParam(required = false) String keyword,
 		@ParameterObject Pageable pageable) {
+		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
 		Page<MenuCategoryItemResponseDto> list = menuCategoryItemService.getItemsByCategory(menuCategoryId, keyword,
 			pageable);
 		PageResponseDto<MenuCategoryItemResponseDto> result = PageResponseDto.<MenuCategoryItemResponseDto>builder()

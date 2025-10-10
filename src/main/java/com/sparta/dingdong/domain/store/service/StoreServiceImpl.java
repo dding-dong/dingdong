@@ -186,7 +186,7 @@ public class StoreServiceImpl implements StoreService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public Page<StoreResponseDto> getAll(String keyword, Pageable pageable, UserAuth user) {
+	public Page<StoreResponseDto> getAllStores(String keyword, Pageable pageable, UserAuth user) {
 		authService.ensureAdmin(user);
 		boolean isAdmin = true;
 		Page<Store> storesPage = storeRepository.findAllWithKeyword(keyword, pageable);

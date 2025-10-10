@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.common.dto.PageResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
+import com.sparta.dingdong.common.util.PageableUtils;
 import com.sparta.dingdong.domain.menu.dto.request.MenuItemRequestDto;
 import com.sparta.dingdong.domain.menu.dto.response.MenuItemResponseDto;
 import com.sparta.dingdong.domain.menu.service.MenuItemService;
@@ -51,7 +52,8 @@ public class MenuItemControllerV1 {
 		@ParameterObject Pageable pageable,
 		@AuthenticationPrincipal UserAuth user // 비회원 - null
 	) {
-		Page<MenuItemResponseDto> list = menuItemService.getAllByStore(storeId, includeHidden, keyword, pageable,
+		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
+		Page<MenuItemResponseDto> list = menuItemService.getAllByStore(storeId, includeHidden, keyword, fixedPageable,
 			user);
 		PageResponseDto<MenuItemResponseDto> result = PageResponseDto.<MenuItemResponseDto>builder()
 			.content(list.getContent())

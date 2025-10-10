@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.dingdong.common.util.QuerydslUtils;
+import com.sparta.dingdong.domain.category.entity.QStoreCategory;
 import com.sparta.dingdong.domain.store.entity.QStore;
 import com.sparta.dingdong.domain.store.entity.Store;
 
@@ -25,17 +26,35 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 
 	@Override
 	public Page<Store> findAllActiveWithKeyword(String keyword, Pageable pageable) {
+		return findAllWithKeyword(keyword, pageable, true);
+	}
+
+	@Override
+	public Page<Store> findAllWithKeyword(String keyword, Pageable pageable) {
+		return findAllWithKeyword(keyword, pageable, false);
+	}
+
+	@Override
+	public Page<Store> findAllWithKeyword(String keyword, Pageable pageable, boolean onlyActive) {
 		QStore store = QStore.store;
+		QStoreCategory storeCategory = QStoreCategory.storeCategory;
 
 		BooleanBuilder builder = new BooleanBuilder();
-		builder.and(store.deletedAt.isNull());
+		if (onlyActive) {
+			builder.and(store.deletedAt.isNull());
+		}
 
 		if (keyword != null && !keyword.isBlank()) {
-			builder.and(store.name.lower().contains(keyword.toLowerCase()));
+			String lowered = keyword.toLowerCase();
+			builder.andAnyOf(
+				store.name.lower().contains(lowered),
+				store.storeCategory.name.lower().contains(lowered)
+			);
 		}
 
 		List<Store> content = queryFactory
 			.selectFrom(store)
+			.leftJoin(store.storeCategory, storeCategory).fetchJoin()
 			.where(builder)
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
@@ -45,12 +64,51 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 		Long total = queryFactory
 			.select(store.count())
 			.from(store)
+			.leftJoin(store.storeCategory, storeCategory)
 			.where(builder)
 			.fetchOne();
+
 		total = total != null ? total : 0L;
 
 		return new PageImpl<>(content, pageable, total);
 	}
+
+	// @Override
+	// public Page<Store> findAllActiveWithKeyword(String keyword, Pageable pageable) {
+	// 	QStore store = QStore.store;
+	// 	QStoreCategory storeCategory = QStoreCategory.storeCategory;
+	//
+	// 	BooleanBuilder builder = new BooleanBuilder();
+	// 	builder.and(store.deletedAt.isNull()); // 소프트 삭제 제외
+	//
+	// 	if (keyword != null && !keyword.isBlank()) {
+	// 		String lowered = keyword.toLowerCase();
+	// 		builder.andAnyOf(
+	// 			store.name.lower().contains(lowered),
+	// 			store.storeCategory.name.lower().contains(lowered)
+	// 		);
+	// 	}
+	//
+	// 	List<Store> content = queryFactory
+	// 		.selectFrom(store)
+	// 		.leftJoin(store.storeCategory, storeCategory).fetchJoin()
+	// 		.where(builder)
+	// 		.offset(pageable.getOffset())
+	// 		.limit(pageable.getPageSize())
+	// 		.orderBy(QuerydslUtils.toOrderSpecifiers(pageable.getSort(), store))
+	// 		.fetch();
+	//
+	// 	Long total = queryFactory
+	// 		.select(store.count())
+	// 		.from(store)
+	// 		.leftJoin(store.storeCategory, storeCategory)
+	// 		.where(builder)
+	// 		.fetchOne();
+	//
+	// 	total = total != null ? total : 0L;
+	//
+	// 	return new PageImpl<>(content, pageable, total);
+	// }
 
 	@Override
 	public Page<Store> findAllActiveByStoreCategoryWithKeyword(UUID storeCategoryId, String keyword,
@@ -116,33 +174,41 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 		return new PageImpl<>(content, pageable, total);
 	}
 
-	@Override
-	public Page<Store> findAllWithKeyword(String keyword, Pageable pageable) {
-		QStore store = QStore.store;
-
-		BooleanBuilder builder = new BooleanBuilder();
-
-		if (keyword != null && !keyword.isBlank()) {
-			builder.and(store.name.lower().contains(keyword.toLowerCase()));
-		}
-
-		List<Store> content = queryFactory
-			.selectFrom(store)
-			.where(builder)
-			.offset(pageable.getOffset())
-			.limit(pageable.getPageSize())
-			.orderBy(QuerydslUtils.toOrderSpecifiers(pageable.getSort(), store))
-			.fetch();
-
-		Long total = queryFactory
-			.select(store.count())
-			.from(store)
-			.where(builder)
-			.fetchOne();
-		total = total != null ? total : 0L;
-
-		return new PageImpl<>(content, pageable, total);
-	}
+	// @Override
+	// public Page<Store> findAllWithKeyword(String keyword, Pageable pageable) {
+	// 	QStore store = QStore.store;
+	// 	QStoreCategory storeCategory = QStoreCategory.storeCategory;
+	//
+	// 	BooleanBuilder builder = new BooleanBuilder();
+	//
+	// 	if (keyword != null && !keyword.isBlank()) {
+	// 		String lowered = keyword.toLowerCase();
+	// 		builder.andAnyOf(
+	// 			store.name.lower().contains(lowered),
+	// 			store.storeCategory.name.lower().contains(lowered)
+	// 		);
+	// 	}
+	//
+	// 	List<Store> content = queryFactory
+	// 		.selectFrom(store)
+	// 		.leftJoin(store.storeCategory, storeCategory).fetchJoin()
+	// 		.where(builder)
+	// 		.offset(pageable.getOffset())
+	// 		.limit(pageable.getPageSize())
+	// 		.orderBy(QuerydslUtils.toOrderSpecifiers(pageable.getSort(), store))
+	// 		.fetch();
+	//
+	// 	Long total = queryFactory
+	// 		.select(store.count())
+	// 		.from(store)
+	// 		.leftJoin(store.storeCategory, storeCategory)
+	// 		.where(builder)
+	// 		.fetchOne();
+	//
+	// 	total = total != null ? total : 0L;
+	//
+	// 	return new PageImpl<>(content, pageable, total);
+	// }
 
 	@Override
 	public Page<Store> findAllByStoreCategoryWithKeyword(UUID storeCategoryId, String keyword, Pageable pageable) {

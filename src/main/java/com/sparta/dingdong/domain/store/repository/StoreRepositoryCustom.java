@@ -9,6 +9,8 @@ import com.sparta.dingdong.domain.store.entity.Store;
 
 public interface StoreRepositoryCustom {
 
+	Page<Store> findAllWithKeyword(String keyword, Pageable pageable, boolean onlyActive);
+
 	Page<Store> findAllActiveWithKeyword(String keyword, Pageable pageable);
 
 	Page<Store> findAllActiveByStoreCategoryWithKeyword(UUID storeCategoryId, String keyword,

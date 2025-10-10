@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.common.dto.PageResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
+import com.sparta.dingdong.common.util.PageableUtils;
 import com.sparta.dingdong.domain.category.dto.request.StoreCategoryRequestDto;
 import com.sparta.dingdong.domain.category.dto.response.StoreCategoryResponseDto;
 import com.sparta.dingdong.domain.category.service.StoreCategoryService;
@@ -45,6 +46,7 @@ public class StoreCategoryControllerV1 {
 	public ResponseEntity<BaseResponseDto<PageResponseDto<StoreCategoryResponseDto>>> getAll(
 		@Parameter(description = "검색 키워드 (가게 카테고리명)") @RequestParam(required = false) String keyword,
 		@ParameterObject Pageable pageable) {
+		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
 		Page<StoreCategoryResponseDto> list = storeCategoryService.getAll(keyword, pageable);
 		PageResponseDto<StoreCategoryResponseDto> result = PageResponseDto.<StoreCategoryResponseDto>builder()
 			.content(list.getContent())

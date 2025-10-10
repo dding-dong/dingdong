@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.common.dto.PageResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
+import com.sparta.dingdong.common.util.PageableUtils;
 import com.sparta.dingdong.domain.store.dto.request.StoreRequestDto;
 import com.sparta.dingdong.domain.store.dto.request.StoreUpdateStatusRequestDto;
 import com.sparta.dingdong.domain.store.dto.response.StoreResponseDto;
@@ -47,11 +48,12 @@ public class StoreControllerV1 {
 	@GetMapping("/list")
 	@PreAuthorize("true")
 	public ResponseEntity<BaseResponseDto<PageResponseDto<StoreResponseDto>>> getActiveStores(
-		@Parameter(description = "검색 키워드 (가게명)") @RequestParam(required = false) String keyword,
+		@Parameter(description = "검색 키워드 (가게명 또는 가게 카테고리명)") @RequestParam(required = false) String keyword,
 		@ParameterObject Pageable pageable,
 		@AuthenticationPrincipal UserAuth user
 	) {
-		Page<StoreResponseDto> list = storeService.getActiveStores(keyword, pageable, user);
+		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
+		Page<StoreResponseDto> list = storeService.getActiveStores(keyword, fixedPageable, user);
 		PageResponseDto<StoreResponseDto> result = PageResponseDto.<StoreResponseDto>builder()
 			.content(list.getContent())
 			.totalElements(list.getTotalElements())
@@ -72,7 +74,8 @@ public class StoreControllerV1 {
 		@Parameter(description = "검색 키워드 (가게명)") @RequestParam(required = false) String keyword,
 		@ParameterObject Pageable pageable,
 		@AuthenticationPrincipal UserAuth user) {
-		Page<StoreResponseDto> list = storeService.getActiveStoresByCategory(storeCategoryId, keyword, pageable,
+		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
+		Page<StoreResponseDto> list = storeService.getActiveStoresByCategory(storeCategoryId, keyword, fixedPageable,
 			user);
 		PageResponseDto<StoreResponseDto> result = PageResponseDto.<StoreResponseDto>builder()
 			.content(list.getContent())
@@ -104,7 +107,8 @@ public class StoreControllerV1 {
 		@Parameter(description = "검색 키워드 (가게명)") @RequestParam(required = false) String keyword,
 		@ParameterObject Pageable pageable,
 		@AuthenticationPrincipal UserAuth user) {
-		Page<StoreResponseDto> list = storeService.getMyStores(keyword, pageable, user);
+		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
+		Page<StoreResponseDto> list = storeService.getMyStores(keyword, fixedPageable, user);
 		PageResponseDto<StoreResponseDto> result = PageResponseDto.<StoreResponseDto>builder()
 			.content(list.getContent())
 			.totalElements(list.getTotalElements())
@@ -154,11 +158,12 @@ public class StoreControllerV1 {
 	@Operation(summary = "가게 전체 목록 조회", description = "관리자는 모든 상태의 가게를 조회할 수 있습니다.")
 	@GetMapping("/admin/list")
 	@PreAuthorize("hasAnyRole('MANAGER','MASTER')")
-	public ResponseEntity<BaseResponseDto<PageResponseDto<StoreResponseDto>>> getAll(
-		@Parameter(description = "검색 키워드 (가게명)") @RequestParam(required = false) String keyword,
+	public ResponseEntity<BaseResponseDto<PageResponseDto<StoreResponseDto>>> getAllStores(
+		@Parameter(description = "검색 키워드 (가게명 또는 카테고리명)") @RequestParam(required = false) String keyword,
 		@ParameterObject Pageable pageable,
 		@AuthenticationPrincipal UserAuth user) {
-		Page<StoreResponseDto> list = storeService.getAll(keyword, pageable, user);
+		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
+		Page<StoreResponseDto> list = storeService.getAllStores(keyword, fixedPageable, user);
 		PageResponseDto<StoreResponseDto> result = PageResponseDto.<StoreResponseDto>builder()
 			.content(list.getContent())
 			.totalElements(list.getTotalElements())
@@ -179,7 +184,8 @@ public class StoreControllerV1 {
 		@Parameter(description = "검색 키워드 (가게명)") @RequestParam(required = false) String keyword,
 		@ParameterObject Pageable pageable,
 		@AuthenticationPrincipal UserAuth user) {
-		Page<StoreResponseDto> list = storeService.getAllByCategory(storeCategoryId, keyword, pageable, user);
+		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
+		Page<StoreResponseDto> list = storeService.getAllByCategory(storeCategoryId, keyword, fixedPageable, user);
 		PageResponseDto<StoreResponseDto> result = PageResponseDto.<StoreResponseDto>builder()
 			.content(list.getContent())
 			.totalElements(list.getTotalElements())

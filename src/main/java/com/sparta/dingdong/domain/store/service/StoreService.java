@@ -38,7 +38,7 @@ public interface StoreService {
 	StoreResponseDto removeDeliveryArea(UUID storeId, UUID deliveryAreaId, UserAuth user);
 
 	@Transactional(readOnly = true)
-	Page<StoreResponseDto> getAll(String keyword, Pageable pageable, UserAuth user);
+	Page<StoreResponseDto> getAllStores(String keyword, Pageable pageable, UserAuth user);
 
 	@Transactional(readOnly = true)
 	Page<StoreResponseDto> getAllByCategory(UUID storeCategoryId, String keyword, Pageable pageable,
