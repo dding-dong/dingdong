@@ -1,8 +1,10 @@
 package com.sparta.dingdong.domain.menu.controller;
 
-import java.util.List;
 import java.util.UUID;
 
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.dingdong.common.dto.BaseResponseDto;
+import com.sparta.dingdong.common.dto.PageResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.menu.dto.request.MenuItemRequestDto;
 import com.sparta.dingdong.domain.menu.dto.response.MenuItemResponseDto;
@@ -41,12 +44,24 @@ public class MenuItemControllerV1 {
 	@Operation(summary = "가게 메뉴 전체 조회", description = "모든 사용자는 메뉴를 조회할 수 있습니다. (사장님은 숨김 메뉴 포함 조회 가능)")
 	@GetMapping
 	@PreAuthorize("true")
-	public ResponseEntity<BaseResponseDto<List<MenuItemResponseDto>>> getAll(
+	public ResponseEntity<BaseResponseDto<PageResponseDto<MenuItemResponseDto>>> getAll(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@Parameter(description = "숨김 포함 여부") @RequestParam(defaultValue = "false") boolean includeHidden,
+		@Parameter(description = "검색 키워드 (메뉴명)") @RequestParam(required = false) String keyword,
+		@ParameterObject Pageable pageable,
 		@AuthenticationPrincipal UserAuth user // 비회원 - null
 	) {
-		List<MenuItemResponseDto> result = menuItemService.getAllByStore(storeId, includeHidden, user);
+		Page<MenuItemResponseDto> list = menuItemService.getAllByStore(storeId, includeHidden, keyword, pageable,
+			user);
+		PageResponseDto<MenuItemResponseDto> result = PageResponseDto.<MenuItemResponseDto>builder()
+			.content(list.getContent())
+			.totalElements(list.getTotalElements())
+			.totalPages(list.getTotalPages())
+			.pageNumber(list.getNumber())
+			.pageSize(list.getSize())
+			.first(list.isFirst())
+			.last(list.isLast())
+			.build();
 		return ResponseEntity.ok(BaseResponseDto.success("메뉴 목록 조회 성공", result));
 	}
 

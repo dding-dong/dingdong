@@ -1,9 +1,9 @@
 package com.sparta.dingdong.domain.category.service;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,10 +28,10 @@ public class StoreCategoryServiceImpl implements StoreCategoryService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public List<StoreCategoryResponseDto> getAll() {
-		return storeCategoryRepository.findAllByDeletedAtIsNull().stream()
-			.map(this::map)
-			.collect(Collectors.toList());
+	public Page<StoreCategoryResponseDto> getAll(String keyword, Pageable pageable) {
+		Page<StoreCategory> storeCategoriesPage = storeCategoryRepository.findAllByDeletedAtIsNullWithKeyword(keyword,
+			pageable);
+		return storeCategoriesPage.map(this::map);
 	}
 
 	@Transactional(readOnly = true)

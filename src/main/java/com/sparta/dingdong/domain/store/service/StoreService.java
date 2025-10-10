@@ -1,8 +1,9 @@
 package com.sparta.dingdong.domain.store.service;
 
-import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.dingdong.common.jwt.UserAuth;
@@ -15,15 +16,16 @@ import jakarta.validation.Valid;
 public interface StoreService {
 
 	@Transactional(readOnly = true)
-	List<StoreResponseDto> getActiveStores(UserAuth user);
+	Page<StoreResponseDto> getActiveStores(String keyword, Pageable pageable, UserAuth user);
 
 	@Transactional(readOnly = true)
-	List<StoreResponseDto> getActiveStoresByCategory(UUID storeCategoryId, UserAuth user);
+	Page<StoreResponseDto> getActiveStoresByCategory(UUID storeCategoryId, String keyword, Pageable pageable,
+		UserAuth user);
 
 	StoreResponseDto create(StoreRequestDto req, UserAuth user);
 
 	@Transactional(readOnly = true)
-	List<StoreResponseDto> getMyStores(UserAuth user);
+	Page<StoreResponseDto> getMyStores(String keyword, Pageable pageable, UserAuth user);
 
 	StoreResponseDto update(UUID storeId, StoreRequestDto req, UserAuth user);
 
@@ -36,10 +38,11 @@ public interface StoreService {
 	StoreResponseDto removeDeliveryArea(UUID storeId, UUID deliveryAreaId, UserAuth user);
 
 	@Transactional(readOnly = true)
-	List<StoreResponseDto> getAll(UserAuth user);
+	Page<StoreResponseDto> getAll(String keyword, Pageable pageable, UserAuth user);
 
 	@Transactional(readOnly = true)
-	List<StoreResponseDto> getAllByCategory(UUID storeCategoryId, UserAuth user);
+	Page<StoreResponseDto> getAllByCategory(UUID storeCategoryId, String keyword, Pageable pageable,
+		UserAuth user);
 
 	StoreResponseDto forceUpdateStatus(UUID storeId, StoreUpdateStatusRequestDto req, UserAuth user);
 

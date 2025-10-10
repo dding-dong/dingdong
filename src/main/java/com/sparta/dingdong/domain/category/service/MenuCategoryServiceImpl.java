@@ -1,9 +1,9 @@
 package com.sparta.dingdong.domain.category.service;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,11 +35,10 @@ public class MenuCategoryServiceImpl implements MenuCategoryService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public List<MenuCategoryResponseDto> getByStore(UUID storeId) {
-		return menuCategoryRepository.findByStoreIdAndDeletedAtIsNullOrderBySortMenuCategoryAsc(storeId)
-			.stream()
-			.map(this::map)
-			.collect(Collectors.toList());
+	public Page<MenuCategoryResponseDto> getByStore(UUID storeId, String keyword, Pageable pageable) {
+		Page<MenuCategory> menuCategoriesPage = menuCategoryRepository.findByStoreIdWithKeyword(
+			storeId, keyword, pageable);
+		return menuCategoriesPage.map(this::map);
 	}
 
 	@Override
