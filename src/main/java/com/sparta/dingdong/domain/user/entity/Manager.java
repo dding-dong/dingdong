@@ -1,5 +1,6 @@
 package com.sparta.dingdong.domain.user.entity;
 
+import com.sparta.dingdong.common.base.BaseEntity;
 import com.sparta.dingdong.domain.user.entity.enums.ManagerStatus;
 
 import jakarta.persistence.Entity;
@@ -17,14 +18,16 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Setter
 @Getter
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "p_manager")
-public class Manager {
+public class Manager extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
