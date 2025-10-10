@@ -1,4 +1,4 @@
-package com.sparta.dingdong.domain.category.service;
+package com.sparta.dingdong.domain.category.service.menucategory;
 
 import java.util.UUID;
 
@@ -16,8 +16,8 @@ import com.sparta.dingdong.domain.category.entity.MenuCategoryItem;
 import com.sparta.dingdong.domain.category.exception.menucategory.MenuCategoryItemNotFoundException;
 import com.sparta.dingdong.domain.category.exception.menucategory.MenuCategoryItemOrderConflictException;
 import com.sparta.dingdong.domain.category.exception.menucategory.MenuCategoryNotFoundException;
-import com.sparta.dingdong.domain.category.repository.MenuCategoryItemRepository;
-import com.sparta.dingdong.domain.category.repository.MenuCategoryRepository;
+import com.sparta.dingdong.domain.category.repository.menucategory.MenuCategoryItemRepository;
+import com.sparta.dingdong.domain.category.repository.menucategory.MenuCategoryRepository;
 import com.sparta.dingdong.domain.menu.entity.MenuItem;
 import com.sparta.dingdong.domain.menu.exception.MenuItemNotFoundException;
 import com.sparta.dingdong.domain.menu.repository.MenuItemRepository;

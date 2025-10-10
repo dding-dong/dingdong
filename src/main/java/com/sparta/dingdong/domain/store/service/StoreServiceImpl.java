@@ -13,7 +13,7 @@ import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.auth.service.AuthService;
 import com.sparta.dingdong.domain.category.entity.StoreCategory;
 import com.sparta.dingdong.domain.category.exception.storecategory.StoreCategoryNotFoundException;
-import com.sparta.dingdong.domain.category.repository.StoreCategoryRepository;
+import com.sparta.dingdong.domain.category.repository.storecategory.StoreCategoryRepository;
 import com.sparta.dingdong.domain.store.dto.request.StoreRequestDto;
 import com.sparta.dingdong.domain.store.dto.request.StoreUpdateStatusRequestDto;
 import com.sparta.dingdong.domain.store.dto.response.StoreResponseDto;

@@ -1,4 +1,4 @@
-package com.sparta.dingdong.domain.category.service;
+package com.sparta.dingdong.domain.category.service.storecategory;
 
 import java.util.UUID;
 
@@ -12,7 +12,7 @@ import com.sparta.dingdong.domain.category.dto.request.StoreCategoryRequestDto;
 import com.sparta.dingdong.domain.category.dto.response.StoreCategoryResponseDto;
 import com.sparta.dingdong.domain.category.entity.StoreCategory;
 import com.sparta.dingdong.domain.category.exception.storecategory.StoreCategoryAlreadyActiveException;
-import com.sparta.dingdong.domain.category.repository.StoreCategoryRepository;
+import com.sparta.dingdong.domain.category.repository.storecategory.StoreCategoryRepository;
 import com.sparta.dingdong.domain.store.exception.StoreNotFoundException;
 
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.sparta.dingdong.domain.category.service;
+package com.sparta.dingdong.domain.category.service.menucategory;
 
 import java.util.UUID;
 

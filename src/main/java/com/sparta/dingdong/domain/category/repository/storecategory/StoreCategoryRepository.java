@@ -1,4 +1,4 @@
-package com.sparta.dingdong.domain.category.repository;
+package com.sparta.dingdong.domain.category.repository.storecategory;
 
 import java.util.UUID;
 

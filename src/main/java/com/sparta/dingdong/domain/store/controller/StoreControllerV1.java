@@ -50,8 +50,7 @@ public class StoreControllerV1 {
 	public ResponseEntity<BaseResponseDto<PageResponseDto<StoreResponseDto>>> getActiveStores(
 		@Parameter(description = "검색 키워드 (가게명 또는 가게 카테고리명)") @RequestParam(required = false) String keyword,
 		@ParameterObject Pageable pageable,
-		@AuthenticationPrincipal UserAuth user
-	) {
+		@AuthenticationPrincipal UserAuth user) {
 		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
 		Page<StoreResponseDto> result = storeService.getActiveStores(keyword, fixedPageable, user);
 		return ResponseEntity.ok(BaseResponseDto.success("활성화된 가게 목록 조회 성공", PageResponseDto.from(result)));

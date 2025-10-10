@@ -50,8 +50,7 @@ public class MenuItemControllerV1 {
 		@Parameter(description = "숨김 포함 여부") @RequestParam(defaultValue = "false") boolean includeHidden,
 		@Parameter(description = "검색 키워드 (메뉴명)") @RequestParam(required = false) String keyword,
 		@ParameterObject Pageable pageable,
-		@AuthenticationPrincipal UserAuth user // 비회원 - null
-	) {
+		@AuthenticationPrincipal UserAuth user) {
 		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
 		Page<MenuItemResponseDto> result = menuItemService.getAllByStore(storeId, includeHidden, keyword, fixedPageable,
 			user);
@@ -64,8 +63,7 @@ public class MenuItemControllerV1 {
 	public ResponseEntity<BaseResponseDto<MenuItemResponseDto>> create(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@Valid @RequestBody MenuItemRequestDto req,
-		@AuthenticationPrincipal UserAuth user
-	) {
+		@AuthenticationPrincipal UserAuth user) {
 		MenuItemResponseDto result = menuItemService.create(storeId, req, user);
 		return ResponseEntity.ok(BaseResponseDto.success("메뉴 생성 성공", result));
 	}
@@ -76,8 +74,7 @@ public class MenuItemControllerV1 {
 	public ResponseEntity<BaseResponseDto<MenuItemResponseDto>> getDetail(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@Parameter(description = "메뉴 아이템 UUID") @PathVariable UUID menuItemId,
-		@AuthenticationPrincipal UserAuth user
-	) {
+		@AuthenticationPrincipal UserAuth user) {
 		MenuItemResponseDto result = menuItemService.getById(menuItemId, user);
 		return ResponseEntity.ok(BaseResponseDto.success("메뉴 조회 성공", result));
 	}
@@ -89,8 +86,7 @@ public class MenuItemControllerV1 {
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@Parameter(description = "메뉴 아이템 UUID") @PathVariable UUID menuItemId,
 		@Valid @RequestBody MenuItemRequestDto req,
-		@AuthenticationPrincipal UserAuth user
-	) {
+		@AuthenticationPrincipal UserAuth user) {
 		MenuItemResponseDto result = menuItemService.update(menuItemId, req, user);
 		return ResponseEntity.ok(BaseResponseDto.success("메뉴 수정 성공", result));
 	}
@@ -101,8 +97,7 @@ public class MenuItemControllerV1 {
 	public ResponseEntity<BaseResponseDto<Void>> delete(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
 		@Parameter(description = "메뉴 아이템 UUID") @PathVariable UUID menuItemId,
-		@AuthenticationPrincipal UserAuth user
-	) {
+		@AuthenticationPrincipal UserAuth user) {
 		menuItemService.delete(menuItemId, user);
 		return ResponseEntity.ok(BaseResponseDto.success("메뉴 삭제 성공"));
 	}

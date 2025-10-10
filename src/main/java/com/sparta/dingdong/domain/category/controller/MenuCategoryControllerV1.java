@@ -26,8 +26,8 @@ import com.sparta.dingdong.domain.category.dto.request.MenuCategoryItemRequestDt
 import com.sparta.dingdong.domain.category.dto.request.MenuCategoryRequestDto;
 import com.sparta.dingdong.domain.category.dto.response.MenuCategoryItemResponseDto;
 import com.sparta.dingdong.domain.category.dto.response.MenuCategoryResponseDto;
-import com.sparta.dingdong.domain.category.service.MenuCategoryItemService;
-import com.sparta.dingdong.domain.category.service.MenuCategoryService;
+import com.sparta.dingdong.domain.category.service.menucategory.MenuCategoryItemService;
+import com.sparta.dingdong.domain.category.service.menucategory.MenuCategoryService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

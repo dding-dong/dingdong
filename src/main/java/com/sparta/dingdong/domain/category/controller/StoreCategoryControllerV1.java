@@ -24,7 +24,7 @@ import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.common.util.PageableUtils;
 import com.sparta.dingdong.domain.category.dto.request.StoreCategoryRequestDto;
 import com.sparta.dingdong.domain.category.dto.response.StoreCategoryResponseDto;
-import com.sparta.dingdong.domain.category.service.StoreCategoryService;
+import com.sparta.dingdong.domain.category.service.storecategory.StoreCategoryService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
