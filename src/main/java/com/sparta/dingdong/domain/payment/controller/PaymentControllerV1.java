@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
+import com.sparta.dingdong.domain.payment.dto.request.CancelPaymentRequestDto;
 import com.sparta.dingdong.domain.payment.dto.request.ConfirmPaymentsRequestDto;
 import com.sparta.dingdong.domain.payment.dto.request.PaymentRequestDto;
 import com.sparta.dingdong.domain.payment.dto.response.AdminPaymentDetailResponseDto;
@@ -50,6 +51,15 @@ public class PaymentControllerV1 {
 		@Validated @RequestBody ConfirmPaymentsRequestDto request) {
 		paymentService.createConfirmPayments(userAuth, request);
 		return ResponseEntity.ok(BaseResponseDto.success("결제를 승인 했습니다."));
+	}
+
+	@Operation(summary = "결제 취소 API", description = "고객이 결제 취소를 요청합니다.")
+	@PostMapping("/payments/cancel")
+	@PreAuthorize("hasRole('ROLE_CUSTOMER')")
+	ResponseEntity<BaseResponseDto<?>> cancelConfirmPayments(@AuthenticationPrincipal UserAuth userAuth,
+		@Validated @RequestBody CancelPaymentRequestDto request) {
+		paymentService.cancelConfirmPayments(userAuth, request);
+		return ResponseEntity.ok(BaseResponseDto.success("결제 취소를 완료 했습니다."));
 	}
 
 	@Operation(summary = "CUSTOMER 결제 상세 조회 API", description = "고객이 주문에 대해 결제 상세조회를 요청합니다.")

@@ -40,4 +40,19 @@ public class PaymentExceptionHandler {
 			.body(BaseResponseDto.error(CommonErrorCode.PAYMENT_STATUS_NO_PEDNIND));
 	}
 
+	@ExceptionHandler(TossConfirmFailedException.class)
+	public ResponseEntity<BaseResponseDto<Void>> handleTossConfirmFailedException(
+		TossConfirmFailedException ex) {
+		return ResponseEntity
+			.status(CommonErrorCode.TOSS_CONFIRM_FAILED.getStatus())
+			.body(BaseResponseDto.error(CommonErrorCode.TOSS_CONFIRM_FAILED));
+	}
+
+	@ExceptionHandler(TossCancelFailedException.class)
+	public ResponseEntity<BaseResponseDto<Void>> handleTossCancelFailedException(
+		TossCancelFailedException ex) {
+		return ResponseEntity
+			.status(CommonErrorCode.TOSS_CANCEL_FAILED.getStatus())
+			.body(BaseResponseDto.error(CommonErrorCode.TOSS_CANCEL_FAILED));
+	}
 }

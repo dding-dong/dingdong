@@ -10,6 +10,7 @@ import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.order.entity.Order;
 import com.sparta.dingdong.domain.order.entity.enums.OrderStatus;
 import com.sparta.dingdong.domain.order.service.OrderService;
+import com.sparta.dingdong.domain.payment.dto.request.CancelPaymentRequestDto;
 import com.sparta.dingdong.domain.payment.dto.request.ConfirmPaymentsRequestDto;
 import com.sparta.dingdong.domain.payment.dto.request.PaymentRequestDto;
 import com.sparta.dingdong.domain.payment.dto.response.AdminPaymentDetailResponseDto;
@@ -23,6 +24,8 @@ import com.sparta.dingdong.domain.payment.exception.PaymentAlreadyExistsExceptio
 import com.sparta.dingdong.domain.payment.exception.PaymentAmountMismatchException;
 import com.sparta.dingdong.domain.payment.exception.PaymentNotFoundException;
 import com.sparta.dingdong.domain.payment.exception.PaymentStatusNoPendingException;
+import com.sparta.dingdong.domain.payment.exception.TossCancelFailedException;
+import com.sparta.dingdong.domain.payment.exception.TossConfirmFailedException;
 import com.sparta.dingdong.domain.payment.repository.PaymentRepository;
 import com.sparta.dingdong.domain.user.entity.User;
 import com.sparta.dingdong.domain.user.service.UserService;
@@ -56,7 +59,6 @@ public class PaymentServiceImpl implements PaymentService {
 		Order order = orderService.findByOrder(request.getOrderId());
 
 		// 주문에 대한 결제가 이미 있으면 예외 처리해준다.
-
 		Payment existingPayment = findByPaymentOrNull(order);
 
 		// order에 대한 payment가 있는데 paymentStatus가 Failed 상태가 아니면 PaymentAlreadyExistsException();
@@ -106,7 +108,9 @@ public class PaymentServiceImpl implements PaymentService {
 			throw new PaymentAmountMismatchException();
 		}
 
-		fakeTossCall(request, order, payment);
+		if (!fakeTossCall(request, order, payment)) {
+			throw new TossConfirmFailedException("결제 승인을 실패했습니다.");
+		}
 
 		// 현재 시간 받아서 approve_at 시간 저장
 
@@ -121,42 +125,42 @@ public class PaymentServiceImpl implements PaymentService {
 		paymentRepository.save(payment);
 	}
 
-	private void fakeTossCall(ConfirmPaymentsRequestDto request, Order order, Payment payment) {
+	private boolean fakeTossCall(ConfirmPaymentsRequestDto request, Order order, Payment payment) {
 		// 여기서 https://api.tosspayments.com/v1/payments/confirm orderId, amount, paymentKey 담아서 가상 요청
-		new Thread(() -> {
-			try {
-				System.out.println(
-					"[Toss] 요청 전송 중... orderId=" + request.getOrderId() + "amount=" + order.getTotalPrice());
-				Thread.sleep(1500); // 1.5초 대기 (요청 시뮬레이션)
-				System.out.println("[Toss] 요청 완료. 응답 수신 성공");
-				// successURL로 갔을 때
+		try {
+			System.out.println(
+				"[Toss] 요청 전송 중... orderId=" + request.getOrderId() + "amount=" + order.getTotalPrice());
+			Thread.sleep(1500); // 1.5초 대기 (요청 시뮬레이션)
+			System.out.println("[Toss] 요청 완료. 응답 수신 성공");
+			// successURL로 갔을 때
 
-				// 더미 응답 객체
-				TossPaymentResponseDto fakeResponse = new TossPaymentResponseDto(
-					request.getOrderId(),
-					"DONE",
-					request.getPaymentKey()
-				);
+			// 더미 응답 객체
+			TossPaymentResponseDto fakeResponse = new TossPaymentResponseDto(
+				request.getOrderId(),
+				"DONE",
+				request.getPaymentKey()
+			);
 
-				// 응답 후 처리 로직 (ex. 로그 남기기)
-				System.out.println("[Toss] 응답: " + fakeResponse);
+			// 응답 후 처리 로직 (ex. 로그 남기기)
+			System.out.println("[Toss] 응답: " + fakeResponse);
 
-				// 테스트용 강제 예외 발생
-				// throw new InterruptedException("테스트 결제 실패");
+			// 테스트용 강제 예외 발생
+			// throw new InterruptedException("테스트 결제 실패");
 
-			} catch (InterruptedException e) { // failURL로 갔을 때
-				System.out.println("[Toss] 결제 실패: " + e.getMessage());
+			return true;
+		} catch (InterruptedException e) { // failURL로 갔을 때
+			System.out.println("[Toss] 결제 실패: " + e.getMessage());
 
-				// fail?code={ERROR_CODE}&message={ERROR_MESSAGE} & orderId={ORDER_ID}
-				FakeTossPaymentFailResponseDto fakeTossPaymentFailResponseDto = new FakeTossPaymentFailResponseDto(
-					order.getId(),
-					"500",
-					"NOT_FOUND_PAYMENT_SESSION"
-				);
+			// fail?code={ERROR_CODE}&message={ERROR_MESSAGE} & orderId={ORDER_ID}
+			FakeTossPaymentFailResponseDto fakeTossPaymentFailResponseDto = new FakeTossPaymentFailResponseDto(
+				order.getId(),
+				"500",
+				"NOT_FOUND_PAYMENT_SESSION"
+			);
 
-				paymentTransactionService.markPaymentFailed(payment);
-			}
-		}).start();
+			paymentTransactionService.markPaymentFailed(payment);
+			return false;
+		}
 	}
 
 	@Transactional
@@ -190,5 +194,39 @@ public class PaymentServiceImpl implements PaymentService {
 		Payment payment = findByPayment(order);
 
 		return AdminPaymentDetailResponseDto.from(payment);
+	}
+
+	@Override
+	@Transactional
+	public void cancelConfirmPayments(UserAuth userAuth, CancelPaymentRequestDto request) {
+		Order order = orderService.findByOrder(request.getOrderId());
+
+		Payment payment = findByPayment(order);
+
+		String paymentKey = payment.getPaymentKey();
+
+		if (!fakeTossCancelCall(paymentKey)) {
+			throw new TossCancelFailedException("결제 취소가 실패했습니다");
+		}
+
+		refundPayment(order, request.getRefundReason());
+	}
+
+	private boolean fakeTossCancelCall(String paymentKey) {
+		// paymentKey로 https://api.tosspayments.com/v1/payments/confirm/v1/payments/{paymentKey}/cancel 가상 요청
+		try {
+			System.out.println(
+				"[Toss 결제 취소] 요청 전송 중... paymentKey=" + paymentKey);
+			Thread.sleep(1500); // 1.5초 대기 (요청 시뮬레이션)
+			System.out.println("[Toss 결제 취소] 요청 완료. 응답 수신 성공");
+
+			// 테스트용 강제 예외 발생
+			// throw new InterruptedException("테스트 결제 실패");
+
+			return true;
+		} catch (InterruptedException e) { // failURL로 갔을 때
+			System.out.println("[Toss 결제 취소] 결제 취소 실패: " + e.getMessage());
+			return false;
+		}
 	}
 }

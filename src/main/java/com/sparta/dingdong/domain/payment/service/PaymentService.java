@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.order.entity.Order;
+import com.sparta.dingdong.domain.payment.dto.request.CancelPaymentRequestDto;
 import com.sparta.dingdong.domain.payment.dto.request.ConfirmPaymentsRequestDto;
 import com.sparta.dingdong.domain.payment.dto.request.PaymentRequestDto;
 import com.sparta.dingdong.domain.payment.dto.response.AdminPaymentDetailResponseDto;
@@ -21,4 +22,5 @@ public interface PaymentService {
 
 	AdminPaymentDetailResponseDto getAdminPaymentDetails(UUID orderId);
 
+	void cancelConfirmPayments(UserAuth userAuth, CancelPaymentRequestDto request);
 }
