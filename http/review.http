@@ -1,0 +1,114 @@
+@reviewId = 31146295-ab5c-4e48-9a53-0647562491c1
+@orderId = variable value
+@replyId = variable value
+@storeId = ee334491-78ef-4aaa-886d-fd0ce593d909
+@customerAuthorization = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTgzMjQyMCwiZXhwIjoxNzU5ODM0MjIwfQ.fshrZH2GnBtFZ7rhMxZJSbNby1pC38IlfB0pRP3RMWY
+@ownerAuthorization = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyIiwidXNlclJvbGUiOiJPV05FUiIsImlhdCI6MTc1OTgxMzE4NiwiZXhwIjoxNzU5ODE0OTg2fQ.suRnSPONgWnfZ7rpdjqn8W1hFAF5FQijSjJrIxfmKgs
+@managerAuthorization = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI1IiwidXNlclJvbGUiOiJNQU5BR0VSIiwiaWF0IjoxNzU5ODE1MjcxLCJleHAiOjE3NTk4MTcwNzF9.LxhNmkiT2KlJ-LoxPrP_4jX3n7XOWv83IUkyhDnNpws
+
+## COMMON
+### COMMON REVIEW 상세 조회
+GET http://localhost:8080/v1/reviews/{{reviewId}}
+Authorization: Bearer {{customerAuthorization}}
+
+### COMMON REVIEW 전체 조회
+GET http://localhost:8080/v1/reviews
+Authorization: Bearer {{customerAuthorization}}
+
+## CUSTOMER
+### CUSTOMER REVIEW 등록
+POST http://localhost:8080/v1/orders/{{orderId}}/reviews
+Content-Type: application/json
+Authorization: Bearer {{customerAuthorization}}
+
+{
+  "rating": 5,
+  "content": "맛있어요새로!",
+  "imageUrl1": "https://example.com/image1.jpg",
+  "imageUrl2": "https://example.com/image2.jpg",
+  "imageUrl3": "https://example.com/image3.jpg",
+  "displayed": true
+}
+
+### CUSTOMER REVIEW 수정
+PUT http://localhost:8080/v1/reviews/{{reviewId}}
+Content-Type: application/json
+Authorization: Bearer {{customerAuthorization}}
+
+{
+  "rating": 5,
+  "content": "맛있어요!",
+  "imageUrl1": "https://example.com/image1.jpg",
+  "imageUrl2": "https://example.com/image2.jpg",
+  "imageUrl3": "https://example.com/image3.jpg",
+  "displayed": true
+}
+
+### CUSTOMER REVIEW 삭제
+DELETE http://localhost:8080/v1/reviews/{{reviewId}}
+Content-Type: application/json
+Authorization: Bearer {{customerAuthorization}}
+
+###CUSTOMER REVIEW 상세 조회
+GET http://localhost:8080/v1/customers/reviews/{{reviewId}}
+Authorization: Bearer {{customerAuthorization}}
+
+### CUSTOMER REVIEW 전체 조회
+GET http://localhost:8080/v1/customers/reviews
+Authorization: Bearer {{customerAuthorization}}
+##OWNER
+### OWNER REVIEW REPLY 등록
+POST http://localhost:8080/v1/reviews/{{reviewId}}/reply
+Content-Type: application/json
+Authorization: Bearer {{ownerAuthorization}}
+
+{
+  "content": "맛있다고 해주시니 감사합니다!새로",
+  "isDisplayed": true
+}
+
+### OWNER REVIEW REPLY 수정
+PUT http://localhost:8080/v1/reviews/{{reviewId}}/reply/{{replyId}}
+Content-Type: application/json
+Authorization: Bearer {{ownerAuthorization}}
+
+{
+  "content": "맛있다고 해주시니 감사합니다!3333"
+}
+
+### OWNER REVIEW REPLY 삭제
+DELETE http://localhost:8080/v1/reviews/{{reviewId}}reply/{{replyId}}
+Content-Type: application/json
+Authorization: Bearer {{ownerAuthorization}}
+
+### OWNER REVIEW 상세 조회
+GET http://localhost:8080/v1/owners/reviews/{{reviewId}}
+Authorization: Bearer{{ownerAuthorization}}
+
+### OWNER REVIEW 전체 조회
+GET http://localhost:8080/v1/owners/reviews
+Authorization: Bearer {{ownerAuthorization}}
+
+### OWNER REVIEW 가게 조회
+GET http://localhost:8080/v1/owners/stores/{{storeId}}/reviews
+Authorization: Bearer {{ownerAuthorization}}
+
+
+## MASTER
+### REVIEW 숨김 처리
+PATCH http://localhost:8080/v1/admin/reviews/{{reviewId}}
+Authorization: Bearer {{managerAuthorization}}
+
+### REVIEW 상세 조회
+GET http://localhost:8080/v1/admin/reviews/{{reviewId}}
+Authorization: Bearer {{managerAuthorization}}
+
+### REVIEW 전체 조회
+GET http://localhost:8080/v1/admin/reviews
+Authorization: Bearer {{managerAuthorization}}
+
+### REVIEW 검색
+GET http://localhost:8080/v1/admin/reviews/search?userId=1&keyword=맛있어요&rating=5
+Authorization: Bearer {{managerAuthorization}}
+
+### GET http://localhost:8080/v1/admin/reviews/search?userId=1&keyword=맛있어요&rating=5&orderId=1dalsdj&storeId=ajdfalkjd
