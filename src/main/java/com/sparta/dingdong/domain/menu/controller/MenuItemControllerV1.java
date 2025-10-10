@@ -53,18 +53,9 @@ public class MenuItemControllerV1 {
 		@AuthenticationPrincipal UserAuth user // 비회원 - null
 	) {
 		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
-		Page<MenuItemResponseDto> list = menuItemService.getAllByStore(storeId, includeHidden, keyword, fixedPageable,
+		Page<MenuItemResponseDto> result = menuItemService.getAllByStore(storeId, includeHidden, keyword, fixedPageable,
 			user);
-		PageResponseDto<MenuItemResponseDto> result = PageResponseDto.<MenuItemResponseDto>builder()
-			.content(list.getContent())
-			.totalElements(list.getTotalElements())
-			.totalPages(list.getTotalPages())
-			.pageNumber(list.getNumber())
-			.pageSize(list.getSize())
-			.first(list.isFirst())
-			.last(list.isLast())
-			.build();
-		return ResponseEntity.ok(BaseResponseDto.success("메뉴 목록 조회 성공", result));
+		return ResponseEntity.ok(BaseResponseDto.success("메뉴 목록 조회 성공", PageResponseDto.from(result)));
 	}
 
 	@Operation(summary = "메뉴 등록", description = "사장님과 관리자는 메뉴를 등록할 수 있습니다. (AI 설명 생성 옵션 가능)")

@@ -54,17 +54,8 @@ public class MenuCategoryControllerV1 {
 		@Parameter(description = "검색 키워드 (메뉴 카테고리명)") @RequestParam(required = false) String keyword,
 		@ParameterObject Pageable pageable) {
 		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
-		Page<MenuCategoryResponseDto> list = menuCategoryService.getByStore(storeId, keyword, pageable);
-		PageResponseDto<MenuCategoryResponseDto> result = PageResponseDto.<MenuCategoryResponseDto>builder()
-			.content(list.getContent())
-			.totalElements(list.getTotalElements())
-			.totalPages(list.getTotalPages())
-			.pageNumber(list.getNumber())
-			.pageSize(list.getSize())
-			.first(list.isFirst())
-			.last(list.isLast())
-			.build();
-		return ResponseEntity.ok(BaseResponseDto.success("메뉴 카테고리 목록 조회 성공", result));
+		Page<MenuCategoryResponseDto> result = menuCategoryService.getByStore(storeId, keyword, fixedPageable);
+		return ResponseEntity.ok(BaseResponseDto.success("메뉴 카테고리 목록 조회 성공", PageResponseDto.from(result)));
 	}
 
 	@Operation(summary = "메뉴 카테고리 생성", description = "사장님과 관리자는 메뉴 카테고리를 생성할 수 있습니다.")
@@ -123,18 +114,9 @@ public class MenuCategoryControllerV1 {
 		@Parameter(description = "검색 키워드 (메뉴명)") @RequestParam(required = false) String keyword,
 		@ParameterObject Pageable pageable) {
 		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
-		Page<MenuCategoryItemResponseDto> list = menuCategoryItemService.getItemsByCategory(menuCategoryId, keyword,
-			pageable);
-		PageResponseDto<MenuCategoryItemResponseDto> result = PageResponseDto.<MenuCategoryItemResponseDto>builder()
-			.content(list.getContent())
-			.totalElements(list.getTotalElements())
-			.totalPages(list.getTotalPages())
-			.pageNumber(list.getNumber())
-			.pageSize(list.getSize())
-			.first(list.isFirst())
-			.last(list.isLast())
-			.build();
-		return ResponseEntity.ok(BaseResponseDto.success("카테고리별 메뉴 조회 성공", result));
+		Page<MenuCategoryItemResponseDto> result = menuCategoryItemService.getItemsByCategory(menuCategoryId, keyword,
+			fixedPageable);
+		return ResponseEntity.ok(BaseResponseDto.success("카테고리별 메뉴 조회 성공", PageResponseDto.from(result)));
 	}
 
 	@Operation(summary = "카테고리에 메뉴 추가", description = "사장님과 관리자는 메뉴를 추가할 수 있습니다.")

@@ -53,17 +53,8 @@ public class StoreControllerV1 {
 		@AuthenticationPrincipal UserAuth user
 	) {
 		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
-		Page<StoreResponseDto> list = storeService.getActiveStores(keyword, fixedPageable, user);
-		PageResponseDto<StoreResponseDto> result = PageResponseDto.<StoreResponseDto>builder()
-			.content(list.getContent())
-			.totalElements(list.getTotalElements())
-			.totalPages(list.getTotalPages())
-			.pageNumber(list.getNumber())
-			.pageSize(list.getSize())
-			.first(list.isFirst())
-			.last(list.isLast())
-			.build();
-		return ResponseEntity.ok(BaseResponseDto.success("활성화된 가게 목록 조회 성공", result));
+		Page<StoreResponseDto> result = storeService.getActiveStores(keyword, fixedPageable, user);
+		return ResponseEntity.ok(BaseResponseDto.success("활성화된 가게 목록 조회 성공", PageResponseDto.from(result)));
 	}
 
 	@Operation(summary = "가게 카테고리별 가게 목록 조회 (삭제되지 않은 가게)", description = "모든 사용자는 소프트 삭제되지 않은 가게만 조회합니다.")
@@ -75,18 +66,9 @@ public class StoreControllerV1 {
 		@ParameterObject Pageable pageable,
 		@AuthenticationPrincipal UserAuth user) {
 		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
-		Page<StoreResponseDto> list = storeService.getActiveStoresByCategory(storeCategoryId, keyword, fixedPageable,
+		Page<StoreResponseDto> result = storeService.getActiveStoresByCategory(storeCategoryId, keyword, fixedPageable,
 			user);
-		PageResponseDto<StoreResponseDto> result = PageResponseDto.<StoreResponseDto>builder()
-			.content(list.getContent())
-			.totalElements(list.getTotalElements())
-			.totalPages(list.getTotalPages())
-			.pageNumber(list.getNumber())
-			.pageSize(list.getSize())
-			.first(list.isFirst())
-			.last(list.isLast())
-			.build();
-		return ResponseEntity.ok(BaseResponseDto.success("활성화된 카테고리 가게 목록 조회 성공", result));
+		return ResponseEntity.ok(BaseResponseDto.success("활성화된 카테고리 가게 목록 조회 성공", PageResponseDto.from(result)));
 	}
 
 	/* ==================== OWNER 기능 ==================== */
@@ -108,17 +90,8 @@ public class StoreControllerV1 {
 		@ParameterObject Pageable pageable,
 		@AuthenticationPrincipal UserAuth user) {
 		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
-		Page<StoreResponseDto> list = storeService.getMyStores(keyword, fixedPageable, user);
-		PageResponseDto<StoreResponseDto> result = PageResponseDto.<StoreResponseDto>builder()
-			.content(list.getContent())
-			.totalElements(list.getTotalElements())
-			.totalPages(list.getTotalPages())
-			.pageNumber(list.getNumber())
-			.pageSize(list.getSize())
-			.first(list.isFirst())
-			.last(list.isLast())
-			.build();
-		return ResponseEntity.ok(BaseResponseDto.success("내 가게 조회 성공", result));
+		Page<StoreResponseDto> result = storeService.getMyStores(keyword, fixedPageable, user);
+		return ResponseEntity.ok(BaseResponseDto.success("내 가게 조회 성공", PageResponseDto.from(result)));
 	}
 
 	@Operation(summary = "내 가게 상세 조회", description = "사장님은 본인의 가게 상세를 조회합니다.")
@@ -163,17 +136,8 @@ public class StoreControllerV1 {
 		@ParameterObject Pageable pageable,
 		@AuthenticationPrincipal UserAuth user) {
 		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
-		Page<StoreResponseDto> list = storeService.getAllStores(keyword, fixedPageable, user);
-		PageResponseDto<StoreResponseDto> result = PageResponseDto.<StoreResponseDto>builder()
-			.content(list.getContent())
-			.totalElements(list.getTotalElements())
-			.totalPages(list.getTotalPages())
-			.pageNumber(list.getNumber())
-			.pageSize(list.getSize())
-			.first(list.isFirst())
-			.last(list.isLast())
-			.build();
-		return ResponseEntity.ok(BaseResponseDto.success("전체 가게 조회 성공", result));
+		Page<StoreResponseDto> result = storeService.getAllStores(keyword, fixedPageable, user);
+		return ResponseEntity.ok(BaseResponseDto.success("전체 가게 조회 성공", PageResponseDto.from(result)));
 	}
 
 	@Operation(summary = "가게 카테고리별 전체 가게 조회", description = "관리자는 모든 상태의 가게를 조회할 수 있습니다.")
@@ -185,17 +149,8 @@ public class StoreControllerV1 {
 		@ParameterObject Pageable pageable,
 		@AuthenticationPrincipal UserAuth user) {
 		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
-		Page<StoreResponseDto> list = storeService.getAllByCategory(storeCategoryId, keyword, fixedPageable, user);
-		PageResponseDto<StoreResponseDto> result = PageResponseDto.<StoreResponseDto>builder()
-			.content(list.getContent())
-			.totalElements(list.getTotalElements())
-			.totalPages(list.getTotalPages())
-			.pageNumber(list.getNumber())
-			.pageSize(list.getSize())
-			.first(list.isFirst())
-			.last(list.isLast())
-			.build();
-		return ResponseEntity.ok(BaseResponseDto.success("카테고리별 가게 조회 성공", result));
+		Page<StoreResponseDto> result = storeService.getAllByCategory(storeCategoryId, keyword, fixedPageable, user);
+		return ResponseEntity.ok(BaseResponseDto.success("카테고리별 가게 조회 성공", PageResponseDto.from(result)));
 	}
 
 	@Operation(summary = "가게 상세 조회", description = "관리자는 특정 가게의 상세를 조회할 수 있습니다.")

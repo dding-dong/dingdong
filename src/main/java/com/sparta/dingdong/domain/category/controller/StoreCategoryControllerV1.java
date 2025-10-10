@@ -47,17 +47,10 @@ public class StoreCategoryControllerV1 {
 		@Parameter(description = "검색 키워드 (가게 카테고리명)") @RequestParam(required = false) String keyword,
 		@ParameterObject Pageable pageable) {
 		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
-		Page<StoreCategoryResponseDto> list = storeCategoryService.getAll(keyword, pageable);
-		PageResponseDto<StoreCategoryResponseDto> result = PageResponseDto.<StoreCategoryResponseDto>builder()
-			.content(list.getContent())
-			.totalElements(list.getTotalElements())
-			.totalPages(list.getTotalPages())
-			.pageNumber(list.getNumber())
-			.pageSize(list.getSize())
-			.first(list.isFirst())
-			.last(list.isLast())
-			.build();
-		return ResponseEntity.ok(BaseResponseDto.success("가게 카테고리 목록 조회 성공", result));
+		Page<StoreCategoryResponseDto> result = storeCategoryService.getAll(keyword, fixedPageable);
+		return ResponseEntity.ok(
+			BaseResponseDto.success("가게 카테고리 목록 조회 성공", PageResponseDto.from(result))
+		);
 	}
 
 	@Operation(summary = "가게 카테고리 조회", description = "UUID로 가게 카테고리를 조회합니다.")
