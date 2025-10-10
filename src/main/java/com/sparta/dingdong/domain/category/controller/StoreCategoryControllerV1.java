@@ -1,8 +1,10 @@
 package com.sparta.dingdong.domain.category.controller;
 
-import java.util.List;
 import java.util.UUID;
 
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,13 +15,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.dingdong.common.dto.BaseResponseDto;
+import com.sparta.dingdong.common.dto.PageResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
+import com.sparta.dingdong.common.util.PageableUtils;
 import com.sparta.dingdong.domain.category.dto.request.StoreCategoryRequestDto;
 import com.sparta.dingdong.domain.category.dto.response.StoreCategoryResponseDto;
-import com.sparta.dingdong.domain.category.service.StoreCategoryService;
+import com.sparta.dingdong.domain.category.service.storecategory.StoreCategoryService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -38,9 +43,14 @@ public class StoreCategoryControllerV1 {
 	@Operation(summary = "가게 카테고리 목록 조회", description = "가게 카테고리를 조회합니다.")
 	@GetMapping
 	@PreAuthorize("true")
-	public ResponseEntity<BaseResponseDto<List<StoreCategoryResponseDto>>> getAll() {
-		List<StoreCategoryResponseDto> result = storeCategoryService.getAll();
-		return ResponseEntity.ok(BaseResponseDto.success("가게 카테고리 목록 조회 성공", result));
+	public ResponseEntity<BaseResponseDto<PageResponseDto<StoreCategoryResponseDto>>> getAll(
+		@Parameter(description = "검색 키워드 (가게 카테고리명)") @RequestParam(required = false) String keyword,
+		@ParameterObject Pageable pageable) {
+		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
+		Page<StoreCategoryResponseDto> result = storeCategoryService.getAll(keyword, fixedPageable);
+		return ResponseEntity.ok(
+			BaseResponseDto.success("가게 카테고리 목록 조회 성공", PageResponseDto.from(result))
+		);
 	}
 
 	@Operation(summary = "가게 카테고리 조회", description = "UUID로 가게 카테고리를 조회합니다.")

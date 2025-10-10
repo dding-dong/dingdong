@@ -1,9 +1,9 @@
-package com.sparta.dingdong.domain.category.service;
+package com.sparta.dingdong.domain.category.service.menucategory;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +15,7 @@ import com.sparta.dingdong.domain.category.entity.MenuCategory;
 import com.sparta.dingdong.domain.category.exception.menucategory.DeletedMenuCategoryNotFoundException;
 import com.sparta.dingdong.domain.category.exception.menucategory.MenuCategoryNotFoundException;
 import com.sparta.dingdong.domain.category.exception.menucategory.MenuCategorySortConflictException;
-import com.sparta.dingdong.domain.category.repository.MenuCategoryRepository;
+import com.sparta.dingdong.domain.category.repository.menucategory.MenuCategoryRepository;
 import com.sparta.dingdong.domain.store.entity.Store;
 import com.sparta.dingdong.domain.store.exception.StoreNotFoundException;
 import com.sparta.dingdong.domain.store.repository.StoreRepository;
@@ -35,11 +35,10 @@ public class MenuCategoryServiceImpl implements MenuCategoryService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public List<MenuCategoryResponseDto> getByStore(UUID storeId) {
-		return menuCategoryRepository.findByStoreIdAndDeletedAtIsNullOrderBySortMenuCategoryAsc(storeId)
-			.stream()
-			.map(this::map)
-			.collect(Collectors.toList());
+	public Page<MenuCategoryResponseDto> getByStore(UUID storeId, String keyword, Pageable pageable) {
+		Page<MenuCategory> menuCategoriesPage = menuCategoryRepository.findByStoreIdWithKeyword(
+			storeId, keyword, pageable);
+		return menuCategoriesPage.map(this::map);
 	}
 
 	@Override

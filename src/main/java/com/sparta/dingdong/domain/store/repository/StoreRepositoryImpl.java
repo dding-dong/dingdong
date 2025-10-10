@@ -3,9 +3,15 @@ package com.sparta.dingdong.domain.store.repository;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.sparta.dingdong.common.util.QuerydslUtils;
+import com.sparta.dingdong.domain.category.entity.QStoreCategory;
 import com.sparta.dingdong.domain.store.entity.QStore;
 import com.sparta.dingdong.domain.store.entity.Store;
 
@@ -19,27 +25,145 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 	private final QStore store = QStore.store;
 
 	@Override
-	public List<Store> findAllActive() {
-		return queryFactory.selectFrom(store)
-			.where(store.deletedAt.isNull())
-			.orderBy(store.name.asc())
-			.fetch();
+	public Page<Store> findAllActiveWithKeyword(String keyword, Pageable pageable) {
+		return findAllWithKeyword(keyword, pageable, true);
 	}
 
 	@Override
-	public List<Store> findAllActiveByStoreCategory(UUID storeCategoryId) {
-		return queryFactory.selectFrom(store)
-			.where(store.deletedAt.isNull()
-				.and(store.storeCategory.id.eq(storeCategoryId)))
-			.orderBy(store.name.asc())
-			.fetch();
+	public Page<Store> findAllWithKeyword(String keyword, Pageable pageable) {
+		return findAllWithKeyword(keyword, pageable, false);
 	}
 
 	@Override
-	public List<Store> findAllByStoreCategory(UUID storeCategoryId) {
-		return queryFactory.selectFrom(store)
-			.where(store.storeCategory.id.eq(storeCategoryId))
-			.orderBy(store.name.asc())
+	public Page<Store> findAllWithKeyword(String keyword, Pageable pageable, boolean onlyActive) {
+		QStore store = QStore.store;
+		QStoreCategory storeCategory = QStoreCategory.storeCategory;
+
+		BooleanBuilder builder = new BooleanBuilder();
+		if (onlyActive) {
+			builder.and(store.deletedAt.isNull());
+		}
+
+		if (keyword != null && !keyword.isBlank()) {
+			String lowered = keyword.toLowerCase();
+			builder.andAnyOf(
+				store.name.lower().contains(lowered),
+				store.storeCategory.name.lower().contains(lowered)
+			);
+		}
+
+		List<Store> content = queryFactory
+			.selectFrom(store)
+			.leftJoin(store.storeCategory, storeCategory).fetchJoin()
+			.where(builder)
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.orderBy(QuerydslUtils.toOrderSpecifiers(pageable.getSort(), store))
 			.fetch();
+
+		Long total = queryFactory
+			.select(store.count())
+			.from(store)
+			.leftJoin(store.storeCategory, storeCategory)
+			.where(builder)
+			.fetchOne();
+
+		total = total != null ? total : 0L;
+
+		return new PageImpl<>(content, pageable, total);
+	}
+
+	@Override
+	public Page<Store> findAllActiveByStoreCategoryWithKeyword(UUID storeCategoryId, String keyword,
+		Pageable pageable) {
+		QStore store = QStore.store;
+
+		// 조건 빌더
+		BooleanBuilder builder = new BooleanBuilder();
+		builder.and(store.deletedAt.isNull())
+			.and(store.storeCategory.id.eq(storeCategoryId));
+
+		if (keyword != null && !keyword.isBlank()) {
+			builder.and(store.name.lower().contains(keyword.toLowerCase()));
+		}
+
+		// 데이터 조회 (페이징)
+		List<Store> content = queryFactory
+			.selectFrom(store)
+			.where(builder)
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.orderBy(QuerydslUtils.toOrderSpecifiers(pageable.getSort(), store)) // 정렬 처리
+			.fetch();
+
+		// 전체 개수 조회
+		Long total = queryFactory
+			.select(store.count())
+			.from(store)
+			.where(builder)
+			.fetchOne();
+		total = total != null ? total : 0L;
+
+		return new PageImpl<>(content, pageable, total);
+	}
+
+	@Override
+	public Page<Store> findByOwnerIdWithKeyword(Long ownerId, String keyword, Pageable pageable) {
+		QStore store = QStore.store;
+
+		BooleanBuilder builder = new BooleanBuilder();
+		builder.and(store.deletedAt.isNull())
+			.and(store.owner.id.eq(ownerId));
+
+		if (keyword != null && !keyword.isBlank()) {
+			builder.and(store.name.lower().contains(keyword.toLowerCase()));
+		}
+
+		List<Store> content = queryFactory
+			.selectFrom(store)
+			.where(builder)
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.orderBy(QuerydslUtils.toOrderSpecifiers(pageable.getSort(), store))
+			.fetch();
+
+		Long total = queryFactory
+			.select(store.count())
+			.from(store)
+			.where(builder)
+			.fetchOne();
+		total = total != null ? total : 0L;
+
+		return new PageImpl<>(content, pageable, total);
+	}
+
+	@Override
+	public Page<Store> findAllByStoreCategoryWithKeyword(UUID storeCategoryId, String keyword, Pageable pageable) {
+		QStore store = QStore.store;
+
+		BooleanBuilder builder = new BooleanBuilder();
+		builder.and(store.deletedAt.isNull())
+			.and(store.storeCategory.id.eq(storeCategoryId));
+
+		if (keyword != null && !keyword.isBlank()) {
+			builder.and(store.name.lower().contains(keyword.toLowerCase()));
+		}
+
+		List<Store> content = queryFactory
+			.selectFrom(store)
+			.where(builder)
+			.offset(pageable.getOffset())
+			.limit(pageable.getPageSize())
+			.orderBy(QuerydslUtils.toOrderSpecifiers(pageable.getSort(), store))
+			.fetch();
+
+		Long total = queryFactory
+			.select(store.count())
+			.from(store)
+			.where(builder)
+			.fetchOne();
+		total = total != null ? total : 0L;
+
+		return new PageImpl<>(content, pageable, total);
 	}
 }

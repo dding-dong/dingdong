@@ -1,8 +1,10 @@
 package com.sparta.dingdong.domain.store.controller;
 
-import java.util.List;
 import java.util.UUID;
 
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,10 +16,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.dingdong.common.dto.BaseResponseDto;
+import com.sparta.dingdong.common.dto.PageResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
+import com.sparta.dingdong.common.util.PageableUtils;
 import com.sparta.dingdong.domain.store.dto.request.StoreRequestDto;
 import com.sparta.dingdong.domain.store.dto.request.StoreUpdateStatusRequestDto;
 import com.sparta.dingdong.domain.store.dto.response.StoreResponseDto;
@@ -42,21 +47,27 @@ public class StoreControllerV1 {
 	@Operation(summary = "가게 전체 목록 조회 (삭제되지 않은 가게)", description = "모든 사용자는 소프트 삭제되지 않은 가게만 조회합니다.")
 	@GetMapping("/list")
 	@PreAuthorize("true")
-	public ResponseEntity<BaseResponseDto<List<StoreResponseDto>>> getActiveStores(
-		@AuthenticationPrincipal UserAuth user
-	) {
-		List<StoreResponseDto> result = storeService.getActiveStores(user);
-		return ResponseEntity.ok(BaseResponseDto.success("활성화된 가게 목록 조회 성공", result));
+	public ResponseEntity<BaseResponseDto<PageResponseDto<StoreResponseDto>>> getActiveStores(
+		@Parameter(description = "검색 키워드 (가게명 또는 가게 카테고리명)") @RequestParam(required = false) String keyword,
+		@ParameterObject Pageable pageable,
+		@AuthenticationPrincipal UserAuth user) {
+		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
+		Page<StoreResponseDto> result = storeService.getActiveStores(keyword, fixedPageable, user);
+		return ResponseEntity.ok(BaseResponseDto.success("활성화된 가게 목록 조회 성공", PageResponseDto.from(result)));
 	}
 
 	@Operation(summary = "가게 카테고리별 가게 목록 조회 (삭제되지 않은 가게)", description = "모든 사용자는 소프트 삭제되지 않은 가게만 조회합니다.")
 	@GetMapping("/{storeCategoryId}/list")
 	@PreAuthorize("true")
-	public ResponseEntity<BaseResponseDto<List<StoreResponseDto>>> getActiveStoresByCategory(
+	public ResponseEntity<BaseResponseDto<PageResponseDto<StoreResponseDto>>> getActiveStoresByCategory(
 		@Parameter(description = "가게 카테고리 UUID") @PathVariable UUID storeCategoryId,
+		@Parameter(description = "검색 키워드 (가게명)") @RequestParam(required = false) String keyword,
+		@ParameterObject Pageable pageable,
 		@AuthenticationPrincipal UserAuth user) {
-		List<StoreResponseDto> result = storeService.getActiveStoresByCategory(storeCategoryId, user);
-		return ResponseEntity.ok(BaseResponseDto.success("활성화된 카테고리 가게 목록 조회 성공", result));
+		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
+		Page<StoreResponseDto> result = storeService.getActiveStoresByCategory(storeCategoryId, keyword, fixedPageable,
+			user);
+		return ResponseEntity.ok(BaseResponseDto.success("활성화된 카테고리 가게 목록 조회 성공", PageResponseDto.from(result)));
 	}
 
 	/* ==================== OWNER 기능 ==================== */
@@ -73,10 +84,13 @@ public class StoreControllerV1 {
 	@Operation(summary = "내 가게 전체 조회", description = "사장님은 본인이 등록한 모든 가게를 조회합니다.")
 	@GetMapping("/my")
 	@PreAuthorize("hasRole('OWNER')")
-	public ResponseEntity<BaseResponseDto<List<StoreResponseDto>>> getMyStores(
+	public ResponseEntity<BaseResponseDto<PageResponseDto<StoreResponseDto>>> getMyStores(
+		@Parameter(description = "검색 키워드 (가게명)") @RequestParam(required = false) String keyword,
+		@ParameterObject Pageable pageable,
 		@AuthenticationPrincipal UserAuth user) {
-		List<StoreResponseDto> result = storeService.getMyStores(user);
-		return ResponseEntity.ok(BaseResponseDto.success("내 가게 조회 성공", result));
+		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
+		Page<StoreResponseDto> result = storeService.getMyStores(keyword, fixedPageable, user);
+		return ResponseEntity.ok(BaseResponseDto.success("내 가게 조회 성공", PageResponseDto.from(result)));
 	}
 
 	@Operation(summary = "내 가게 상세 조회", description = "사장님은 본인의 가게 상세를 조회합니다.")
@@ -116,19 +130,26 @@ public class StoreControllerV1 {
 	@Operation(summary = "가게 전체 목록 조회", description = "관리자는 모든 상태의 가게를 조회할 수 있습니다.")
 	@GetMapping("/admin/list")
 	@PreAuthorize("hasAnyRole('MANAGER','MASTER')")
-	public ResponseEntity<BaseResponseDto<List<StoreResponseDto>>> getAll(@AuthenticationPrincipal UserAuth user) {
-		List<StoreResponseDto> result = storeService.getAll(user);
-		return ResponseEntity.ok(BaseResponseDto.success("전체 가게 조회 성공", result));
+	public ResponseEntity<BaseResponseDto<PageResponseDto<StoreResponseDto>>> getAllStores(
+		@Parameter(description = "검색 키워드 (가게명 또는 카테고리명)") @RequestParam(required = false) String keyword,
+		@ParameterObject Pageable pageable,
+		@AuthenticationPrincipal UserAuth user) {
+		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
+		Page<StoreResponseDto> result = storeService.getAllStores(keyword, fixedPageable, user);
+		return ResponseEntity.ok(BaseResponseDto.success("전체 가게 조회 성공", PageResponseDto.from(result)));
 	}
 
 	@Operation(summary = "가게 카테고리별 전체 가게 조회", description = "관리자는 모든 상태의 가게를 조회할 수 있습니다.")
 	@GetMapping("/admin/{storeCategoryId}/list")
 	@PreAuthorize("hasAnyRole('MANAGER','MASTER')")
-	public ResponseEntity<BaseResponseDto<List<StoreResponseDto>>> getAllByCategory(
+	public ResponseEntity<BaseResponseDto<PageResponseDto<StoreResponseDto>>> getAllByCategory(
 		@Parameter(description = "가게 키테고리 UUID") @PathVariable UUID storeCategoryId,
+		@Parameter(description = "검색 키워드 (가게명)") @RequestParam(required = false) String keyword,
+		@ParameterObject Pageable pageable,
 		@AuthenticationPrincipal UserAuth user) {
-		List<StoreResponseDto> stores = storeService.getAllByCategory(storeCategoryId, user);
-		return ResponseEntity.ok(BaseResponseDto.success("카테고리별 가게 조회 성공", stores));
+		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
+		Page<StoreResponseDto> result = storeService.getAllByCategory(storeCategoryId, keyword, fixedPageable, user);
+		return ResponseEntity.ok(BaseResponseDto.success("카테고리별 가게 조회 성공", PageResponseDto.from(result)));
 	}
 
 	@Operation(summary = "가게 상세 조회", description = "관리자는 특정 가게의 상세를 조회할 수 있습니다.")

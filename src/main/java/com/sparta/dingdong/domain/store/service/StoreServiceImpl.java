@@ -3,6 +3,8 @@ package com.sparta.dingdong.domain.store.service;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,7 +13,7 @@ import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.auth.service.AuthService;
 import com.sparta.dingdong.domain.category.entity.StoreCategory;
 import com.sparta.dingdong.domain.category.exception.storecategory.StoreCategoryNotFoundException;
-import com.sparta.dingdong.domain.category.repository.StoreCategoryRepository;
+import com.sparta.dingdong.domain.category.repository.storecategory.StoreCategoryRepository;
 import com.sparta.dingdong.domain.store.dto.request.StoreRequestDto;
 import com.sparta.dingdong.domain.store.dto.request.StoreUpdateStatusRequestDto;
 import com.sparta.dingdong.domain.store.dto.response.StoreResponseDto;
@@ -49,24 +51,20 @@ public class StoreServiceImpl implements StoreService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public List<StoreResponseDto> getActiveStores(UserAuth user) {
-		List<StoreResponseDto> stores = storeRepository.findAllActive()
-			.stream()
-			.map(this::mapPublic)
-			.toList();
+	public Page<StoreResponseDto> getActiveStores(String keyword, Pageable pageable, UserAuth user) {
+		Page<Store> storesPage = storeRepository.findAllActiveWithKeyword(keyword, pageable);
 		log.info(user != null && user.getId() != null ? "로그인 사용자가 가게 조회" : "비회원이 가게 조회");
-		return stores;
+		return storesPage.map(this::mapPublic);
 	}
 
 	@Transactional(readOnly = true)
 	@Override
-	public List<StoreResponseDto> getActiveStoresByCategory(UUID storeCategoryId, UserAuth user) {
-		List<StoreResponseDto> stores = storeRepository.findAllActiveByStoreCategory(storeCategoryId)
-			.stream()
-			.map(this::mapPublic)
-			.toList();
+	public Page<StoreResponseDto> getActiveStoresByCategory(UUID storeCategoryId, String keyword, Pageable pageable,
+		UserAuth user) {
+		Page<Store> storesPage = storeRepository.findAllActiveByStoreCategoryWithKeyword(storeCategoryId, keyword,
+			pageable);
 		log.info(user != null && user.getId() != null ? "로그인 사용자가 가게 조회" : "비회원이 가게 조회");
-		return stores;
+		return storesPage.map(this::mapPublic);
 	}
 
 	/* ==================== OWNER 기능 ==================== */
@@ -101,12 +99,10 @@ public class StoreServiceImpl implements StoreService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public List<StoreResponseDto> getMyStores(UserAuth user) {
+	public Page<StoreResponseDto> getMyStores(String keyword, Pageable pageable, UserAuth user) {
 		boolean isAdmin = authService.isAdmin(user);
-		return storeRepository.findByOwnerId(user.getId())
-			.stream()
-			.map(store -> map(store, isAdmin))
-			.toList();
+		Page<Store> storesPage = storeRepository.findByOwnerIdWithKeyword(user.getId(), keyword, pageable);
+		return storesPage.map(store -> map(store, isAdmin));
 	}
 
 	@Override
@@ -190,22 +186,22 @@ public class StoreServiceImpl implements StoreService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public List<StoreResponseDto> getAll(UserAuth user) {
+	public Page<StoreResponseDto> getAllStores(String keyword, Pageable pageable, UserAuth user) {
 		authService.ensureAdmin(user);
 		boolean isAdmin = true;
-		return storeRepository.findAll().stream()
-			.map(store -> map(store, isAdmin))
-			.toList();
+		Page<Store> storesPage = storeRepository.findAllWithKeyword(keyword, pageable);
+		return storesPage.map(store -> map(store, isAdmin));
 	}
 
 	@Transactional(readOnly = true)
 	@Override
-	public List<StoreResponseDto> getAllByCategory(UUID storeCategoryId, UserAuth user) {
+	public Page<StoreResponseDto> getAllByCategory(UUID storeCategoryId, String keyword, Pageable pageable,
+		UserAuth user) {
 		authService.ensureAdmin(user);
 		boolean isAdmin = true;
-		return storeRepository.findAllByStoreCategory(storeCategoryId).stream()
-			.map(store -> map(store, isAdmin))
-			.toList();
+		Page<Store> storesPage = storeRepository.findAllByStoreCategoryWithKeyword(storeCategoryId, keyword, pageable);
+		return storesPage.map(store -> map(store, isAdmin));
+
 	}
 
 	@Override
@@ -267,7 +263,7 @@ public class StoreServiceImpl implements StoreService {
 	}
 
 	private Store getDeletedStoreOrThrow(UUID storeId) {
-		return storeRepository.findDeletedById(storeId)
+		return storeRepository.findByIdAndDeletedAtIsNotNull(storeId)
 			.orElseThrow(DeletedStoreNotFoundException::new);
 	}
 

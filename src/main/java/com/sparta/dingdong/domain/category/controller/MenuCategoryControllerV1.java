@@ -1,8 +1,10 @@
 package com.sparta.dingdong.domain.category.controller;
 
-import java.util.List;
 import java.util.UUID;
 
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,16 +15,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.dingdong.common.dto.BaseResponseDto;
+import com.sparta.dingdong.common.dto.PageResponseDto;
 import com.sparta.dingdong.common.jwt.UserAuth;
+import com.sparta.dingdong.common.util.PageableUtils;
 import com.sparta.dingdong.domain.category.dto.request.MenuCategoryItemRequestDto;
 import com.sparta.dingdong.domain.category.dto.request.MenuCategoryRequestDto;
 import com.sparta.dingdong.domain.category.dto.response.MenuCategoryItemResponseDto;
 import com.sparta.dingdong.domain.category.dto.response.MenuCategoryResponseDto;
-import com.sparta.dingdong.domain.category.service.MenuCategoryItemService;
-import com.sparta.dingdong.domain.category.service.MenuCategoryService;
+import com.sparta.dingdong.domain.category.service.menucategory.MenuCategoryItemService;
+import com.sparta.dingdong.domain.category.service.menucategory.MenuCategoryService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -44,10 +49,13 @@ public class MenuCategoryControllerV1 {
 	@Operation(summary = "메뉴 카테고리 조회", description = "가게의 메뉴 카테고리를 조회합니다.")
 	@GetMapping
 	@PreAuthorize("true")
-	public ResponseEntity<BaseResponseDto<List<MenuCategoryResponseDto>>> getAll(
-		@Parameter(description = "가게 UUID") @PathVariable UUID storeId) {
-		List<MenuCategoryResponseDto> result = menuCategoryService.getByStore(storeId);
-		return ResponseEntity.ok(BaseResponseDto.success("메뉴 카테고리 목록 조회 성공", result));
+	public ResponseEntity<BaseResponseDto<PageResponseDto<MenuCategoryResponseDto>>> getAll(
+		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
+		@Parameter(description = "검색 키워드 (메뉴 카테고리명)") @RequestParam(required = false) String keyword,
+		@ParameterObject Pageable pageable) {
+		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
+		Page<MenuCategoryResponseDto> result = menuCategoryService.getByStore(storeId, keyword, fixedPageable);
+		return ResponseEntity.ok(BaseResponseDto.success("메뉴 카테고리 목록 조회 성공", PageResponseDto.from(result)));
 	}
 
 	@Operation(summary = "메뉴 카테고리 생성", description = "사장님과 관리자는 메뉴 카테고리를 생성할 수 있습니다.")
@@ -100,11 +108,15 @@ public class MenuCategoryControllerV1 {
 	@Operation(summary = "카테고리별 메뉴 조회", description = "모든 사용자가 메뉴를 조회할 수 있습니다.")
 	@GetMapping("/{menuCategoryId}/items")
 	@PreAuthorize("true")
-	public ResponseEntity<BaseResponseDto<List<MenuCategoryItemResponseDto>>> getItems(
+	public ResponseEntity<BaseResponseDto<PageResponseDto<MenuCategoryItemResponseDto>>> getItems(
 		@Parameter(description = "가게 UUID") @PathVariable UUID storeId,
-		@Parameter(description = "메뉴 카테고리 UUID") @PathVariable UUID menuCategoryId) {
-		List<MenuCategoryItemResponseDto> result = menuCategoryItemService.getItemsByCategory(menuCategoryId);
-		return ResponseEntity.ok(BaseResponseDto.success("카테고리별 메뉴 조회 성공", result));
+		@Parameter(description = "메뉴 카테고리 UUID") @PathVariable UUID menuCategoryId,
+		@Parameter(description = "검색 키워드 (메뉴명)") @RequestParam(required = false) String keyword,
+		@ParameterObject Pageable pageable) {
+		Pageable fixedPageable = PageableUtils.fixedPageable(pageable, "createdAt");
+		Page<MenuCategoryItemResponseDto> result = menuCategoryItemService.getItemsByCategory(menuCategoryId, keyword,
+			fixedPageable);
+		return ResponseEntity.ok(BaseResponseDto.success("카테고리별 메뉴 조회 성공", PageResponseDto.from(result)));
 	}
 
 	@Operation(summary = "카테고리에 메뉴 추가", description = "사장님과 관리자는 메뉴를 추가할 수 있습니다.")

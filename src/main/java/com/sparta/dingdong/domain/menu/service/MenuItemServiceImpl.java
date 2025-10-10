@@ -1,8 +1,9 @@
 package com.sparta.dingdong.domain.menu.service;
 
-import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,42 +41,36 @@ public class MenuItemServiceImpl implements MenuItemService {
 
 	@Transactional(readOnly = true)
 	@Override
-	public List<MenuItemResponseDto> getAllByStore(UUID storeId, boolean includeHidden, UserAuth user) {
+	public Page<MenuItemResponseDto> getAllByStore(UUID storeId, boolean includeHidden, String keyword,
+		Pageable pageable, UserAuth user) {
 		Store store = storeRepository.findById(storeId)
 			.orElseThrow(StoreNotFoundException::new);
-
 		// 해당 가게가 삭제됐으면 메뉴 조회되면 안됨
 		if (store.getDeletedAt() != null) {
 			throw new DeletedStoreMenuAccessException();
 		}
 
-		List<MenuItem> items;
+		boolean includeDeleted = false;
 
 		if (includeHidden) {
-			// user가 null이면 숨김 메뉴 조회 불가
-			if (user == null) {
+			if (user == null)
 				throw new SecurityException("로그인이 필요합니다.");
-			}
 
 			UserRole role = user.getUserRole();
-
 			switch (role) {
-				case MASTER, MANAGER -> items = menuItemRepository.findAllByStoreIdIncludingDeleted(storeId);
+				case MASTER, MANAGER -> includeDeleted = true;
 				case OWNER -> {
 					authService.validateStoreOwnership(user, store.getOwner().getId());
-					items = menuItemRepository.findAllByStoreIdIncludingDeleted(storeId);
+					includeDeleted = true;
 				}
 				default -> throw new HiddenMenuAccessDeniedException();
 			}
-
-		} else {
-			// 모든 사용자(비회원 포함)
-			items = menuItemRepository.findActiveByStoreId(storeId);
 		}
 
-		return items.stream()
-			.map(this::map)
-			.toList();
+		Page<MenuItem> itemsPage = menuItemRepository.findByStoreIdWithKeyword(storeId, keyword, pageable,
+			includeDeleted);
+
+		return itemsPage.map(this::map);
 	}
 
 	@Override
