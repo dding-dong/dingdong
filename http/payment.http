@@ -1,0 +1,31 @@
+#@customerTonken = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc1OTk5OTMzMywiZXhwIjoxNzYwMDAxMTMzfQ.gSWl0mBFPSaV-0XPFlwrzXqVispfAYqXHOw3YQYSQ18
+
+### 결제 요청
+POST http://localhost:8080/v1/payments
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc2MDAxODIzMiwiZXhwIjoxNzYwMDIwMDMyfQ.CIxpt008hmYNEKQPxULlWVwk8-rn9epGnfacAGehrLM
+
+{
+  "orderId": "f7a9d21c-4c3b-4c42-a8a1-1bbf4f56ccf1",
+  "amount": 24500
+}
+
+### 결제 승인 요청
+POST http://localhost:8080/v1/payments/confirm
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc2MDAxODIzMiwiZXhwIjoxNzYwMDIwMDMyfQ.CIxpt008hmYNEKQPxULlWVwk8-rn9epGnfacAGehrLM
+
+{
+  "orderId": "f7a9d21c-4c3b-4c42-a8a1-1bbf4f56ccf1",
+  "amount": 24500,
+  "paymentKey": "sjklsjdflkajsldkfj",
+  "paymentType": "BRANDPAY"
+}
+
+### 결제 상세 조회
+GET http://localhost:8080/v1/orders/f7a9d21c-4c3b-4c42-a8a1-1bbf4f56ccf1/payments
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc2MDAyMDI5OSwiZXhwIjoxNzYwMDIyMDk5fQ.BWs89LhBarNAL6_roL675gcgQyYuYsxQOHLyFUU-t5o
+
+### master&manager 결제 상세 조회
+GET http://localhost:8080/v1/admin/orders/f7a9d21c-4c3b-4c42-a8a1-1bbf4f56ccf1/payments
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwidXNlclJvbGUiOiJNQU5BR0VSIiwiaWF0IjoxNzYwMDIxMzgwLCJleHAiOjE3NjAwMjMxODB9.vf1CrqAbtRmRyxI8tbXJoS6mWZWSpnX8docSqHGERvc

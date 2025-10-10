@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.sparta.dingdong.common.base.BaseEntity;
 import com.sparta.dingdong.domain.order.entity.Order;
 import com.sparta.dingdong.domain.payment.entity.enums.FailReason;
 import com.sparta.dingdong.domain.payment.entity.enums.PaymentStatus;
@@ -22,10 +23,18 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @Table(name = "p_payment")
-public class Payment {
+public class Payment extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
@@ -56,4 +65,38 @@ public class Payment {
 	private String refundReason;
 
 	private LocalDateTime approvedAt;
+
+	public static Payment createPayment(User user, Order order) {
+		return Payment.builder()
+			.user(user)
+			.order(order)
+			.amount(order.getTotalPrice())
+			.paymentStatus(PaymentStatus.PENDING)
+			.build();
+	}
+
+	public void deleteFailReason() {
+		this.failReason = null;
+	}
+
+	public void changeStatus(PaymentStatus paymentStatus) {
+		this.paymentStatus = paymentStatus;
+	}
+
+	public void confirmSuccess(String paymentKey, PaymentType paymentType) {
+		this.paymentType = paymentType;
+		this.paymentKey = paymentKey;
+	}
+
+	public void setFailReason(FailReason failReason) {
+		this.failReason = failReason;
+	}
+
+	public void setRefundReason(String refundReason) {
+		this.refundReason = refundReason;
+	}
+
+	public void setApprovedAt() {
+		this.approvedAt = LocalDateTime.now();
+	}
 }
