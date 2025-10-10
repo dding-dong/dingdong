@@ -73,43 +73,6 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 		return new PageImpl<>(content, pageable, total);
 	}
 
-	// @Override
-	// public Page<Store> findAllActiveWithKeyword(String keyword, Pageable pageable) {
-	// 	QStore store = QStore.store;
-	// 	QStoreCategory storeCategory = QStoreCategory.storeCategory;
-	//
-	// 	BooleanBuilder builder = new BooleanBuilder();
-	// 	builder.and(store.deletedAt.isNull()); // 소프트 삭제 제외
-	//
-	// 	if (keyword != null && !keyword.isBlank()) {
-	// 		String lowered = keyword.toLowerCase();
-	// 		builder.andAnyOf(
-	// 			store.name.lower().contains(lowered),
-	// 			store.storeCategory.name.lower().contains(lowered)
-	// 		);
-	// 	}
-	//
-	// 	List<Store> content = queryFactory
-	// 		.selectFrom(store)
-	// 		.leftJoin(store.storeCategory, storeCategory).fetchJoin()
-	// 		.where(builder)
-	// 		.offset(pageable.getOffset())
-	// 		.limit(pageable.getPageSize())
-	// 		.orderBy(QuerydslUtils.toOrderSpecifiers(pageable.getSort(), store))
-	// 		.fetch();
-	//
-	// 	Long total = queryFactory
-	// 		.select(store.count())
-	// 		.from(store)
-	// 		.leftJoin(store.storeCategory, storeCategory)
-	// 		.where(builder)
-	// 		.fetchOne();
-	//
-	// 	total = total != null ? total : 0L;
-	//
-	// 	return new PageImpl<>(content, pageable, total);
-	// }
-
 	@Override
 	public Page<Store> findAllActiveByStoreCategoryWithKeyword(UUID storeCategoryId, String keyword,
 		Pageable pageable) {
@@ -173,42 +136,6 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 
 		return new PageImpl<>(content, pageable, total);
 	}
-
-	// @Override
-	// public Page<Store> findAllWithKeyword(String keyword, Pageable pageable) {
-	// 	QStore store = QStore.store;
-	// 	QStoreCategory storeCategory = QStoreCategory.storeCategory;
-	//
-	// 	BooleanBuilder builder = new BooleanBuilder();
-	//
-	// 	if (keyword != null && !keyword.isBlank()) {
-	// 		String lowered = keyword.toLowerCase();
-	// 		builder.andAnyOf(
-	// 			store.name.lower().contains(lowered),
-	// 			store.storeCategory.name.lower().contains(lowered)
-	// 		);
-	// 	}
-	//
-	// 	List<Store> content = queryFactory
-	// 		.selectFrom(store)
-	// 		.leftJoin(store.storeCategory, storeCategory).fetchJoin()
-	// 		.where(builder)
-	// 		.offset(pageable.getOffset())
-	// 		.limit(pageable.getPageSize())
-	// 		.orderBy(QuerydslUtils.toOrderSpecifiers(pageable.getSort(), store))
-	// 		.fetch();
-	//
-	// 	Long total = queryFactory
-	// 		.select(store.count())
-	// 		.from(store)
-	// 		.leftJoin(store.storeCategory, storeCategory)
-	// 		.where(builder)
-	// 		.fetchOne();
-	//
-	// 	total = total != null ? total : 0L;
-	//
-	// 	return new PageImpl<>(content, pageable, total);
-	// }
 
 	@Override
 	public Page<Store> findAllByStoreCategoryWithKeyword(UUID storeCategoryId, String keyword, Pageable pageable) {
