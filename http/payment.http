@@ -46,6 +46,6 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT
 Content-Type: application/json
 
 {
-  "orderId": "f730260b-fd7d-4240-a09d-2421b7687d9c",
+  "orderId": "3e29dfb6-ed86-4935-89cd-aff9f2669d78",
   "refundReason": "단순 변심"
 }

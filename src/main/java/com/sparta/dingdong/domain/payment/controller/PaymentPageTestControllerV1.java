@@ -5,6 +5,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,10 +27,13 @@ import com.sparta.dingdong.domain.payment.service.PaymentPageService;
 import com.sparta.dingdong.domain.user.entity.User;
 import com.sparta.dingdong.domain.user.service.UserService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequiredArgsConstructor
+@Tag(name = "결제 페이지 API", description = "결제 페이지에서 결제를 했을 때 사용하는 API 입니다.")
 public class PaymentPageTestControllerV1 {
 
 	private final OrderService orderService;
@@ -93,16 +97,19 @@ public class PaymentPageTestControllerV1 {
 	}
 
 	//REST API 입니다.
-	@PostMapping("/test/payment/confirm")
 	@ResponseBody
+	@Operation(summary = "결제 페이지 결제 confirm API", description = "결제 화면에서 사용 가능합니다!")
+	@PostMapping("/v1/test/payment/confirm")
 	public ResponseEntity<BaseResponseDto<?>> confirmPayment(@RequestBody ConfirmPaymentPageRequestDto requestDto) {
 		ConfirmPaymentPageResponseDto response = paymentPageService.confirmPayment(requestDto);
 		return ResponseEntity.ok(BaseResponseDto.success("결제 요청을 승인합니다.", response));
 	}
 
 	// REST API 입니다
-	@PostMapping("/v1/test/payment/cancel")
 	@ResponseBody
+	@Operation(summary = "결제 취소 실제 toss API", description = "결제 화면에서 결제한 내역만 사용 가능합니다!")
+	@PostMapping("/v1/test/payment/cancel")
+	@PreAuthorize("hasRole('ROLE_CUSTOMER')")
 	public ResponseEntity<BaseResponseDto<?>> confirmPayment(
 		@AuthenticationPrincipal UserAuth userAuth,
 		@RequestBody CancelPaymentRequestDto cancelPaymentRequestDto) {
