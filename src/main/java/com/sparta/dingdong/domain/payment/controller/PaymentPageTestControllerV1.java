@@ -8,10 +8,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.domain.order.entity.Order;
@@ -76,17 +76,22 @@ public class PaymentPageTestControllerV1 {
 		return "success";
 	}
 
+	@GetMapping("/success2")
+	public String success2(@RequestParam("userId") Long userId, Model model) {
+		model.addAttribute("userId", userId);
+		return "success2";
+	}
+
 	@GetMapping("/fail")
 	public String fail(@RequestParam("userId") Long userId, Model model) {
 		model.addAttribute("userId", userId);
 		return "fail";
 	}
 
-	@RequestMapping(value = "/test/payment/confirm", method = RequestMethod.POST)
+	@PostMapping("/test/payment/confirm")
+	@ResponseBody
 	public ResponseEntity<BaseResponseDto<?>> confirmPayment(@RequestBody ConfirmPaymentPageRequestDto requestDto) {
-
 		ConfirmPaymentPageResponseDto response = paymentPageService.confirmPayment(requestDto);
-
 		return ResponseEntity.ok(BaseResponseDto.success("결제 요청을 승인합니다.", response));
 	}
 }

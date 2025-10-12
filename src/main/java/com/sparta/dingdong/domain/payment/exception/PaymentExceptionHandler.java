@@ -1,5 +1,6 @@
 package com.sparta.dingdong.domain.payment.exception;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -46,5 +47,12 @@ public class PaymentExceptionHandler {
 	public ResponseEntity<BaseResponseDto<Void>> handleTossCancelFailedException(TossCancelFailedException ex) {
 		return ResponseEntity.status(CommonErrorCode.TOSS_CANCEL_FAILED.getStatus())
 			.body(BaseResponseDto.error(CommonErrorCode.TOSS_CANCEL_FAILED));
+	}
+
+	@ExceptionHandler(TossConfirmPageException.class)
+	public ResponseEntity<BaseResponseDto<Void>> handleTossConfirmPageException(TossConfirmPageException ex) {
+		return ResponseEntity
+			.status(HttpStatus.BAD_GATEWAY)
+			.body(BaseResponseDto.error(ex.getErrorCode(), ex.getErrorMessage()));
 	}
 }

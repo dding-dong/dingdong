@@ -10,6 +10,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.sparta.dingdong.domain.payment.dto.request.ConfirmPaymentPageRequestDto;
 import com.sparta.dingdong.domain.payment.dto.response.ConfirmPaymentPageResponseDto;
+import com.sparta.dingdong.domain.payment.dto.response.TossErrorResponseDto;
+import com.sparta.dingdong.domain.payment.exception.TossConfirmPageException;
 
 import reactor.core.publisher.Mono;
 
@@ -36,8 +38,12 @@ public class TossPaymentWebClient {
 			.header("Authorization", authorizations)
 			.bodyValue(requestDto)
 			.retrieve()
-			.onStatus(status -> !status.is2xxSuccessful(), clientResponse -> clientResponse.bodyToMono(String.class)
-				.flatMap(error -> Mono.error(new RuntimeException("TossPayments API 오류: " + error))))
+			.onStatus(status -> !status.is2xxSuccessful(), clientResponse ->
+				clientResponse.bodyToMono(TossErrorResponseDto.class)
+					.flatMap(error -> Mono.error(
+						new TossConfirmPageException(error.getCode(), error.getMessage())
+					))
+			)
 			.bodyToMono(ConfirmPaymentPageResponseDto.class)
 			.block();
 	}
