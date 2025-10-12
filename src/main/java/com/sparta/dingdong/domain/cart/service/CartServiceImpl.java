@@ -13,6 +13,7 @@ import com.sparta.dingdong.domain.cart.entity.CartItem;
 import com.sparta.dingdong.domain.cart.exception.CartItemNotFoundException;
 import com.sparta.dingdong.domain.cart.exception.CartNotFoundException;
 import com.sparta.dingdong.domain.cart.exception.CartStoreConflictException;
+import com.sparta.dingdong.domain.cart.exception.InvalidCartQuantityException;
 import com.sparta.dingdong.domain.cart.repository.CartRepository;
 import com.sparta.dingdong.domain.menu.entity.MenuItem;
 import com.sparta.dingdong.domain.menu.exception.MenuItemNotFoundException;
@@ -97,10 +98,7 @@ public class CartServiceImpl implements CartService {
 			.orElseThrow(CartItemNotFoundException::new);
 
 		if (quantity <= 0) {
-			cart.removeItem(item.getId());
-			if (cart.getItems().isEmpty()) { // 장바구니에 메뉴가 없으면 장바구니 삭제
-				cartRepository.delete(cart);
-			}
+			throw new InvalidCartQuantityException();
 		} else {
 			item.updateQuantity(quantity);
 		}
