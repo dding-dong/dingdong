@@ -39,3 +39,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT
 ### master&manager 결제 상세 조회
 GET http://localhost:8080/v1/admin/orders/f7a9d21c-4c3b-4c42-a8a1-1bbf4f56ccf1/payments
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwidXNlclJvbGUiOiJNQU5BR0VSIiwiaWF0IjoxNzYwMDIxMzgwLCJleHAiOjE3NjAwMjMxODB9.vf1CrqAbtRmRyxI8tbXJoS6mWZWSpnX8docSqHGERvc
+
+### 결제페이지에서 결제한 유저 결제 취소요청
+POST http://localhost:8080/v1/test/payment/cancel
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc2MDI2MzU2OCwiZXhwIjoxNzYwMjY1MzY4fQ.fILYCKcyxtLuCBm_Nc4snuV9dWk52e_6-IK7tmb_ZO8
+Content-Type: application/json
+
+{
+  "orderId": "f730260b-fd7d-4240-a09d-2421b7687d9c",
+  "refundReason": "단순 변심"
+}

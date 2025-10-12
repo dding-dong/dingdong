@@ -5,6 +5,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,10 +15,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.sparta.dingdong.common.dto.BaseResponseDto;
+import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.order.entity.Order;
 import com.sparta.dingdong.domain.order.service.OrderService;
+import com.sparta.dingdong.domain.payment.dto.request.CancelPaymentRequestDto;
 import com.sparta.dingdong.domain.payment.dto.request.ConfirmPaymentPageRequestDto;
 import com.sparta.dingdong.domain.payment.dto.response.ConfirmPaymentPageResponseDto;
+import com.sparta.dingdong.domain.payment.dto.response.TossCancelResponseDto;
 import com.sparta.dingdong.domain.payment.service.PaymentPageService;
 import com.sparta.dingdong.domain.user.entity.User;
 import com.sparta.dingdong.domain.user.service.UserService;
@@ -88,10 +92,22 @@ public class PaymentPageTestControllerV1 {
 		return "fail";
 	}
 
+	//REST API 입니다.
 	@PostMapping("/test/payment/confirm")
 	@ResponseBody
 	public ResponseEntity<BaseResponseDto<?>> confirmPayment(@RequestBody ConfirmPaymentPageRequestDto requestDto) {
 		ConfirmPaymentPageResponseDto response = paymentPageService.confirmPayment(requestDto);
 		return ResponseEntity.ok(BaseResponseDto.success("결제 요청을 승인합니다.", response));
+	}
+
+	// REST API 입니다
+	@PostMapping("/v1/test/payment/cancel")
+	@ResponseBody
+	public ResponseEntity<BaseResponseDto<?>> confirmPayment(
+		@AuthenticationPrincipal UserAuth userAuth,
+		@RequestBody CancelPaymentRequestDto cancelPaymentRequestDto) {
+
+		TossCancelResponseDto response = paymentPageService.cancelPayment(cancelPaymentRequestDto, userAuth);
+		return ResponseEntity.ok(BaseResponseDto.success("결제 취소를 승인합니다.", response));
 	}
 }

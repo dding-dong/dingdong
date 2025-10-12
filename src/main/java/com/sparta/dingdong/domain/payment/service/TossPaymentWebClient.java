@@ -8,8 +8,10 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.sparta.dingdong.domain.payment.dto.request.CancelPaymentPageRequestDto;
 import com.sparta.dingdong.domain.payment.dto.request.ConfirmPaymentPageRequestDto;
 import com.sparta.dingdong.domain.payment.dto.response.ConfirmPaymentPageResponseDto;
+import com.sparta.dingdong.domain.payment.dto.response.TossCancelResponseDto;
 import com.sparta.dingdong.domain.payment.dto.response.TossErrorResponseDto;
 import com.sparta.dingdong.domain.payment.exception.TossConfirmPageException;
 
@@ -45,6 +47,27 @@ public class TossPaymentWebClient {
 					))
 			)
 			.bodyToMono(ConfirmPaymentPageResponseDto.class)
+			.block();
+	}
+
+	public TossCancelResponseDto cancelPayment(CancelPaymentPageRequestDto requestDto, String paymentKey) {
+		String widgetSecretKey = secretKey;
+		String authorizations =
+			"Basic " + Base64.getEncoder().encodeToString((widgetSecretKey + ":").getBytes(StandardCharsets.UTF_8));
+
+		return webClient.post()
+			.uri("/payments/" + paymentKey + "/cancel")
+			.contentType(MediaType.APPLICATION_JSON)
+			.header("Authorization", authorizations)
+			.bodyValue(requestDto)
+			.retrieve()
+			.onStatus(status -> !status.is2xxSuccessful(), clientResponse ->
+				clientResponse.bodyToMono(TossErrorResponseDto.class)
+					.flatMap(error -> Mono.error(
+						new TossConfirmPageException(error.getCode(), error.getMessage())
+					))
+			)
+			.bodyToMono(TossCancelResponseDto.class)
 			.block();
 	}
 }

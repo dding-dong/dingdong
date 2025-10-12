@@ -55,4 +55,16 @@ public class PaymentExceptionHandler {
 			.status(HttpStatus.BAD_GATEWAY)
 			.body(BaseResponseDto.error(ex.getErrorCode(), ex.getErrorMessage()));
 	}
+
+	@ExceptionHandler(NotOwnerPaymentException.class)
+	public ResponseEntity<BaseResponseDto<Void>> handleTNotOwnerPaymentException(NotOwnerPaymentException ex) {
+		return ResponseEntity.status(CommonErrorCode.NOT_OWNER_PAYMENT.getStatus())
+			.body(BaseResponseDto.error(CommonErrorCode.NOT_OWNER_PAYMENT));
+	}
+
+	@ExceptionHandler(NotTossPaymentOrderException.class)
+	public ResponseEntity<BaseResponseDto<Void>> handleNotTossPaymentOrderException(NotTossPaymentOrderException ex) {
+		return ResponseEntity.status(CommonErrorCode.NOT_TOSS_PAYMENT_ORDER.getStatus())
+			.body(BaseResponseDto.error(CommonErrorCode.NOT_TOSS_PAYMENT_ORDER));
+	}
 }
