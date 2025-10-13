@@ -3,7 +3,7 @@
 ### 결제 요청
 POST http://localhost:8080/v1/payments
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc2MDAxODIzMiwiZXhwIjoxNzYwMDIwMDMyfQ.CIxpt008hmYNEKQPxULlWVwk8-rn9epGnfacAGehrLM
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc2MDA5MDY0MSwiZXhwIjoxNzYwMDkyNDQxfQ.Wo9xsWMXwln4bBVrdM396rYY06h1lJqE-ULpU6G8TCs
 
 {
   "orderId": "f7a9d21c-4c3b-4c42-a8a1-1bbf4f56ccf1",
@@ -13,13 +13,23 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT
 ### 결제 승인 요청
 POST http://localhost:8080/v1/payments/confirm
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc2MDAxODIzMiwiZXhwIjoxNzYwMDIwMDMyfQ.CIxpt008hmYNEKQPxULlWVwk8-rn9epGnfacAGehrLM
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc2MDA5MDY0MSwiZXhwIjoxNzYwMDkyNDQxfQ.Wo9xsWMXwln4bBVrdM396rYY06h1lJqE-ULpU6G8TCs
 
 {
   "orderId": "f7a9d21c-4c3b-4c42-a8a1-1bbf4f56ccf1",
   "amount": 24500,
   "paymentKey": "sjklsjdflkajsldkfj",
   "paymentType": "BRANDPAY"
+}
+
+### 결제 취소 요청
+POST http://localhost:8080/v1/payments/cancel
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc2MDA5MDY0MSwiZXhwIjoxNzYwMDkyNDQxfQ.Wo9xsWMXwln4bBVrdM396rYY06h1lJqE-ULpU6G8TCs
+
+{
+  "orderId": "f7a9d21c-4c3b-4c42-a8a1-1bbf4f56ccf1",
+  "refundReason": "단순 변심"
 }
 
 ### 결제 상세 조회
@@ -29,3 +39,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT
 ### master&manager 결제 상세 조회
 GET http://localhost:8080/v1/admin/orders/f7a9d21c-4c3b-4c42-a8a1-1bbf4f56ccf1/payments
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIzIiwidXNlclJvbGUiOiJNQU5BR0VSIiwiaWF0IjoxNzYwMDIxMzgwLCJleHAiOjE3NjAwMjMxODB9.vf1CrqAbtRmRyxI8tbXJoS6mWZWSpnX8docSqHGERvc
+
+### 결제페이지에서 결제한 유저 결제 취소요청
+POST http://localhost:8080/v1/test/payment/cancel
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlclJvbGUiOiJDVVNUT01FUiIsImlhdCI6MTc2MDI2MzU2OCwiZXhwIjoxNzYwMjY1MzY4fQ.fILYCKcyxtLuCBm_Nc4snuV9dWk52e_6-IK7tmb_ZO8
+Content-Type: application/json
+
+{
+  "orderId": "3e29dfb6-ed86-4935-89cd-aff9f2669d78",
+  "refundReason": "단순 변심"
+}

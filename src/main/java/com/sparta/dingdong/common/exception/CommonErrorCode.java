@@ -54,7 +54,13 @@ public enum CommonErrorCode implements ErrorCode {
 	PAYMENT_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "4000", "이미 결제 진행 중인 주문입니다."),
 	PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "4001", "결제 가격이랑 요청주신 가격이 다릅니다."),
 	PAYMENT_NOT_FOUND(HttpStatus.BAD_REQUEST, "4002", "결제 정보가 없습니다."),
-	PAYMENT_STATUS_NO_PEDNIND(HttpStatus.BAD_REQUEST, "4003", "결제 요청을 다시 해주세요.");
+	PAYMENT_STATUS_NO_PEDNIND(HttpStatus.BAD_REQUEST, "4003", "결제 요청을 다시 해주세요."),
+
+	TOSS_CONFIRM_FAILED(HttpStatus.BAD_GATEWAY, "5000", "toss 결제가 실패했습니다."),
+	TOSS_CANCEL_FAILED(HttpStatus.BAD_GATEWAY, "5001", "토스 결제 취소가 실패했습니다"),
+
+	NOT_OWNER_PAYMENT(HttpStatus.BAD_REQUEST, "5020", "해당 유저의 결제가 아닙니다"),
+	NOT_TOSS_PAYMENT_ORDER(HttpStatus.BAD_REQUEST, "5021", "토스 페에지에서 결제한 주문이 아닙니다.");
 
 	private final HttpStatus status;
 	private final String code;

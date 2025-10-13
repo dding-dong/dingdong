@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.sparta.dingdong.common.base.BaseEntity;
 import com.sparta.dingdong.domain.order.entity.Order;
+import com.sparta.dingdong.domain.payment.dto.response.ConfirmPaymentPageResponseDto;
 import com.sparta.dingdong.domain.payment.entity.enums.FailReason;
 import com.sparta.dingdong.domain.payment.entity.enums.PaymentStatus;
 import com.sparta.dingdong.domain.payment.entity.enums.PaymentType;
@@ -48,6 +49,8 @@ public class Payment extends BaseEntity {
 	@JoinColumn(name = "order_id")
 	private Order order;
 
+	private String tossOrderId;
+
 	@Enumerated(EnumType.STRING)
 	private PaymentType paymentType;
 
@@ -75,6 +78,18 @@ public class Payment extends BaseEntity {
 			.build();
 	}
 
+	public static Payment createPayment(User user, Order order, ConfirmPaymentPageResponseDto tossConfirmResponseDto) {
+		return Payment.builder()
+			.user(user)
+			.order(order)
+			.amount(order.getTotalPrice())
+			.paymentStatus(PaymentStatus.PAID)
+			.paymentKey(tossConfirmResponseDto.getPaymentKey())
+			.approvedAt(tossConfirmResponseDto.getApprovedAt())
+			.tossOrderId(tossConfirmResponseDto.getOrderId())
+			.build();
+	}
+
 	public void deleteFailReason() {
 		this.failReason = null;
 	}
@@ -98,5 +113,13 @@ public class Payment extends BaseEntity {
 
 	public void setApprovedAt() {
 		this.approvedAt = LocalDateTime.now();
+	}
+
+	public void setApprovedAt(LocalDateTime approvedAt) {
+		this.approvedAt = approvedAt;
+	}
+
+	public void setTossOrderId(String tossOrderId) {
+		this.tossOrderId = tossOrderId;
 	}
 }

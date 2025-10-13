@@ -63,4 +63,13 @@ public class BaseResponseDto<T> {
 			.errors(Collections.emptyList())
 			.build();
 	}
+
+	public static BaseResponseDto<Void> error(String errorCode, String message) {
+		return BaseResponseDto.<Void>builder()
+			.status("FAIL")
+			.code(errorCode)
+			.message(message)
+			.errors(Collections.emptyList())
+			.build();
+	}
 }
