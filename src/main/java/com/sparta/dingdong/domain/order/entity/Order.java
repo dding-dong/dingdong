@@ -69,7 +69,35 @@ public class Order extends BaseEntity {
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<OrderStatusHistory> statusHistories = new ArrayList<>();
 
-	public void changeStatus(OrderStatus orderStatus) {
-		this.status = orderStatus;
+	public void changeStatus(OrderStatus newStatus) {
+		if (this.status == newStatus)
+			return;
+		this.status = newStatus;
+		this.statusHistories.add(OrderStatusHistory.create(this, newStatus));
 	}
+
+	//추가
+
+	public static Order create(User user, Store store, BigInteger totalPrice, String deliveryAddress,
+		OrderStatus status) {
+		Order order = new Order();
+		order.user = user;
+		order.store = store;
+		order.totalPrice = totalPrice;
+		order.deliveryAddress = deliveryAddress;
+		order.status = status;
+		order.placedAt = LocalDateTime.now();
+
+		OrderStatusHistory history = OrderStatusHistory.create(order, status);
+		order.statusHistories.add(history);
+
+		return order;
+	}
+
+	public void cancel(String reason) {
+		this.status = OrderStatus.CANCELED;
+		this.canceledAt = LocalDateTime.now();
+		this.cancelReason = reason;
+	}
+
 }
