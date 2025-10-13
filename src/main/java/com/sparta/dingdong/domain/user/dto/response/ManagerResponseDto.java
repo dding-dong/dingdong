@@ -11,11 +11,15 @@ import lombok.Getter;
 public class ManagerResponseDto {
 
 	private Long id;
+	private String username;
+	private String email;
 	private ManagerStatus status;
 	private LocalDateTime createdAt;
 
 	public ManagerResponseDto(Manager entity) {
 		this.id = entity.getId();
+		this.username = entity.getUser().getUsername();
+		this.email = entity.getUser().getEmail();
 		this.status = entity.getManagerStatus();
 		this.createdAt = entity.getCreatedAt();
 	}
