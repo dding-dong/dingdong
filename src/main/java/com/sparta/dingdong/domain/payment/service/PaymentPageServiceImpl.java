@@ -1,5 +1,6 @@
 package com.sparta.dingdong.domain.payment.service;
 
+import java.math.BigInteger;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -49,48 +50,67 @@ public class PaymentPageServiceImpl implements PaymentPageService {
 	@Transactional
 	@Override
 	public ConfirmPaymentPageResponseDto confirmPayment(ConfirmPaymentPageRequestDto requestDto) {
-		String orderIdWithTimestamp = requestDto.getOrderId();
+		String orderIdWithTimestamp = validateAndExtractOrderId(requestDto.getOrderId());
+		Order order = findOrderOrThrow(orderIdWithTimestamp);
 
-		if (orderIdWithTimestamp == null || !orderIdWithTimestamp.contains("_")) {
-			throw new TossConfirmPageException("WRONG_ORDER_ID", orderIdWithTimestamp);
-		}
-
-		UUID realOrderId = UUID.fromString(orderIdWithTimestamp.split("_")[0]);
-		Order order = orderService.findByOrder(realOrderId);
-
-		if (!findPaymentByOrder(order).getPaymentStatus().equals(PaymentStatus.PENDING)) {
-			throw new TossConfirmPageException("ALREADY_ORDER_ID", "이미 결제한 주문입니다.");
-		}
-
+		validatePaymentStatus(order);
 		Payment payment = findPaymentByOrderOrThrow(order);
+		validateAmount(payment, requestDto.getAmount());
 
-		if (!payment.getAmount().equals(requestDto.getAmount())) {
-			throw new TossConfirmPageException("MISS_MATCH_AMOUNT", "요청한 값이랑 결제 값이 다릅니다");
-		}
-
-		// Toss 결제 승인 요청 → 실패 시 TossPaymentWebClient에서 예외 발생함
-		ConfirmPaymentPageResponseDto tossConfirmResponseDto = null;
+		ConfirmPaymentPageResponseDto responseDto;
 
 		try {
-			tossConfirmResponseDto = tossPaymentWebClient.confirmPayment(requestDto);
+			responseDto = tossPaymentWebClient.confirmPayment(requestDto);
 
 		} catch (TossConfirmPageException ex) {
 			paymentTransactionService.markPaymentFailed(payment);
-			throw new TossConfirmPageException(ex.getErrorCode(), ex.getErrorMessage());
+			throw ex;
 		}
 
-		// 결제 엔티티 수정
+		updatePaymentAndOrder(payment, order, responseDto, orderIdWithTimestamp);
 
+		return responseDto;
+	}
+
+	private String validateAndExtractOrderId(String orderIdWithTimestamp) {
+		if (orderIdWithTimestamp == null || !orderIdWithTimestamp.contains("_")) {
+			throw new TossConfirmPageException("WRONG_ORDER_ID", orderIdWithTimestamp);
+		}
+		return orderIdWithTimestamp;
+	}
+
+	private Order findOrderOrThrow(String orderIdWithTimestamp) {
+		UUID realOrderId = UUID.fromString(orderIdWithTimestamp.split("_")[0]);
+		return orderService.findByOrder(realOrderId);
+	}
+
+	private void validatePaymentStatus(Order order) {
+		Payment payment = findPaymentByOrder(order);
+		if (!PaymentStatus.PENDING.equals(payment.getPaymentStatus())) {
+			throw new TossConfirmPageException("ALREADY_ORDER_ID", "이미 결제한 주문입니다.");
+		}
+	}
+
+	private void validateAmount(Payment payment, BigInteger requestedAmount) {
+		if (!payment.getAmount().equals(requestedAmount)) {
+			throw new TossConfirmPageException("MISS_MATCH_AMOUNT", "요청한 값이랑 결제 값이 다릅니다");
+		}
+	}
+
+	private void updatePaymentAndOrder(
+		Payment payment,
+		Order order,
+		ConfirmPaymentPageResponseDto tossConfirmResponse,
+		String orderIdWithTimestamp
+	) {
 		payment.setTossOrderId(orderIdWithTimestamp);
-		payment.setApprovedAt(tossConfirmResponseDto.getApprovedAt());
+		payment.setApprovedAt(tossConfirmResponse.getApprovedAt());
 		payment.changeStatus(PaymentStatus.PAID);
 		order.changeStatus(OrderStatus.REQUESTED);
-		payment.confirmSuccess(tossConfirmResponseDto.getPaymentKey(),
-			PaymentType.from(tossConfirmResponseDto.getType()));
-
-		paymentRepository.save(payment);
-
-		return tossConfirmResponseDto;
+		payment.confirmSuccess(
+			tossConfirmResponse.getPaymentKey(),
+			PaymentType.from(tossConfirmResponse.getType())
+		);
 	}
 
 	@Override
@@ -141,13 +161,17 @@ public class PaymentPageServiceImpl implements PaymentPageService {
 		// order에 대한 payment가 있는데 paymentStatus가 Failed면 Pending상태로 바꿔준다.
 		if (existingPayment != null) {
 
-			if (!existingPayment.getPaymentStatus().equals(PaymentStatus.FAILED)) {
-				throw new PaymentAlreadyExistsException();
-
-			} else {
+			if (existingPayment.getPaymentStatus().equals(PaymentStatus.FAILED)) {
 				existingPayment.deleteFailReason();
 				existingPayment.changeStatus(PaymentStatus.PENDING);
 				paymentRepository.save(existingPayment);
+				return;
+
+			} else if (existingPayment.getPaymentStatus().equals(PaymentStatus.REFUNDED)
+				|| existingPayment.getPaymentStatus().equals(PaymentStatus.PAID)) {
+				throw new PaymentAlreadyExistsException();
+
+			} else {
 				return;
 			}
 		}

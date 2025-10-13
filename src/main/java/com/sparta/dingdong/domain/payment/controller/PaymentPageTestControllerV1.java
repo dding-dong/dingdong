@@ -80,16 +80,16 @@ public class PaymentPageTestControllerV1 {
 		return "checkout"; // src/main/resources/templates/checkout.html
 	}
 
+	@GetMapping("/preparing")
+	public String preparing(@RequestParam("userId") Long userId, Model model) {
+		model.addAttribute("userId", userId);
+		return "preparing";
+	}
+
 	@GetMapping("/success")
 	public String success(@RequestParam("userId") Long userId, Model model) {
 		model.addAttribute("userId", userId);
 		return "success";
-	}
-
-	@GetMapping("/success2")
-	public String success2(@RequestParam("userId") Long userId, Model model) {
-		model.addAttribute("userId", userId);
-		return "success2";
 	}
 
 	@GetMapping("/fail")
