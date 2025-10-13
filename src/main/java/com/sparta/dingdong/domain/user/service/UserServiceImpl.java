@@ -7,12 +7,17 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sparta.dingdong.common.entity.Dong;
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.user.dto.request.UserCreateRequestDto;
+import com.sparta.dingdong.domain.user.dto.request.UserUpdateRequestDto;
 import com.sparta.dingdong.domain.user.dto.response.UserResponseDto;
 import com.sparta.dingdong.domain.user.entity.Address;
 import com.sparta.dingdong.domain.user.entity.Manager;
 import com.sparta.dingdong.domain.user.entity.User;
 import com.sparta.dingdong.domain.user.entity.enums.ManagerStatus;
 import com.sparta.dingdong.domain.user.entity.enums.UserRole;
+import com.sparta.dingdong.domain.user.exception.InvalidPasswordException;
+import com.sparta.dingdong.domain.user.exception.NicknameNotChangeedException;
+import com.sparta.dingdong.domain.user.exception.NoUpdateTargetException;
+import com.sparta.dingdong.domain.user.exception.PasswordNotChangedException;
 import com.sparta.dingdong.domain.user.repository.AddressRepository;
 import com.sparta.dingdong.domain.user.repository.DongRepository;
 import com.sparta.dingdong.domain.user.repository.ManagerRepository;
@@ -30,54 +35,86 @@ public class UserServiceImpl implements UserService {
 	private final PasswordEncoder passwordEncoder;
 	private final ManagerRepository managerRepository;
 
+	@Override
+	public User findByUser(Long userId) {
+		return userRepository.findByIdOrElseThrow(userId);
+	}
+
 	@Transactional
-	public UserResponseDto createUser(UserCreateRequestDto requestDto) {
+	public void createUser(UserCreateRequestDto req) {
 
-		// 1. 비밀번호 암호화
-		String encodedPassword = passwordEncoder.encode(requestDto.getPassword());
-
-		// 2. User 생성 및 저장
+		userRepository.validateDuplicateEmail(req.getEmail());
+		Dong dong = dongRepository.findByIdOrElseThrow(req.getDongId());
+		String encodedPassword = passwordEncoder.encode(req.getPassword());
 		User user = User.builder()
-			.username(requestDto.getUsername())
-			.nickname(requestDto.getNickname())
-			.email(requestDto.getEmail())
+			.username(req.getUsername())
+			.nickname(req.getNickname())
+			.email(req.getEmail())
 			.password(encodedPassword)
-			.userRole(requestDto.getUserRole())
-			.phone(requestDto.getPhone())
+			.userRole(req.getUserRole())
+			.phone(req.getPhone())
 			.build();
-
 		userRepository.save(user);
-
-		// 3. Dong 조회
-		Dong dong = dongRepository.findById(requestDto.getDongId())
-			.orElseThrow(() -> new IllegalArgumentException("해당 동을 찾을 수 없습니다."));
-
-		// 4. Address 생성
 		Address address = Address.builder()
 			.user(user)
 			.dong(dong)
-			.detailAddress(requestDto.getDetailAddress())
-			.postalCode(requestDto.getPostalCode())
+			.detailAddress(req.getDetailAddress())
+			.postalCode(req.getPostalCode())
 			.isDefault(true)
 			.build();
-
 		addressRepository.save(address);
 
-		// 5. MANAGER라면 Manager 테이블도 생성
-		if (requestDto.getUserRole() == UserRole.MANAGER) {
+		if (req.getUserRole() == UserRole.MANAGER) {
 			Manager manager = Manager.builder()
 				.user(user)
-				.managerStatus(ManagerStatus.PENDING) // 초기 상태
+				.managerStatus(ManagerStatus.PENDING)
 				.build();
-			managerRepository.save(manager); // ManagerRepository 필요
+			managerRepository.save(manager);
+		}
+	}
+
+	@Transactional
+	public void updateUser(UserUpdateRequestDto req, UserAuth userAuth) {
+		User findUser = userRepository.findByIdOrElseThrow(userAuth.getId());
+		checkPassword(req.getOldPassword(), findUser.getPassword());
+
+		if (req.getNickname() == null && req.getNewPassword() == null) {
+			throw new NoUpdateTargetException();
+		}
+		if (req.getNickname() != null && findUser.getNickname().equals(req.getNickname())) {
+			throw new NicknameNotChangeedException();
+		}
+		if (req.getNewPassword() != null && passwordEncoder.matches(req.getNewPassword(), findUser.getPassword())) {
+			throw new PasswordNotChangedException();
 		}
 
-		// 6. ResponseDto 반환
-		return UserResponseDto.of(user, address);
+		String encodedPassword = null;
+		if (req.getNewPassword() != null) {
+			encodedPassword = passwordEncoder.encode(req.getNewPassword());
+		}
+
+		findUser.updateUser(req.getNickname(), encodedPassword);
+	}
+
+	public void checkPassword(String rawPassword, String hashedPassword) {
+		if (!passwordEncoder.matches(rawPassword, hashedPassword)) {
+			throw new InvalidPasswordException();
+		}
+	}
+
+	@Transactional
+	public void deleteUser(UserAuth userAuth) {
+		User user = userRepository.findByIdOrElseThrow(userAuth.getId());
+		user.softDelete();
+		// TODO 추후 유저관련 내용 삭제 로직 추가
 	}
 
 	public UserResponseDto findById(UserAuth userAuth) {
 		User findUser = userRepository.findByIdOrElseThrow(userAuth.getId());
 		return UserResponseDto.from(findUser);
+	}
+
+	public User findByUser(UserAuth userAuth) {
+		return userRepository.findByIdOrElseThrow(userAuth.getId());
 	}
 }

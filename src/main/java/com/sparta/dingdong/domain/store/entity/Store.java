@@ -2,22 +2,33 @@ package com.sparta.dingdong.domain.store.entity;
 
 import java.math.BigInteger;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
 import com.sparta.dingdong.common.base.BaseEntity;
 import com.sparta.dingdong.domain.category.entity.StoreCategory;
+import com.sparta.dingdong.domain.review.entity.Review;
+import com.sparta.dingdong.domain.review.entity.ReviewReply;
 import com.sparta.dingdong.domain.store.entity.enums.DayOfWeek;
+import com.sparta.dingdong.domain.store.entity.enums.StoreStatus;
 import com.sparta.dingdong.domain.user.entity.User;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
@@ -39,17 +50,18 @@ public class Store extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
-	// 점주 --> User 참조할 경우 --> User 객체 바로 접근 가능
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "owner_user_id", nullable = false)
 	private User owner;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "category_id", nullable = false)
-	private StoreCategory category;
+	@JoinColumn(name = "store_category_id", nullable = false)
+	private StoreCategory storeCategory;
 
 	@Column(nullable = false)
 	private String name;
+
+	private String description;
 
 	private String imageUrl;
 
@@ -62,12 +74,26 @@ public class Store extends BaseEntity {
 	@Column(name = "min_order_price")
 	private BigInteger minOrderPrice;
 
-	private String status;
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private StoreStatus status;
+
+	@OneToMany(mappedBy = "store", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private Set<StoreDeliveryArea> deliveryAreas = new HashSet<>();
 
 	private LocalDateTime openedAt;
 	private LocalDateTime closedAt;
 
-	// CSV로 요일 저장
+	@OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<Review> reviews = new ArrayList<>();
+
+	@OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<ReviewReply> reviewReplies = new ArrayList<>();
+
+	// CSV로 요일 저장 → AttributeConverter로 리팩터링 가능 --> 안 쓰기로.
 	@Column(name = "day_of_week")
 	private String daysOfWeekCsv;
 
@@ -79,5 +105,12 @@ public class Store extends BaseEntity {
 
 	public void setDaysOfWeek(Set<DayOfWeek> days) {
 		this.daysOfWeekCsv = DayOfWeek.toCsv(days);
+	}
+
+	@PrePersist
+	public void prePersist() {
+		if (this.status == null) {
+			this.status = StoreStatus.CLOSED; // 기본 상태
+		}
 	}
 }

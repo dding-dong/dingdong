@@ -56,6 +56,25 @@ dependencies {
 
     // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    // for AI
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.google.genai:google-genai:1.0.0'
+
+    // ANTLR 버전 고정
+    implementation 'org.antlr:antlr4-runtime:4.10.1'
+
+    //thymeleaf
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    // https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple
+    implementation("com.googlecode.json-simple:json-simple:1.1.1")
+
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-webflux
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
 }
 
 tasks.named('test') {

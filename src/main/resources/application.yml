@@ -32,3 +32,11 @@ springdoc:
   swagger-ui:
     tags-sorter: alpha
     operations-sorter: alpha
+
+google:
+  ai:
+    api-key: ENC(iAr9GNCjCqTjiQH7zh2sEXW0rE0P7IJZCdmhm+fiw1E6UXw0RSsHjPSePLVIyrpM)
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+
+toss:
+  secret-key: ENC(oFAaiPw49wcKe883t1jiIWtWQhz+Qw2Ka71dSuZbsY4aDEFL+c4ePweln7vpDlfQ)

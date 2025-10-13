@@ -1,0 +1,87 @@
+package com.sparta.dingdong.domain.category.service.menucategory;
+
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.sparta.dingdong.common.jwt.UserAuth;
+import com.sparta.dingdong.domain.auth.service.AuthService;
+import com.sparta.dingdong.domain.category.dto.request.MenuCategoryItemRequestDto;
+import com.sparta.dingdong.domain.category.dto.response.MenuCategoryItemResponseDto;
+import com.sparta.dingdong.domain.category.entity.MenuCategory;
+import com.sparta.dingdong.domain.category.entity.MenuCategoryItem;
+import com.sparta.dingdong.domain.category.exception.menucategory.MenuCategoryItemNotFoundException;
+import com.sparta.dingdong.domain.category.exception.menucategory.MenuCategoryItemOrderConflictException;
+import com.sparta.dingdong.domain.category.exception.menucategory.MenuCategoryNotFoundException;
+import com.sparta.dingdong.domain.category.repository.menucategory.MenuCategoryItemRepository;
+import com.sparta.dingdong.domain.category.repository.menucategory.MenuCategoryRepository;
+import com.sparta.dingdong.domain.menu.entity.MenuItem;
+import com.sparta.dingdong.domain.menu.exception.MenuItemNotFoundException;
+import com.sparta.dingdong.domain.menu.repository.MenuItemRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class MenuCategoryItemServiceImpl implements MenuCategoryItemService {
+
+	private final MenuCategoryRepository menuCategoryRepository;
+	private final MenuCategoryItemRepository menuCategoryItemRepository;
+	private final MenuItemRepository menuItemRepository;
+	private final AuthService authService;
+
+	@Transactional(readOnly = true)
+	@Override
+	public Page<MenuCategoryItemResponseDto> getItemsByCategory(UUID menuCategoryId, String keyword,
+		Pageable pageable) {
+		Page<MenuCategoryItem> menuCategoryItemsPage = menuCategoryItemRepository.findByMenuCategoryIdWithKeyword(
+			menuCategoryId, keyword, pageable);
+		return menuCategoryItemsPage.map(this::map);
+	}
+
+	@Override
+	public MenuCategoryItemResponseDto addMenuToCategory(UUID categoryId, MenuCategoryItemRequestDto req,
+		UserAuth user) {
+		MenuCategory mc = menuCategoryRepository.findByIdWithStore(categoryId)
+			.orElseThrow(MenuCategoryNotFoundException::new);
+		authService.validateStoreOwnership(user, mc.getStore().getOwner().getId());
+		MenuItem item = menuItemRepository.findById(req.getMenuItemId())
+			.orElseThrow(MenuItemNotFoundException::new);
+		boolean exists = menuCategoryItemRepository.existsByMenuCategoryIdAndOrderNo(categoryId, req.getOrderNo());
+		if (exists) {
+			throw new MenuCategoryItemOrderConflictException();
+		}
+		MenuCategoryItem mci = MenuCategoryItem.builder()
+			.menuCategory(mc)
+			.menuItem(item)
+			.orderNo(req.getOrderNo())
+			.build();
+		MenuCategoryItem saved = menuCategoryItemRepository.save(mci);
+		return map(saved);
+	}
+
+	@Override
+	public void removeMenuFromCategory(UUID menuCategoryItemId, UserAuth user) {
+		MenuCategoryItem mci = menuCategoryItemRepository.findByIdWithMenuCategoryAndStore(menuCategoryItemId)
+			.orElseThrow(MenuCategoryItemNotFoundException::new);
+		authService.validateStoreOwnership(user, mci.getMenuCategory().getStore().getOwner().getId());
+		menuCategoryItemRepository.delete(mci);
+	}
+
+	private MenuCategoryItemResponseDto map(MenuCategoryItem mci) {
+		return MenuCategoryItemResponseDto.builder()
+			.id(mci.getId())
+			.menuCategoryId(mci.getMenuCategory().getId())
+			.menuItemId(mci.getMenuItem().getId())
+			.menuItemName(mci.getMenuItem().getName())
+			.menuItemPrice(mci.getMenuItem().getPrice())
+			.orderNo(mci.getOrderNo())
+			.build();
+	}
+}

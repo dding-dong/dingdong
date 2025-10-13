@@ -2,6 +2,7 @@ package com.sparta.dingdong.domain.cart.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.sparta.dingdong.common.base.BaseEntity;
@@ -52,5 +53,34 @@ public class Cart extends BaseEntity {
 	private Cart(User user, Store store) {
 		this.user = user;
 		this.store = store;
+	}
+
+	public static Cart of(User user, Store store) {
+		return new Cart(user, store);
+	}
+
+	public void addItem(CartItem item) {
+		// 합산 로직: 같은 menuItem이면 수량 더하기
+		Optional<CartItem> existing = items.stream()
+			.filter(i -> i.getMenuItem().getId().equals(item.getMenuItem().getId()))
+			.findFirst();
+		if (existing.isPresent()) {
+			existing.get().increaseQuantity(item.getQuantity());
+		} else {
+			item.setCart(this);
+			items.add(item);
+		}
+	}
+
+	public void setStore(Store store) {
+		this.store = store;
+	}
+
+	public void removeItem(UUID itemId) {
+		items.removeIf(i -> i.getId().equals(itemId));
+	}
+
+	public void clear() {
+		items.clear();
 	}
 }

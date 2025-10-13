@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>메인 페이지</title>
+</head>
+<body>
+<h1 th:text="'안녕하세요 ' + ${userId} + '님, 환영합니다!'">안녕하세요 사용자님, 환영합니다!</h1>
+
+<p>내 주문 목록을 확인하려면 아래 버튼을 클릭하세요.</p>
+<a th:href="@{/orders(userId=${userId})}">
+    <button>내 주문 목록 보기</button>
+</a>
+</body>
+</html>

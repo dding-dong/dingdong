@@ -1,6 +1,6 @@
 package com.sparta.dingdong.domain.order.entity;
 
-import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,6 @@ import java.util.UUID;
 
 import com.sparta.dingdong.common.base.BaseEntity;
 import com.sparta.dingdong.domain.order.entity.enums.OrderStatus;
-import com.sparta.dingdong.domain.payment.entity.enums.PaymentStatus;
 import com.sparta.dingdong.domain.store.entity.Store;
 import com.sparta.dingdong.domain.user.entity.User;
 
@@ -49,9 +48,7 @@ public class Order extends BaseEntity {
 	private OrderStatus status = OrderStatus.REQUESTED;
 
 	@Column(nullable = false)
-	private BigDecimal totalPrice;
-
-	private PaymentStatus paymentStatus = PaymentStatus.PENDING;
+	private BigInteger totalPrice;
 
 	@Column(nullable = false)
 	private String deliveryAddress;
@@ -60,6 +57,7 @@ public class Order extends BaseEntity {
 	private LocalDateTime placedAt;
 
 	private LocalDateTime deliveredAt;
+
 	private LocalDateTime canceledAt;
 
 	@Column
@@ -71,4 +69,7 @@ public class Order extends BaseEntity {
 	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<OrderStatusHistory> statusHistories = new ArrayList<>();
 
+	public void changeStatus(OrderStatus orderStatus) {
+		this.status = orderStatus;
+	}
 }

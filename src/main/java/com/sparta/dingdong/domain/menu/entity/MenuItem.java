@@ -46,20 +46,24 @@ public class MenuItem extends BaseEntity {
 	private BigInteger price;
 
 	@Column(nullable = false)
+	@Builder.Default
 	private Boolean isActive = true;
 
 	@Column(nullable = false)
+	@Builder.Default
 	private Boolean isRecommended = false;
 
 	private String content;
 
 	@Column(nullable = false)
+	@Builder.Default
 	private Boolean isAiUsed = false;
 
 	private Boolean isDisplayed;
 	private Boolean isSoldout;
 
+	@Column(columnDefinition = "text")
 	private String aiContent;
-
+	
 	private String imageUrl;
 }

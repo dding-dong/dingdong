@@ -1,12 +1,10 @@
 package com.sparta.dingdong.domain.order.entity;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import com.sparta.dingdong.common.base.BaseEntity;
 import com.sparta.dingdong.domain.order.entity.enums.OrderStatus;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -34,16 +32,5 @@ public class OrderStatusHistory extends BaseEntity {
 	private Order order;
 
 	@Enumerated(EnumType.STRING)
-	private OrderStatus preStatus;
-
-	@Enumerated(EnumType.STRING)
-	@Column(nullable = false)
-	private OrderStatus newStatus;
-
-	@Column(nullable = false)
-	private Long changedBy;
-
-	@Column(nullable = false)
-	private LocalDateTime changedAt;
-
+	private OrderStatus status;
 }

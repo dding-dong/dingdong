@@ -47,6 +47,7 @@ public class Address {
 
 	// 기본 주소 여부
 	@Column(name = "is_default", nullable = false)
+	@Builder.Default
 	private boolean isDefault = false;
 
 	// ==== 연관관계 편의 메서드 ====

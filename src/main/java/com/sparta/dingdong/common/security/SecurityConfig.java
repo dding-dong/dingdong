@@ -2,6 +2,7 @@ package com.sparta.dingdong.common.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -49,6 +50,18 @@ public class SecurityConfig {
 					"/swagger-resources/**",
 					"/webjars/**"
 				).permitAll()
+				.requestMatchers(
+					"/toss/**",
+					"/**",
+					"/orders/**"
+				).permitAll()
+				.requestMatchers(HttpMethod.GET, "/v1/store-categories").permitAll()
+				.requestMatchers(HttpMethod.GET, "/v1/store-categories/*").permitAll()
+				.requestMatchers(HttpMethod.GET, "/v1/stores/*/menu-categories").permitAll()
+				.requestMatchers(HttpMethod.GET, "/v1/stores/*/menu-categories/*/items").permitAll()
+				.requestMatchers(HttpMethod.GET, "/v1/stores/list").permitAll()
+				.requestMatchers(HttpMethod.GET, "/v1/stores/*/list").permitAll()
+				.requestMatchers(HttpMethod.GET, "/v1/stores/*/menus").permitAll()
 				.requestMatchers(SecurityUrlMatcher.PUBLIC_URLS).permitAll()
 				.requestMatchers(SecurityUrlMatcher.CUSTOMER_URLS).hasRole("CUSTOMER")
 				.requestMatchers(SecurityUrlMatcher.OWNER_URLS).hasRole("OWNER")

@@ -1,0 +1,23 @@
+package com.sparta.dingdong.domain.review.dto.response;
+
+import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
+@Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class OwnerReviewResponseDto {
+	private UUID reviewId;
+	private Long userId;
+	private Integer rating;
+	private String content;
+	private String imageUrl1;
+	private String imageUrl2;
+	private String imageUrl3;
+	private OwnerReviewReplyResponseDto reply;
+	private Boolean isDisplayed;
+}

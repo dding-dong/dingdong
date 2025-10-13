@@ -54,4 +54,22 @@ public class BaseResponseDto<T> {
 			.errors(ErrorResponseDto.FieldError.of(bindingResult))
 			.build();
 	}
+
+	public static BaseResponseDto<Void> error(ErrorCode errorCode, String message) {
+		return BaseResponseDto.<Void>builder()
+			.status("FAIL")
+			.code(errorCode.getCode())
+			.message(message)
+			.errors(Collections.emptyList())
+			.build();
+	}
+
+	public static BaseResponseDto<Void> error(String errorCode, String message) {
+		return BaseResponseDto.<Void>builder()
+			.status("FAIL")
+			.code(errorCode)
+			.message(message)
+			.errors(Collections.emptyList())
+			.build();
+	}
 }
