@@ -28,7 +28,13 @@
             </ul>
         </td>
         <td>
-            <a th:href="@{/checkout(userId=${userId}, orderId=${order.id}, orderName=${order.store.name}, amount=${order.totalPrice})}">결제하기</a>
+            <form th:action="@{/checkout}" method="post">
+                <input type="hidden" name="userId" th:value="${userId}"/>
+                <input type="hidden" name="orderId" th:value="${order.id}"/>
+                <input type="hidden" name="orderName" th:value="${order.store.name}"/>
+                <input type="hidden" name="amount" th:value="${order.totalPrice}"/>
+                <button type="submit">결제하기</button>
+            </form>
         </td>
     </tr>
     </tbody>

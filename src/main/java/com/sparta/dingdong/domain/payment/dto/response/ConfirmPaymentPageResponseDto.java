@@ -14,6 +14,7 @@ public class ConfirmPaymentPageResponseDto {
 	private String orderId;
 	private String orderName;
 	private String method;
+	private String type;
 
 	@JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
 	private LocalDateTime approvedAt;

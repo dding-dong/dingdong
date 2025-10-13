@@ -58,12 +58,14 @@ public class PaymentPageTestControllerV1 {
 	}
 
 	// order-list.html에서 GET으로 넘어온 파라미터 받기
-	@GetMapping("/checkout")
+	@PostMapping("/checkout")
 	public String checkout(@RequestParam("userId") Long userId, @RequestParam("orderId") UUID orderId,
 		@RequestParam("orderName") String orderName, @RequestParam("amount") Long amount, Model model) {
 
 		User user = userService.findByUser(userId);
 		Order order = orderService.findByOrder(orderId);
+
+		paymentPageService.createPayment(user, order);
 
 		List<String> itemNames = order.getOrderItems()
 			.stream()

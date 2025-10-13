@@ -114,4 +114,12 @@ public class Payment extends BaseEntity {
 	public void setApprovedAt() {
 		this.approvedAt = LocalDateTime.now();
 	}
+
+	public void setApprovedAt(LocalDateTime approvedAt) {
+		this.approvedAt = approvedAt;
+	}
+
+	public void setTossOrderId(String tossOrderId) {
+		this.tossOrderId = tossOrderId;
+	}
 }
