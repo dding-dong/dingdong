@@ -17,24 +17,10 @@ public class PaymentExceptionHandler {
 			.body(BaseResponseDto.error(CommonErrorCode.PAYMENT_ALREADY_EXISTS));
 	}
 
-	@ExceptionHandler(PaymentAmountMismatchException.class)
-	public ResponseEntity<BaseResponseDto<Void>> handlePaymentAmountMismatchException(
-		PaymentAmountMismatchException ex) {
-		return ResponseEntity.status(CommonErrorCode.PAYMENT_AMOUNT_MISMATCH.getStatus())
-			.body(BaseResponseDto.error(CommonErrorCode.PAYMENT_AMOUNT_MISMATCH));
-	}
-
 	@ExceptionHandler(PaymentNotFoundException.class)
 	public ResponseEntity<BaseResponseDto<Void>> handlePaymentNotFoundException(PaymentNotFoundException ex) {
 		return ResponseEntity.status(CommonErrorCode.PAYMENT_AMOUNT_MISMATCH.getStatus())
 			.body(BaseResponseDto.error(CommonErrorCode.PAYMENT_AMOUNT_MISMATCH));
-	}
-
-	@ExceptionHandler(PaymentStatusNoPendingException.class)
-	public ResponseEntity<BaseResponseDto<Void>> handlePaymentStatusNoPendingException(
-		PaymentStatusNoPendingException ex) {
-		return ResponseEntity.status(CommonErrorCode.PAYMENT_STATUS_NO_PEDNIND.getStatus())
-			.body(BaseResponseDto.error(CommonErrorCode.PAYMENT_STATUS_NO_PEDNIND));
 	}
 
 	@ExceptionHandler(TossConfirmFailedException.class)
