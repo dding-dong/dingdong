@@ -49,7 +49,6 @@ public class OrderServiceImpl implements OrderService {
 				.multiply(BigInteger.valueOf(item.getQuantity())))
 			.reduce(BigInteger.ZERO, BigInteger::add);
 
-		// ✅ 4️⃣ 주문 생성
 		Order order = Order.create(
 			user,
 			store,
@@ -60,7 +59,6 @@ public class OrderServiceImpl implements OrderService {
 
 		orderRepository.save(order);
 
-		// ✅ 5️⃣ 주문 완료 후 장바구니 비우기
 		cartRepository.delete(cart);
 
 		return OrderResponseDto.from(order);
@@ -108,7 +106,6 @@ public class OrderServiceImpl implements OrderService {
 			throw new IllegalStateException("현재 상태에서는 주문을 취소할 수 없습니다.");
 		}
 
-		// 취소 처리
 		order.cancel(reason);
 
 		return order;
