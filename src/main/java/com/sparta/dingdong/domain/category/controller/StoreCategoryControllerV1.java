@@ -56,8 +56,7 @@ public class StoreCategoryControllerV1 {
 	@PostMapping
 	@PreAuthorize("hasAnyRole('MANAGER', 'MASTER')")
 	public ResponseEntity<BaseResponseDto<StoreCategoryResponseDto>> create(
-		@Valid @RequestBody StoreCategoryRequestDto req,
-		@AuthenticationPrincipal UserAuth user) {
+		@Valid @RequestBody StoreCategoryRequestDto req, @AuthenticationPrincipal UserAuth user) {
 		StoreCategoryResponseDto result = storeCategoryService.create(req);
 		return ResponseEntity.ok(BaseResponseDto.success("가게 카테고리 생성 성공", result));
 	}
@@ -67,8 +66,7 @@ public class StoreCategoryControllerV1 {
 	@PreAuthorize("hasAnyRole('MANAGER', 'MASTER')")
 	public ResponseEntity<BaseResponseDto<StoreCategoryResponseDto>> update(
 		@Parameter(description = "가게 카테고리 UUID") @PathVariable UUID storeCategoryId,
-		@Valid @RequestBody StoreCategoryRequestDto req,
-		@AuthenticationPrincipal UserAuth user) {
+		@Valid @RequestBody StoreCategoryRequestDto req, @AuthenticationPrincipal UserAuth user) {
 		StoreCategoryResponseDto result = storeCategoryService.update(storeCategoryId, req);
 		return ResponseEntity.ok(BaseResponseDto.success("가게 카테고리 수정 성공", result));
 	}
@@ -84,7 +82,7 @@ public class StoreCategoryControllerV1 {
 	}
 
 	@Operation(summary = "가게 카테고리 복구", description = "관리자가 소프트 삭제된 가게 카테고리를 복구합니다.")
-	@PostMapping("/{storeCategoryId}/restore")
+	@PutMapping("/{storeCategoryId}/restore")
 	@PreAuthorize("hasAnyRole('MANAGER', 'MASTER')")
 	public ResponseEntity<BaseResponseDto<StoreCategoryResponseDto>> restore(
 		@Parameter(description = "가게 카테고리 UUID") @PathVariable UUID storeCategoryId,
