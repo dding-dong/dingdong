@@ -3,6 +3,7 @@ package com.sparta.dingdong.domain.payment.service;
 import java.util.Objects;
 import java.util.UUID;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +36,7 @@ public class PaymentServiceImpl implements PaymentService {
 
 	private final PaymentRepository paymentRepository;
 	private final UserService userService;
+	@Lazy // 양방향 순환 의존성 문제로 Lazy 추가
 	private final OrderService orderService;
 	private final PaymentTransactionService paymentTransactionService;
 

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,20 +20,33 @@ import com.sparta.dingdong.domain.order.dto.response.OrderResponseDto;
 import com.sparta.dingdong.domain.order.entity.Order;
 import com.sparta.dingdong.domain.order.entity.enums.OrderStatus;
 import com.sparta.dingdong.domain.order.repository.OrderRepository;
+import com.sparta.dingdong.domain.payment.service.PaymentService;
 import com.sparta.dingdong.domain.store.entity.Store;
 import com.sparta.dingdong.domain.user.entity.User;
 import com.sparta.dingdong.domain.user.repository.UserRepository;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
+//@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class OrderServiceImpl implements OrderService {
 
 	private final OrderRepository orderRepository;
 	private final UserRepository userRepository;
 	private final CartRepository cartRepository;
+
+	private final PaymentService paymentService;
+
+	public OrderServiceImpl(
+		OrderRepository orderRepository,
+		UserRepository userRepository,
+		CartRepository cartRepository,
+		@Lazy PaymentService paymentService
+	) {
+		this.orderRepository = orderRepository;
+		this.userRepository = userRepository;
+		this.cartRepository = cartRepository;
+		this.paymentService = paymentService;
+	}
 
 	@Transactional
 	public OrderResponseDto createOrder(UserAuth userAuth, CreateOrderRequestDto request) {
@@ -54,7 +68,7 @@ public class OrderServiceImpl implements OrderService {
 			store,
 			totalPrice,
 			request.getDeliveryAddress(),
-			OrderStatus.REQUESTED
+			OrderStatus.PENDING
 		);
 
 		orderRepository.save(order);
@@ -100,14 +114,19 @@ public class OrderServiceImpl implements OrderService {
 		if (!order.getUser().getId().equals(userAuth.getId())) {
 			throw new IllegalStateException("본인의 주문만 취소할 수 있습니다.");
 		}
+		//Pending 취소
+		if (order.getStatus() == OrderStatus.PENDING) {
+			order.cancel(reason);
+			//Request 취소
+		} else if (order.getStatus() == OrderStatus.REQUESTED) {
+			paymentService.refundPayment(order, "사용자 주문 취소: " + reason);
+			order.cancel(reason);
 
-		// 취소 가능한 상태인지 확인
-		if (!(order.getStatus() == OrderStatus.PENDING || order.getStatus() == OrderStatus.REQUESTED)) {
+		} else {
 			throw new IllegalStateException("현재 상태에서는 주문을 취소할 수 없습니다.");
 		}
 
-		order.cancel(reason);
-
+		orderRepository.save(order);
 		return order;
 	}
 
