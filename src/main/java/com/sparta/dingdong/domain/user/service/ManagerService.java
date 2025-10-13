@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.sparta.dingdong.common.exception.CommonErrorCode;
 import com.sparta.dingdong.domain.user.dto.response.ManagerResponseDto;
 import com.sparta.dingdong.domain.user.entity.Manager;
 import com.sparta.dingdong.domain.user.repository.ManagerRepository;
@@ -28,7 +29,9 @@ public class ManagerService {
 	@Transactional
 	public void updateManagerStatus(Long managerId, String action, Long masterId) {
 		Manager manager = managerRepository.findById(managerId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 매니저를 찾을 수 없습니다."));
+			.orElseThrow(() -> new IllegalArgumentException(
+				CommonErrorCode.MANAGER_NOT_FOUND.getMessage()
+			));
 
 		switch (action.toLowerCase()) {
 			case "approve" -> manager.approve();
@@ -36,7 +39,8 @@ public class ManagerService {
 			case "suspend" -> manager.suspend();
 			case "reject" -> manager.reject();
 			case "delete" -> manager.softDeleteByMaster(masterId);
-			default -> throw new IllegalArgumentException("유효하지 않은 요청입니다: " + action);
+			default -> throw new IllegalArgumentException(
+				CommonErrorCode.INVALID_MANAGER_ACTION.getMessage());
 		}
 	}
 

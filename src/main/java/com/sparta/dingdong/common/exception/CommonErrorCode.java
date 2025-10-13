@@ -60,7 +60,14 @@ public enum CommonErrorCode implements ErrorCode {
 	TOSS_CANCEL_FAILED(HttpStatus.BAD_GATEWAY, "5001", "토스 결제 취소가 실패했습니다"),
 
 	NOT_OWNER_PAYMENT(HttpStatus.BAD_REQUEST, "5020", "해당 유저의 결제가 아닙니다"),
-	NOT_TOSS_PAYMENT_ORDER(HttpStatus.BAD_REQUEST, "5021", "토스 페에지에서 결제한 주문이 아닙니다.");
+	NOT_TOSS_PAYMENT_ORDER(HttpStatus.BAD_REQUEST, "5021", "토스 페에지에서 결제한 주문이 아닙니다."),
+
+	MASTER_NOT_FOUND(HttpStatus.NOT_FOUND, "9000", "해당 MASTER 계정을 찾을 수 없습니다."),
+	MANAGER_NOT_FOUND(HttpStatus.NOT_FOUND, "9001", "해당 매니저를 찾을 수 없습니다."),
+	INVALID_MANAGER_ACTION(HttpStatus.BAD_REQUEST, "9002", "유효하지 않은 매니저 상태 변경 요청입니다."),
+	UNAUTHORIZED_MASTER_ONLY(HttpStatus.FORBIDDEN, "9003", "MASTER 권한이 필요한 요청입니다."),
+	DUPLICATE_MANAGER_REQUEST(HttpStatus.CONFLICT, "9004", "이미 처리된 매니저 요청입니다."),
+	MANAGER_STATE_CONFLICT(HttpStatus.CONFLICT, "9005", "현재 상태에서는 요청을 수행할 수 없습니다.");
 
 	private final HttpStatus status;
 	private final String code;
