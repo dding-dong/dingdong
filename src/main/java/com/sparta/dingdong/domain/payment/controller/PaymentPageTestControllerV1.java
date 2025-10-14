@@ -29,6 +29,7 @@ import com.sparta.dingdong.domain.user.service.UserService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @Controller
@@ -114,7 +115,7 @@ public class PaymentPageTestControllerV1 {
 	@PreAuthorize("hasRole('ROLE_CUSTOMER')")
 	public ResponseEntity<BaseResponseDto<?>> confirmPayment(
 		@AuthenticationPrincipal UserAuth userAuth,
-		@RequestBody CancelPaymentRequestDto cancelPaymentRequestDto) {
+		@Valid @RequestBody CancelPaymentRequestDto cancelPaymentRequestDto) {
 
 		TossCancelResponseDto response = paymentPageService.cancelPayment(cancelPaymentRequestDto, userAuth);
 		return ResponseEntity.ok(BaseResponseDto.success("결제 취소를 승인합니다.", response));

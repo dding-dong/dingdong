@@ -6,7 +6,6 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +26,7 @@ import com.sparta.dingdong.domain.review.service.CustomerReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -43,7 +43,7 @@ public class CustomerReviewControllerV1 {
 	public ResponseEntity<BaseResponseDto<?>> createReview(
 		@Parameter(description = "주문 UUID") @PathVariable UUID orderId,
 		@AuthenticationPrincipal UserAuth userDetails,
-		@Validated @RequestBody CustomerCreateReviewRequestDto request) {
+		@Valid @RequestBody CustomerCreateReviewRequestDto request) {
 
 		customerReviewService.createReview(orderId, userDetails, request);
 
@@ -56,7 +56,7 @@ public class CustomerReviewControllerV1 {
 	public ResponseEntity<BaseResponseDto<?>> updateReview(
 		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId,
 		@AuthenticationPrincipal UserAuth userDetails,
-		@Validated @RequestBody CustomerUpdateReviewRequestDto request) {
+		@Valid @RequestBody CustomerUpdateReviewRequestDto request) {
 
 		customerReviewService.updateReview(reviewId, userDetails, request);
 
