@@ -252,7 +252,7 @@ public class StoreServiceImpl implements StoreService {
 
 	/* ==================== 유틸 메서드 ==================== */
 
-	private Store getStoreOrThrow(UUID storeId) {
+	public Store getStoreOrThrow(UUID storeId) {
 		return storeRepository.findById(storeId)
 			.orElseThrow(StoreNotFoundException::new);
 	}
