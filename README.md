@@ -22,7 +22,8 @@
 언어 : ![Static Badge](https://img.shields.io/badge/Java-red?style=flat-square)  
 JDK : ![Static Badge](https://img.shields.io/badge/JDK-17-yellow?style=flat-square)  
 프레임워크 : ![Static Badge](https://img.shields.io/badge/SpringBoot-%23FFFF00?logo=springboot)  
-DB : ![Static Badge](https://img.shields.io/badge/Postgres-%23FFFFFF?style=flat&logo=mysql), ![Static Badge](https://img.shields.io/badge/Redis-%23FFFFFF?style=flat&logo=mysql)    
+DB : ![Static Badge](https://img.shields.io/badge/PostgreSQL-336791?style=flat&logo=postgresql&logoColor=white), ![Static Badge](https://img.shields.io/badge/Redis-DC382D?style=flat&logo=redis&logoColor=white)
+
 ORM : ![Static Badge](https://img.shields.io/badge/JPA-FFA500?style=flat)
 
 ## 🔠 목차
