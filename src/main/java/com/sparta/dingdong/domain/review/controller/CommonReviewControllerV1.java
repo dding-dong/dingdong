@@ -42,6 +42,6 @@ public class CommonReviewControllerV1 {
 	@PreAuthorize("hasAnyRole('ROLE_CUSTOMER', 'ROLE_OWNER')")
 	public ResponseEntity<BaseResponseDto<?>> selectReviews() {
 		List<CommonReviewResponseDto> list = commonReviewService.selectReviews();
-		return ResponseEntity.ok(BaseResponseDto.success("리뷰를 상세 조회합니다.", list));
+		return ResponseEntity.ok(BaseResponseDto.success("리뷰를 전체 조회합니다.", list));
 	}
 }

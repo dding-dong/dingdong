@@ -28,6 +28,8 @@ import com.sparta.dingdong.domain.review.repository.ReviewQueryRepository;
 import com.sparta.dingdong.domain.review.repository.ReviewReplyRepository;
 import com.sparta.dingdong.domain.review.repository.ReviewRepository;
 import com.sparta.dingdong.domain.review.repository.vo.OwnerReviewWithReplyVo;
+import com.sparta.dingdong.domain.store.entity.Store;
+import com.sparta.dingdong.domain.store.service.StoreService;
 import com.sparta.dingdong.domain.user.entity.User;
 import com.sparta.dingdong.domain.user.service.UserService;
 
@@ -41,6 +43,7 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 	private final ReviewReplyRepository reviewReplyRepository;
 	private final UserService userService;
 	private final ReviewQueryRepository reviewQueryRepository;
+	private final StoreService storeService;
 
 	public Review findReview(UUID reviewId) {
 		return reviewRepository.findById(reviewId).orElseThrow(ReviewNotFoundException::new);
@@ -222,16 +225,15 @@ public class OwnerReviewServiceImpl implements OwnerReviewService {
 
 		return new ArrayList<>(grouped.values());
 	}
-
-	// TODO: 해당 코드 고쳐야 합니다. Store 합치면 Store에서 findByStore 한다음에 정보 넣어줄 예정입니다. 일단 만들어둠..
+	
 	@Override
 	@Transactional(readOnly = true)
 	public OwnerStoreReviewsDto getOwnerStoreReviews(UserAuth userDetails, UUID storeId) {
 		Long ownerId = userService.findByUser(userDetails).getId();
 
-		// TODO: store에서 정보 가져와야함
+		Store store = storeService.getStoreOrThrow(storeId);
 
-		List<OwnerReviewWithReplyVo> voList = reviewQueryRepository.findAllActiveReviewsWithReplyByStore(storeId,
+		List<OwnerReviewWithReplyVo> voList = reviewQueryRepository.findAllActiveReviewsWithReplyByStore(store.getId(),
 			ownerId);
 
 		List<OwnerReviewResponseDto> reviewDtos = voList.stream()
