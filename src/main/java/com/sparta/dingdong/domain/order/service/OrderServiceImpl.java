@@ -22,12 +22,13 @@ import com.sparta.dingdong.domain.order.entity.enums.OrderStatus;
 import com.sparta.dingdong.domain.order.repository.OrderRepository;
 import com.sparta.dingdong.domain.payment.service.PaymentService;
 import com.sparta.dingdong.domain.store.entity.Store;
+import com.sparta.dingdong.domain.user.entity.Address;
 import com.sparta.dingdong.domain.user.entity.User;
 import com.sparta.dingdong.domain.user.repository.UserRepository;
 
 @Service
 //@RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class OrderServiceImpl implements OrderService {
 
 	private final OrderRepository orderRepository;
@@ -57,6 +58,20 @@ public class OrderServiceImpl implements OrderService {
 			.orElseThrow(() -> new IllegalArgumentException("장바구니를 찾을 수 없습니다."));
 
 		Store store = cart.getStore();
+
+		Address defaultAddress = user.getAddressList().stream()
+			.filter(Address::isDefault)
+			.findFirst()
+			.orElseThrow(() -> new IllegalStateException("기본 배송지가 설정되어 있지 않습니다."));
+
+		String dongId = defaultAddress.getDong().getId();
+
+		boolean canDeliver = store.getDeliveryAreas().stream()
+			.anyMatch(area -> area.getDong().getId().equals(dongId));
+
+		if (!canDeliver) {
+			throw new IllegalStateException("배달불가지역입니다.");
+		}
 
 		BigInteger totalPrice = cart.getItems().stream()
 			.map(item -> item.getMenuItem().getPrice()
