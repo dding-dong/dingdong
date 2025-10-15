@@ -1,14 +1,5 @@
 package com.sparta.dingdong.domain.order.service;
 
-import java.math.BigInteger;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.cart.entity.Cart;
 import com.sparta.dingdong.domain.cart.repository.CartRepository;
@@ -20,139 +11,165 @@ import com.sparta.dingdong.domain.order.dto.response.OrderResponseDto;
 import com.sparta.dingdong.domain.order.entity.Order;
 import com.sparta.dingdong.domain.order.entity.enums.OrderStatus;
 import com.sparta.dingdong.domain.order.repository.OrderRepository;
-import com.sparta.dingdong.domain.payment.service.PaymentService;
+import com.sparta.dingdong.domain.payment.service.PaymentTransactionService;
 import com.sparta.dingdong.domain.store.entity.Store;
-import com.sparta.dingdong.domain.user.entity.Address;
+import com.sparta.dingdong.domain.store.repository.StoreDeliveryAreaRepository;
+import com.sparta.dingdong.domain.store.repository.StoreRepository;
 import com.sparta.dingdong.domain.user.entity.User;
 import com.sparta.dingdong.domain.user.repository.UserRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigInteger;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 //@RequiredArgsConstructor
 @Transactional
 public class OrderServiceImpl implements OrderService {
 
-	private final OrderRepository orderRepository;
-	private final UserRepository userRepository;
-	private final CartRepository cartRepository;
+    private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
+    private final CartRepository cartRepository;
+    private final StoreRepository storeRepository;
+    private final StoreDeliveryAreaRepository storeDeliveryAreaRepository;
+    private final PaymentTransactionService paymentTransactionService;
 
-	private final PaymentService paymentService;
+    public OrderServiceImpl(
+            OrderRepository orderRepository,
+            UserRepository userRepository,
+            CartRepository cartRepository,
+            StoreRepository storeRepository,
+            StoreDeliveryAreaRepository storeDeliveryAreaRepository,
+            PaymentTransactionService paymentTransactionService
+    ) {
+        this.orderRepository = orderRepository;
+        this.userRepository = userRepository;
+        this.cartRepository = cartRepository;
+        this.storeRepository = storeRepository;
+        this.storeDeliveryAreaRepository = storeDeliveryAreaRepository;
+        this.paymentTransactionService = paymentTransactionService;
+    }
 
-	public OrderServiceImpl(
-		OrderRepository orderRepository,
-		UserRepository userRepository,
-		CartRepository cartRepository,
-		@Lazy PaymentService paymentService
-	) {
-		this.orderRepository = orderRepository;
-		this.userRepository = userRepository;
-		this.cartRepository = cartRepository;
-		this.paymentService = paymentService;
-	}
+    @Transactional
+    public OrderResponseDto createOrder(UserAuth userAuth, CreateOrderRequestDto request) {
+        User user = userRepository.findById(userAuth.getId())
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-	@Transactional
-	public OrderResponseDto createOrder(UserAuth userAuth, CreateOrderRequestDto request) {
-		User user = userRepository.findById(userAuth.getId())
-			.orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        Cart cart = cartRepository.findById(request.getCartId())
+                .orElseThrow(() -> new IllegalArgumentException("장바구니를 찾을 수 없습니다."));
 
-		Cart cart = cartRepository.findById(request.getCartId())
-			.orElseThrow(() -> new IllegalArgumentException("장바구니를 찾을 수 없습니다."));
+        Store store = storeRepository.findById(cart.getStore().getId())
+                .orElseThrow(() -> new IllegalArgumentException("해당 매장을 찾을 수 없습니다."));
 
-		Store store = cart.getStore();
+        String userDongId = user.getAddressList().stream()
+                .findFirst()
+                .map(address -> address.getDong().getId()) // Dong의 id가 String
+                .orElseThrow(() -> new IllegalStateException("배송지 정보가 없습니다."));
 
-		Address defaultAddress = user.getAddressList().stream()
-			.filter(Address::isDefault)
-			.findFirst()
-			.orElseThrow(() -> new IllegalStateException("기본 배송지가 설정되어 있지 않습니다."));
+        // 매장의 배달 가능 dongId 목록만 조회
+        List<String> deliveryDongIds = storeDeliveryAreaRepository.findDongIdsByStoreId(store.getId());
 
-		String dongId = defaultAddress.getDong().getId();
+        System.out.println("고객 주소 dongId = " + userDongId);
+        System.out.println("매장 배달 가능 dongId 목록 = " + deliveryDongIds);
+        System.out.println("store.getId() = " + store.getId());
+        System.out.println("storeDeliveryAreaRepository 결과 = " + deliveryDongIds);
 
-		boolean canDeliver = store.getDeliveryAreas().stream()
-			.anyMatch(area -> area.getDong().getId().equals(dongId));
+        if (!deliveryDongIds.contains(userDongId)) {
+            throw new IllegalStateException("배달불가지역입니다.");
+        }
 
-		if (!canDeliver) {
-			throw new IllegalStateException("배달불가지역입니다.");
+        BigInteger totalPrice = cart.getItems().stream()
+                .map(item -> item.getMenuItem().getPrice()
+                        .multiply(BigInteger.valueOf(item.getQuantity())))
+                .reduce(BigInteger.ZERO, BigInteger::add);
+
+        Order order = Order.create(
+                user,
+                store,
+                totalPrice,
+                request.getDeliveryAddress(),
+                OrderStatus.PENDING
+        );
+/*
+		for (var cartItem : cart.getItems()) {
+			OrderItem orderItem = new OrderItem();
+			orderItem.setOrder(order);
+			orderItem.setMenuItem(cartItem.getMenuItem());
+			orderItem.setUnitPrice(cartItem.getMenuItem().getPrice());
+			orderItem.setQuantity(cartItem.getQuantity());
+			order.addOrderItem(orderItem); // 양방향 연관관계 설정
 		}
+*/
+        orderRepository.save(order);
 
-		BigInteger totalPrice = cart.getItems().stream()
-			.map(item -> item.getMenuItem().getPrice()
-				.multiply(BigInteger.valueOf(item.getQuantity())))
-			.reduce(BigInteger.ZERO, BigInteger::add);
+        cartRepository.delete(cart);
 
-		Order order = Order.create(
-			user,
-			store,
-			totalPrice,
-			request.getDeliveryAddress(),
-			OrderStatus.PENDING
-		);
+        return OrderResponseDto.from(order);
+    }
 
-		orderRepository.save(order);
+    public OrderDetailResponseDto getOrderDetail(UserAuth userAuth, UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
 
-		cartRepository.delete(cart);
+        if (!order.getUser().getId().equals(userAuth.getId())) {
+            throw new IllegalStateException("본인의 주문만 조회할 수 있습니다.");
+        }
 
-		return OrderResponseDto.from(order);
-	}
+        return OrderDetailResponseDto.from(order);
+    }
 
-	public OrderDetailResponseDto getOrderDetail(UserAuth userAuth, UUID orderId) {
-		Order order = orderRepository.findById(orderId)
-			.orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+    public OrderListResponseDto getOrderList(UserAuth userAuth) {
+        List<Order> orders = orderRepository.findAllByUserId(userAuth.getId());
+        List<OrderResponseDto> orderDtos = orders.stream()
+                .map(OrderResponseDto::from)
+                .collect(Collectors.toList());
+        return new OrderListResponseDto(orderDtos);
+    }
 
-		if (!order.getUser().getId().equals(userAuth.getId())) {
-			throw new IllegalStateException("본인의 주문만 조회할 수 있습니다.");
-		}
+    @Transactional
+    public void updateOrderStatus(UUID orderId, UpdateOrderStatusRequestDto request) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
 
-		return OrderDetailResponseDto.from(order);
-	}
+        order.changeStatus(request.getNewStatus());
+    }
 
-	public OrderListResponseDto getOrderList(UserAuth userAuth) {
-		List<Order> orders = orderRepository.findAllByUserId(userAuth.getId());
-		List<OrderResponseDto> orderDtos = orders.stream()
-			.map(OrderResponseDto::from)
-			.collect(Collectors.toList());
-		return new OrderListResponseDto(orderDtos);
-	}
+    @Transactional
+    public Order cancelOrder(UserAuth userAuth, UUID orderId, String reason) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
 
-	@Transactional
-	public void updateOrderStatus(UUID orderId, UpdateOrderStatusRequestDto request) {
-		Order order = orderRepository.findById(orderId)
-			.orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+        // 본인 주문인지 확인
+        if (!order.getUser().getId().equals(userAuth.getId())) {
+            throw new IllegalStateException("본인의 주문만 취소할 수 있습니다.");
+        }
+        //Pending 취소
+        if (order.getStatus() == OrderStatus.PENDING) {
+            order.cancel(reason);
+            //Request 취소
+        } else if (order.getStatus() == OrderStatus.REQUESTED) {
+            paymentTransactionService.refundPayment(order, "사용자 주문 취소: " + reason);
+            order.cancel(reason);
 
-		order.changeStatus(request.getNewStatus());
-	}
+        } else {
+            throw new IllegalStateException("현재 상태에서는 주문을 취소할 수 없습니다.");
+        }
 
-	@Transactional
-	public Order cancelOrder(UserAuth userAuth, UUID orderId, String reason) {
-		Order order = orderRepository.findById(orderId)
-			.orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+        orderRepository.save(order);
+        return order;
+    }
 
-		// 본인 주문인지 확인
-		if (!order.getUser().getId().equals(userAuth.getId())) {
-			throw new IllegalStateException("본인의 주문만 취소할 수 있습니다.");
-		}
-		//Pending 취소
-		if (order.getStatus() == OrderStatus.PENDING) {
-			order.cancel(reason);
-			//Request 취소
-		} else if (order.getStatus() == OrderStatus.REQUESTED) {
-			paymentService.refundPayment(order, "사용자 주문 취소: " + reason);
-			order.cancel(reason);
+    public Order findByOrder(UUID orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new RuntimeException("해당하는 Order가 없습니다."));
+    }
 
-		} else {
-			throw new IllegalStateException("현재 상태에서는 주문을 취소할 수 없습니다.");
-		}
-
-		orderRepository.save(order);
-		return order;
-	}
-
-	public Order findByOrder(UUID orderId) {
-		return orderRepository.findById(orderId)
-			.orElseThrow(() -> new RuntimeException("해당하는 Order가 없습니다."));
-	}
-
-	@Override
-	public List<Order> findByOrders(Long userId) {
-		return orderRepository.findAllByUserId(userId);
-	}
+    @Override
+    public List<Order> findByOrders(Long userId) {
+        return orderRepository.findAllByUserId(userId);
+    }
 
 }

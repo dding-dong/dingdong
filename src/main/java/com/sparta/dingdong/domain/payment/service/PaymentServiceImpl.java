@@ -3,7 +3,6 @@ package com.sparta.dingdong.domain.payment.service;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.order.entity.Order;
@@ -11,7 +10,6 @@ import com.sparta.dingdong.domain.order.service.OrderService;
 import com.sparta.dingdong.domain.payment.dto.response.AdminPaymentDetailResponseDto;
 import com.sparta.dingdong.domain.payment.dto.response.PaymentDetailResponseDto;
 import com.sparta.dingdong.domain.payment.entity.Payment;
-import com.sparta.dingdong.domain.payment.entity.enums.PaymentStatus;
 import com.sparta.dingdong.domain.payment.exception.PaymentNotFoundException;
 import com.sparta.dingdong.domain.payment.repository.PaymentRepository;
 
@@ -28,16 +26,6 @@ public class PaymentServiceImpl implements PaymentService {
 		return paymentRepository.findByOrder(order).orElseThrow(PaymentNotFoundException::new);
 	}
 
-	@Transactional
-	public void refundPayment(Order order, String refundReason) {
-		// POST: /v1/payments/{paymentKey}/cancel 결제 취소 됐다고 생각하고
-		// payment refundReason = client한테 받은 refundReason값, paymentStatus = "REFUNDED"
-		Payment payment = findByPayment(order);
-
-		payment.setRefundReason(refundReason);
-		payment.changeStatus(PaymentStatus.REFUNDED);
-	}
-
 	@Override
 	public PaymentDetailResponseDto getPaymentDetails(UserAuth userAuth, UUID orderId) {
 		// orderId에 해당하는 payment가 있는지
@@ -50,7 +38,7 @@ public class PaymentServiceImpl implements PaymentService {
 
 		// payment -> responseDto
 		return PaymentDetailResponseDto.from(payment);
-	}
+	}// orderException 만들 때 이거 까지 추가
 
 	@Override
 	public AdminPaymentDetailResponseDto getAdminPaymentDetails(UUID orderId) {

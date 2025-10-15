@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,6 +28,7 @@ import com.sparta.dingdong.domain.order.service.OrderService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -44,7 +44,7 @@ public class OrderControllerV1 {
 	@PreAuthorize("hasRole('ROLE_CUSTOMER')")
 	public ResponseEntity<BaseResponseDto<OrderResponseDto>> createOrder(
 		@AuthenticationPrincipal UserAuth userAuth,
-		@Validated @RequestBody CreateOrderRequestDto request
+		@Valid @RequestBody CreateOrderRequestDto request
 	) {
 		OrderResponseDto response = orderService.createOrder(userAuth, request);
 		return ResponseEntity.ok(BaseResponseDto.success("주문이 생성되었습니다.", response));
@@ -76,7 +76,7 @@ public class OrderControllerV1 {
 	@PreAuthorize("hasAnyRole('ROLE_OWNER', 'ROLE_MANAGER', 'ROLE_MASTER')")
 	public ResponseEntity<BaseResponseDto<Void>> updateOrderStatus(
 		@PathVariable UUID orderId,
-		@Validated @RequestBody UpdateOrderStatusRequestDto request
+		@Valid @RequestBody UpdateOrderStatusRequestDto request
 	) {
 		orderService.updateOrderStatus(orderId, request);
 		return ResponseEntity.ok(BaseResponseDto.success("주문 상태가 변경되었습니다."));
