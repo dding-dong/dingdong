@@ -10,6 +10,7 @@ import com.sparta.dingdong.domain.order.dto.response.OrderListResponseDto;
 import com.sparta.dingdong.domain.order.dto.response.OrderResponseDto;
 import com.sparta.dingdong.domain.order.entity.Order;
 import com.sparta.dingdong.domain.order.entity.enums.OrderStatus;
+import com.sparta.dingdong.domain.order.exception.*;
 import com.sparta.dingdong.domain.order.repository.OrderRepository;
 import com.sparta.dingdong.domain.payment.service.PaymentTransactionService;
 import com.sparta.dingdong.domain.store.entity.Store;
@@ -67,7 +68,7 @@ public class OrderServiceImpl implements OrderService {
         String userDongId = user.getAddressList().stream()
                 .findFirst()
                 .map(address -> address.getDong().getId()) // Dong의 id가 String
-                .orElseThrow(() -> new IllegalStateException("배송지 정보가 없습니다."));
+                .orElseThrow(OrderDeliveryUnavailableException::new);
 
         // 매장의 배달 가능 dongId 목록만 조회
         List<String> deliveryDongIds = storeDeliveryAreaRepository.findDongIdsByStoreId(store.getId());
@@ -78,7 +79,7 @@ public class OrderServiceImpl implements OrderService {
         System.out.println("storeDeliveryAreaRepository 결과 = " + deliveryDongIds);
 
         if (!deliveryDongIds.contains(userDongId)) {
-            throw new IllegalStateException("배달불가지역입니다.");
+            throw new OrderDeliveryUnavailableException();
         }
 
         BigInteger totalPrice = cart.getItems().stream()
@@ -93,18 +94,8 @@ public class OrderServiceImpl implements OrderService {
                 request.getDeliveryAddress(),
                 OrderStatus.PENDING
         );
-/*
-		for (var cartItem : cart.getItems()) {
-			OrderItem orderItem = new OrderItem();
-			orderItem.setOrder(order);
-			orderItem.setMenuItem(cartItem.getMenuItem());
-			orderItem.setUnitPrice(cartItem.getMenuItem().getPrice());
-			orderItem.setQuantity(cartItem.getQuantity());
-			order.addOrderItem(orderItem); // 양방향 연관관계 설정
-		}
-*/
-        orderRepository.save(order);
 
+        orderRepository.save(order);
         cartService.deleteCart(cart);
 
         return OrderResponseDto.from(order);
@@ -112,10 +103,10 @@ public class OrderServiceImpl implements OrderService {
 
     public OrderDetailResponseDto getOrderDetail(UserAuth userAuth, UUID orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+                .orElseThrow(OrderNotFoundException::new);
 
         if (!order.getUser().getId().equals(userAuth.getId())) {
-            throw new IllegalStateException("본인의 주문만 조회할 수 있습니다.");
+            throw new OrderPermissionDeniedException();
         }
 
         return OrderDetailResponseDto.from(order);
@@ -132,7 +123,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public void updateOrderStatus(UUID orderId, UpdateOrderStatusRequestDto request) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+                .orElseThrow(OrderNotFoundException::new);
 
         order.changeStatus(request.getNewStatus());
     }
@@ -140,11 +131,11 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public Order cancelOrder(UserAuth userAuth, UUID orderId, String reason) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
+                .orElseThrow(OrderNotFoundException::new);
 
         // 본인 주문인지 확인
         if (!order.getUser().getId().equals(userAuth.getId())) {
-            throw new IllegalStateException("본인의 주문만 취소할 수 있습니다.");
+            throw new OrderPermissionDeniedException();
         }
         //Pending 취소
         if (order.getStatus() == OrderStatus.PENDING) {
@@ -153,9 +144,12 @@ public class OrderServiceImpl implements OrderService {
         } else if (order.getStatus() == OrderStatus.REQUESTED) {
             paymentTransactionService.refundPayment(order, "사용자 주문 취소: " + reason);
             order.cancel(reason);
-
+        } else if (order.getStatus() == OrderStatus.CANCELED) {
+            throw new OrderAlreadyCanceledException();
+        } else if (order.getStatus() == OrderStatus.READY) {
+            throw new OrderAlreadyCompletedException();
         } else {
-            throw new IllegalStateException("현재 상태에서는 주문을 취소할 수 없습니다.");
+            throw new InvalidOrderStatusException();
         }
 
         orderRepository.save(order);
@@ -164,7 +158,7 @@ public class OrderServiceImpl implements OrderService {
 
     public Order findByOrder(UUID orderId) {
         return orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("해당하는 Order가 없습니다."));
+                .orElseThrow(OrderNotFoundException::new);
     }
 
     @Override
@@ -176,10 +170,10 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public OrderListResponseDto getOrdersByStore(UserAuth userAuth, UUID storeId, String status) {
         Store store = storeRepository.findById(storeId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 매장을 찾을 수 없습니다."));
+                .orElseThrow(OrderNotFoundException::new);
 
         if (!store.getOwner().getId().equals(userAuth.getId())) {
-            throw new IllegalStateException("본인 매장만 조회할 수 있습니다.");
+            throw new OrderPermissionDeniedException();
         }
 
         List<Order> orders;
@@ -236,7 +230,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional(readOnly = true)
     public OrderDetailResponseDto getOrderDetailByAdmin(UUID orderId) {
         Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 주문을 찾을 수 없습니다."));
+                .orElseThrow(OrderNotFoundException::new);
         return OrderDetailResponseDto.from(order);
     }
 
