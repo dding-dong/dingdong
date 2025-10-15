@@ -2,7 +2,7 @@ package com.sparta.dingdong.domain.order.service;
 
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.cart.entity.Cart;
-import com.sparta.dingdong.domain.cart.repository.CartRepository;
+import com.sparta.dingdong.domain.cart.service.CartService;
 import com.sparta.dingdong.domain.order.dto.request.CreateOrderRequestDto;
 import com.sparta.dingdong.domain.order.dto.request.UpdateOrderStatusRequestDto;
 import com.sparta.dingdong.domain.order.dto.response.OrderDetailResponseDto;
@@ -16,7 +16,7 @@ import com.sparta.dingdong.domain.store.entity.Store;
 import com.sparta.dingdong.domain.store.repository.StoreDeliveryAreaRepository;
 import com.sparta.dingdong.domain.store.repository.StoreRepository;
 import com.sparta.dingdong.domain.user.entity.User;
-import com.sparta.dingdong.domain.user.repository.UserRepository;
+import com.sparta.dingdong.domain.user.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,23 +31,23 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
-    private final UserRepository userRepository;
-    private final CartRepository cartRepository;
+    private final UserService userService;
+    private final CartService cartService;
     private final StoreRepository storeRepository;
     private final StoreDeliveryAreaRepository storeDeliveryAreaRepository;
     private final PaymentTransactionService paymentTransactionService;
 
     public OrderServiceImpl(
             OrderRepository orderRepository,
-            UserRepository userRepository,
-            CartRepository cartRepository,
+            UserService userService,
+            CartService cartService,
             StoreRepository storeRepository,
             StoreDeliveryAreaRepository storeDeliveryAreaRepository,
             PaymentTransactionService paymentTransactionService
     ) {
         this.orderRepository = orderRepository;
-        this.userRepository = userRepository;
-        this.cartRepository = cartRepository;
+        this.userService = userService;
+        this.cartService = cartService;
         this.storeRepository = storeRepository;
         this.storeDeliveryAreaRepository = storeDeliveryAreaRepository;
         this.paymentTransactionService = paymentTransactionService;
@@ -55,11 +55,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Transactional
     public OrderResponseDto createOrder(UserAuth userAuth, CreateOrderRequestDto request) {
-        User user = userRepository.findById(userAuth.getId())
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        User user = userService.findByUser(userAuth);
 
-        Cart cart = cartRepository.findById(request.getCartId())
-                .orElseThrow(() -> new IllegalArgumentException("장바구니를 찾을 수 없습니다."));
+        Cart cart = cartService.findByCart(request.getCartId());
 
         Store store = storeRepository.findById(cart.getStore().getId())
                 .orElseThrow(() -> new IllegalArgumentException("해당 매장을 찾을 수 없습니다."));
@@ -105,7 +103,7 @@ public class OrderServiceImpl implements OrderService {
 */
         orderRepository.save(order);
 
-        cartRepository.delete(cart);
+        cartService.deleteCart(cart);
 
         return OrderResponseDto.from(order);
     }
