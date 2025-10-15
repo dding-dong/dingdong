@@ -6,7 +6,6 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,6 +26,7 @@ import com.sparta.dingdong.domain.review.service.OwnerReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -43,7 +43,7 @@ public class OwnerReviewControllerV1 {
 	public ResponseEntity<BaseResponseDto<?>> createReply(
 		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId,
 		@AuthenticationPrincipal UserAuth userDetails,
-		@Validated @RequestBody OwnerCreateReplyRequestDto request) {
+		@Valid @RequestBody OwnerCreateReplyRequestDto request) {
 
 		ownerReviewService.createReply(reviewId, userDetails, request);
 		return ResponseEntity.ok(BaseResponseDto.success("오너 리뷰에 댓글이 등록되었습니다."));
@@ -56,7 +56,7 @@ public class OwnerReviewControllerV1 {
 		@Parameter(description = "리뷰 UUID") @PathVariable UUID reviewId,
 		@Parameter(description = "리뷰 답글 UUID") @PathVariable UUID replyId,
 		@AuthenticationPrincipal UserAuth userDetails,
-		@Validated @RequestBody OwnerUpdateReplyRequestDto request) {
+		@Valid @RequestBody OwnerUpdateReplyRequestDto request) {
 
 		ownerReviewService.updateReply(reviewId, replyId, userDetails, request);
 		return ResponseEntity.ok(BaseResponseDto.success("오너 리뷰에 댓글이 수정되었습니다."));
