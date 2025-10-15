@@ -17,6 +17,8 @@ import com.sparta.dingdong.domain.store.repository.StoreDeliveryAreaRepository;
 import com.sparta.dingdong.domain.store.repository.StoreRepository;
 import com.sparta.dingdong.domain.user.entity.User;
 import com.sparta.dingdong.domain.user.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -168,6 +170,74 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<Order> findByOrders(Long userId) {
         return orderRepository.findAllByUserId(userId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public OrderListResponseDto getOrdersByStore(UserAuth userAuth, UUID storeId, String status) {
+        Store store = storeRepository.findById(storeId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 매장을 찾을 수 없습니다."));
+
+        if (!store.getOwner().getId().equals(userAuth.getId())) {
+            throw new IllegalStateException("본인 매장만 조회할 수 있습니다.");
+        }
+
+        List<Order> orders;
+        if (status != null && !status.isBlank()) {
+            OrderStatus orderStatus = OrderStatus.valueOf(status.toUpperCase());
+            orders = orderRepository.findAllByStoreIdAndStoreOwnerIdAndStatus(storeId, userAuth.getId(), orderStatus);
+        } else {
+            orders = orderRepository.findAllByStoreIdAndStoreOwnerId(storeId, userAuth.getId());
+        }
+
+        return new OrderListResponseDto(
+                orders.stream().map(OrderResponseDto::from).toList()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public OrderListResponseDto getAllOrdersByOwner(UserAuth userAuth, String status) {
+        List<Order> orders;
+        if (status != null && !status.isBlank()) {
+            OrderStatus orderStatus = OrderStatus.valueOf(status.toUpperCase());
+            orders = orderRepository.findAllByStoreOwnerIdAndStatus(userAuth.getId(), orderStatus);
+        } else {
+            orders = orderRepository.findAllByStoreOwnerId(userAuth.getId());
+        }
+
+        return new OrderListResponseDto(
+                orders.stream().map(OrderResponseDto::from).toList()
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<OrderResponseDto> getAllOrdersByAdmin(UUID storeId, UUID orderId, String status, Pageable pageable) {
+        Page<Order> orders;
+
+        if (orderId != null) {
+            orders = orderRepository.findAllByIdEquals(orderId, pageable);
+        } else if (storeId != null && status != null) {
+            OrderStatus orderStatus = OrderStatus.valueOf(status.toUpperCase());
+            orders = orderRepository.findAllByStoreIdAndStatus(storeId, orderStatus, pageable);
+        } else if (storeId != null) {
+            orders = orderRepository.findAllByStoreId(storeId, pageable);
+        } else if (status != null) {
+            OrderStatus orderStatus = OrderStatus.valueOf(status.toUpperCase());
+            orders = orderRepository.findAllByStatus(orderStatus, pageable);
+        } else {
+            orders = orderRepository.findAll(pageable);
+        }
+
+        return orders.map(OrderResponseDto::from);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public OrderDetailResponseDto getOrderDetailByAdmin(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 주문을 찾을 수 없습니다."));
+        return OrderDetailResponseDto.from(order);
     }
 
 }
