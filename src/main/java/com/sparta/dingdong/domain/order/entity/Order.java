@@ -34,7 +34,7 @@ public class Order extends BaseEntity {
     private Store store;
 
     @Column(nullable = false)
-    private OrderStatus status = OrderStatus.REQUESTED;
+    private OrderStatus status;
 
     @Column(nullable = false)
     private BigInteger totalPrice;
@@ -61,15 +61,7 @@ public class Order extends BaseEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderStatusHistory> statusHistories = new ArrayList<>();
 
-    public void changeStatus(OrderStatus newStatus) {
-        if (this.status == newStatus)
-            return;
-        this.status = newStatus;
-        this.statusHistories.add(OrderStatusHistory.create(this, newStatus));
-    }
-
     //추가
-
     public static Order create(User user, Store store, BigInteger totalPrice, String deliveryAddress,
                                OrderStatus status) {
         Order order = new Order();
@@ -86,10 +78,21 @@ public class Order extends BaseEntity {
         return order;
     }
 
-    public void cancel(String reason) {
+    public void changeStatus(OrderStatus newStatus, Long changedByUserId) {
+        if (this.status == newStatus) return;
+        this.status = newStatus;
+        this.statusHistories.add(OrderStatusHistory.create(this, newStatus, changedByUserId));
+    }
+
+    public void changeStatus(OrderStatus newStatus) {
+        changeStatus(newStatus, null);
+    }
+
+    public void cancel(String reason, Long changedByUserId) {
         this.status = OrderStatus.CANCELED;
         this.canceledAt = LocalDateTime.now();
         this.cancelReason = reason;
+        this.statusHistories.add(OrderStatusHistory.create(this, OrderStatus.CANCELED, changedByUserId));
     }
 
     public void setRequestedAt(LocalDateTime requestedAt) {

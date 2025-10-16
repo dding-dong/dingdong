@@ -51,4 +51,9 @@ public class OrderExceptionHandler {
                 .body(BaseResponseDto.error(CommonErrorCode.ORDER_BELOW_MIN_PRICE, ex.getMessage()));
     }
 
+    @ExceptionHandler(OrderCancelTimeExceededException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleOrderCancelTimeExceededException(OrderCancelTimeExceededException ex) {
+        return ResponseEntity.status(CommonErrorCode.ORDER_CANCEL_TIME_EXCEEDED.getStatus())
+                .body(BaseResponseDto.error(CommonErrorCode.ORDER_CANCEL_TIME_EXCEEDED, ex.getMessage()));
+    }
 }

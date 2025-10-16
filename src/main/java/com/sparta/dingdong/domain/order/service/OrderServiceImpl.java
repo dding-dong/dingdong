@@ -10,6 +10,7 @@ import com.sparta.dingdong.domain.order.dto.response.OrderListResponseDto;
 import com.sparta.dingdong.domain.order.dto.response.OrderResponseDto;
 import com.sparta.dingdong.domain.order.dto.response.OrderStatusHistoryResponseDto;
 import com.sparta.dingdong.domain.order.entity.Order;
+import com.sparta.dingdong.domain.order.entity.OrderItem;
 import com.sparta.dingdong.domain.order.entity.OrderStatusHistory;
 import com.sparta.dingdong.domain.order.entity.enums.OrderStatus;
 import com.sparta.dingdong.domain.order.exception.*;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -106,7 +108,17 @@ public class OrderServiceImpl implements OrderService {
                 OrderStatus.PENDING
         );
 
+        for (var cartItem : cart.getItems()) {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrder(order);
+            orderItem.setMenuItem(cartItem.getMenuItem());
+            orderItem.setUnitPrice(cartItem.getMenuItem().getPrice());
+            orderItem.setQuantity(cartItem.getQuantity());
+            order.getOrderItems().add(orderItem);
+        }
+
         orderRepository.save(order);
+
         cartService.deleteCart(cart);
 
         return OrderResponseDto.from(order);
@@ -131,13 +143,14 @@ public class OrderServiceImpl implements OrderService {
         return new OrderListResponseDto(orderDtos);
     }
 
+    @Override
     @Transactional
     public void updateOrderStatus(UUID orderId, UpdateOrderStatusRequestDto request) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(OrderNotFoundException::new);
-
-        order.changeStatus(request.getNewStatus());
+        order.changeStatus(request.getNewStatus(), null);
     }
+
 
     @Transactional
     public Order cancelOrder(UserAuth userAuth, UUID orderId, String reason) {
@@ -150,11 +163,15 @@ public class OrderServiceImpl implements OrderService {
         }
         //Pending 취소
         if (order.getStatus() == OrderStatus.PENDING) {
-            order.cancel(reason);
+            order.cancel(reason, userAuth.getId());
             //Request 취소
         } else if (order.getStatus() == OrderStatus.REQUESTED) {
+            if (order.getRequestedAt() != null &&
+                    order.getRequestedAt().plusMinutes(5).isBefore(LocalDateTime.now())) {
+                throw new OrderCancelTimeExceededException("결제 후 5분이 지나 주문을 취소할 수 없습니다.");
+            }
             paymentTransactionService.refundPayment(order, "사용자 주문 취소: " + reason);
-            order.cancel(reason);
+            order.cancel(reason, userAuth.getId());
         } else if (order.getStatus() == OrderStatus.CANCELED) {
             throw new OrderAlreadyCanceledException();
         } else if (order.getStatus() == OrderStatus.READY) {

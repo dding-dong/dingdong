@@ -101,7 +101,7 @@ public class PaymentPageServiceImpl implements PaymentPageService {
         payment.setTossOrderId(orderIdWithTimestamp);
         payment.setApprovedAt(tossConfirmResponse.getApprovedAt());
         payment.changeStatus(PaymentStatus.PAID);
-        order.changeStatus(OrderStatus.REQUESTED);
+        order.changeStatus(OrderStatus.REQUESTED, order.getUser().getId());
 
         order.setRequestedAt((LocalDateTime.now()));
 
