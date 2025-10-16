@@ -44,4 +44,11 @@ public class OrderExceptionHandler {
         return ResponseEntity.status(CommonErrorCode.ORDER_DELIVERY_UNAVAILABLE.getStatus())
                 .body(BaseResponseDto.error(CommonErrorCode.ORDER_DELIVERY_UNAVAILABLE));
     }
+
+    @ExceptionHandler(OrderBelowMinPriceException.class)
+    public ResponseEntity<BaseResponseDto<Void>> handleOrderBelowMinPriceException(OrderBelowMinPriceException ex) {
+        return ResponseEntity.status(CommonErrorCode.ORDER_BELOW_MIN_PRICE.getStatus())
+                .body(BaseResponseDto.error(CommonErrorCode.ORDER_BELOW_MIN_PRICE, ex.getMessage()));
+    }
+
 }

@@ -93,6 +93,11 @@ public class OrderServiceImpl implements OrderService {
                         .multiply(BigInteger.valueOf(item.getQuantity())))
                 .reduce(BigInteger.ZERO, BigInteger::add);
 
+        BigInteger minOrderPrice = store.getMinOrderPrice();
+        if (minOrderPrice != null && totalPrice.compareTo(minOrderPrice) < 0) {
+            throw new OrderBelowMinPriceException(totalPrice, minOrderPrice);
+        }
+
         Order order = Order.create(
                 user,
                 store,

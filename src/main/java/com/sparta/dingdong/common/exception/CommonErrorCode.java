@@ -70,7 +70,8 @@ public enum CommonErrorCode implements ErrorCode {
     ORDER_CART_EMPTY(HttpStatus.BAD_REQUEST, "8006", "장바구니가 비어 있습니다."),
     ORDER_PAYMENT_MISMATCH(HttpStatus.BAD_REQUEST, "8007", "주문 결제 정보가 일치하지 않습니다."),
     ORDER_STATUS_UPDATE_FORBIDDEN(HttpStatus.FORBIDDEN, "8008", "현재 상태에서는 주문 상태 변경이 불가능합니다."),
-    ORDER_STORE_NOT_MATCH(HttpStatus.BAD_REQUEST, "8009", "주문한 가게와 일치하지 않습니다.");
+    ORDER_STORE_NOT_MATCH(HttpStatus.BAD_REQUEST, "8009", "주문한 가게와 일치하지 않습니다."),
+    ORDER_BELOW_MIN_PRICE(HttpStatus.BAD_REQUEST, "8010", "주문 금액이 매장의 최소 주문 금액보다 적습니다.");
 
     private final HttpStatus status;
     private final String code;
