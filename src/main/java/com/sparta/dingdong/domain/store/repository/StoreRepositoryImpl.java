@@ -13,6 +13,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.sparta.dingdong.common.util.QuerydslUtils;
 import com.sparta.dingdong.domain.category.entity.QStoreCategory;
 import com.sparta.dingdong.domain.store.entity.QStore;
+import com.sparta.dingdong.domain.store.entity.QStoreDeliveryArea;
 import com.sparta.dingdong.domain.store.entity.Store;
 
 import lombok.RequiredArgsConstructor;
@@ -25,19 +26,21 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 	private final QStore store = QStore.store;
 
 	@Override
-	public Page<Store> findAllActiveWithKeyword(String keyword, Pageable pageable) {
-		return findAllWithKeyword(keyword, pageable, true);
+	public Page<Store> findAllActiveWithKeyword(String keyword, Pageable pageable, List<String> userDongIds) {
+		return findAllWithKeyword(keyword, pageable, true, userDongIds);
 	}
 
 	@Override
 	public Page<Store> findAllWithKeyword(String keyword, Pageable pageable) {
-		return findAllWithKeyword(keyword, pageable, false);
+		return findAllWithKeyword(keyword, pageable, false, null);
 	}
 
 	@Override
-	public Page<Store> findAllWithKeyword(String keyword, Pageable pageable, boolean onlyActive) {
+	public Page<Store> findAllWithKeyword(String keyword, Pageable pageable, boolean onlyActive,
+		List<String> userDongIds) {
 		QStore store = QStore.store;
 		QStoreCategory storeCategory = QStoreCategory.storeCategory;
+		QStoreDeliveryArea deliveryArea = QStoreDeliveryArea.storeDeliveryArea;
 
 		BooleanBuilder builder = new BooleanBuilder();
 		if (onlyActive) {
@@ -52,9 +55,15 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 			);
 		}
 
+		if (userDongIds != null && !userDongIds.isEmpty()) {
+			builder.and(deliveryArea.dong.id.in(userDongIds));
+		}
+
 		List<Store> content = queryFactory
-			.selectFrom(store)
+			.selectDistinct(store)
+			.from(store)
 			.leftJoin(store.storeCategory, storeCategory).fetchJoin()
+			.leftJoin(store.deliveryAreas, deliveryArea).fetchJoin()
 			.where(builder)
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
@@ -62,9 +71,10 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 			.fetch();
 
 		Long total = queryFactory
-			.select(store.count())
+			.select(store.countDistinct())
 			.from(store)
 			.leftJoin(store.storeCategory, storeCategory)
+			.leftJoin(store.deliveryAreas, deliveryArea)
 			.where(builder)
 			.fetchOne();
 
@@ -75,8 +85,9 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 
 	@Override
 	public Page<Store> findAllActiveByStoreCategoryWithKeyword(UUID storeCategoryId, String keyword,
-		Pageable pageable) {
+		Pageable pageable, List<String> userDongIds) {
 		QStore store = QStore.store;
+		QStoreDeliveryArea deliveryArea = QStoreDeliveryArea.storeDeliveryArea;
 
 		// 조건 빌더
 		BooleanBuilder builder = new BooleanBuilder();
@@ -87,9 +98,14 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 			builder.and(store.name.lower().contains(keyword.toLowerCase()));
 		}
 
+		if (userDongIds != null && !userDongIds.isEmpty()) {
+			builder.and(deliveryArea.dong.id.in(userDongIds));
+		}
+
 		// 데이터 조회 (페이징)
 		List<Store> content = queryFactory
 			.selectFrom(store)
+			.leftJoin(store.deliveryAreas, deliveryArea)
 			.where(builder)
 			.offset(pageable.getOffset())
 			.limit(pageable.getPageSize())
@@ -98,8 +114,9 @@ public class StoreRepositoryImpl implements StoreRepositoryCustom {
 
 		// 전체 개수 조회
 		Long total = queryFactory
-			.select(store.count())
+			.select(store.countDistinct())
 			.from(store)
+			.leftJoin(store.deliveryAreas, deliveryArea)
 			.where(builder)
 			.fetchOne();
 		total = total != null ? total : 0L;
