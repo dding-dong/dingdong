@@ -6,6 +6,7 @@ import com.sparta.dingdong.domain.order.dto.request.UpdateOrderStatusRequestDto;
 import com.sparta.dingdong.domain.order.dto.response.OrderDetailResponseDto;
 import com.sparta.dingdong.domain.order.dto.response.OrderListResponseDto;
 import com.sparta.dingdong.domain.order.dto.response.OrderResponseDto;
+import com.sparta.dingdong.domain.order.dto.response.OrderStatusHistoryResponseDto;
 import com.sparta.dingdong.domain.order.entity.Order;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -37,5 +38,5 @@ public interface OrderService {
 
     OrderDetailResponseDto getOrderDetailByAdmin(UUID orderId);
 
-
+    List<OrderStatusHistoryResponseDto> getOrderStatusHistory(UUID orderId);
 }

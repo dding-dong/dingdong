@@ -1,30 +1,19 @@
 package com.sparta.dingdong.domain.order.entity;
 
+import com.sparta.dingdong.common.base.BaseEntity;
+import com.sparta.dingdong.domain.order.entity.enums.OrderStatus;
+import com.sparta.dingdong.domain.store.entity.Store;
+import com.sparta.dingdong.domain.user.entity.User;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import com.sparta.dingdong.common.base.BaseEntity;
-import com.sparta.dingdong.domain.order.entity.enums.OrderStatus;
-import com.sparta.dingdong.domain.store.entity.Store;
-import com.sparta.dingdong.domain.user.entity.User;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -32,72 +21,74 @@ import lombok.NoArgsConstructor;
 @Table(name = "p_order")
 public class Order extends BaseEntity {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.UUID)
-	private UUID id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "user_id", nullable = false, updatable = false)
-	private User user;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false, updatable = false)
+    private User user;
 
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "store_id", nullable = false)
-	private Store store;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "store_id", nullable = false)
+    private Store store;
 
-	@Column(nullable = false)
-	private OrderStatus status = OrderStatus.REQUESTED;
+    @Column(nullable = false)
+    private OrderStatus status = OrderStatus.REQUESTED;
 
-	@Column(nullable = false)
-	private BigInteger totalPrice;
+    @Column(nullable = false)
+    private BigInteger totalPrice;
 
-	@Column(nullable = false)
-	private String deliveryAddress;
+    @Column(nullable = false)
+    private String deliveryAddress;
 
-	@Column(nullable = false)
-	private LocalDateTime placedAt;
+    @Column(nullable = false)
+    private LocalDateTime placedAt;
 
-	private LocalDateTime deliveredAt;
+    private LocalDateTime deliveredAt;
 
-	private LocalDateTime canceledAt;
+    private LocalDateTime canceledAt;
 
-	@Column
-	private String cancelReason;
+    private LocalDateTime requestedAt;
 
-	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<OrderItem> orderItems = new ArrayList<>();
+    @Column
+    private String cancelReason;
 
-	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<OrderStatusHistory> statusHistories = new ArrayList<>();
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderItem> orderItems = new ArrayList<>();
 
-	public void changeStatus(OrderStatus newStatus) {
-		if (this.status == newStatus)
-			return;
-		this.status = newStatus;
-		this.statusHistories.add(OrderStatusHistory.create(this, newStatus));
-	}
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderStatusHistory> statusHistories = new ArrayList<>();
 
-	//추가
+    public void changeStatus(OrderStatus newStatus) {
+        if (this.status == newStatus)
+            return;
+        this.status = newStatus;
+        this.statusHistories.add(OrderStatusHistory.create(this, newStatus));
+    }
 
-	public static Order create(User user, Store store, BigInteger totalPrice, String deliveryAddress,
-		OrderStatus status) {
-		Order order = new Order();
-		order.user = user;
-		order.store = store;
-		order.totalPrice = totalPrice;
-		order.deliveryAddress = deliveryAddress;
-		order.status = status;
-		order.placedAt = LocalDateTime.now();
+    //추가
 
-		OrderStatusHistory history = OrderStatusHistory.create(order, status);
-		order.statusHistories.add(history);
+    public static Order create(User user, Store store, BigInteger totalPrice, String deliveryAddress,
+                               OrderStatus status) {
+        Order order = new Order();
+        order.user = user;
+        order.store = store;
+        order.totalPrice = totalPrice;
+        order.deliveryAddress = deliveryAddress;
+        order.status = status;
+        order.placedAt = LocalDateTime.now();
 
-		return order;
-	}
+        OrderStatusHistory history = OrderStatusHistory.create(order, status);
+        order.statusHistories.add(history);
 
-	public void cancel(String reason) {
-		this.status = OrderStatus.CANCELED;
-		this.canceledAt = LocalDateTime.now();
-		this.cancelReason = reason;
-	}
+        return order;
+    }
+
+    public void cancel(String reason) {
+        this.status = OrderStatus.CANCELED;
+        this.canceledAt = LocalDateTime.now();
+        this.cancelReason = reason;
+    }
 
 }

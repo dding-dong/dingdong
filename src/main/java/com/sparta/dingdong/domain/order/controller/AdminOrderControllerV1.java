@@ -4,6 +4,7 @@ import com.sparta.dingdong.common.dto.BaseResponseDto;
 import com.sparta.dingdong.domain.order.dto.request.UpdateOrderStatusRequestDto;
 import com.sparta.dingdong.domain.order.dto.response.OrderDetailResponseDto;
 import com.sparta.dingdong.domain.order.dto.response.OrderResponseDto;
+import com.sparta.dingdong.domain.order.dto.response.OrderStatusHistoryResponseDto;
 import com.sparta.dingdong.domain.order.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -57,5 +59,13 @@ public class AdminOrderControllerV1 {
         return ResponseEntity.ok(BaseResponseDto.success("주문 상태가 변경되었습니다."));
     }
 
+    @Operation(summary = "주문 상태 변경 이력 조회 API", description = "특정 주문의 상태 변경 내역(시간 포함)을 조회합니다.")
+    @GetMapping("/{orderId}/history")
+    public ResponseEntity<BaseResponseDto<List<OrderStatusHistoryResponseDto>>> getOrderStatusHistory(
+            @PathVariable UUID orderId
+    ) {
+        List<OrderStatusHistoryResponseDto> response = orderService.getOrderStatusHistory(orderId);
+        return ResponseEntity.ok(BaseResponseDto.success("주문 상태 변경 이력 조회 성공", response));
+    }
 }
 

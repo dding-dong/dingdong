@@ -8,10 +8,13 @@ import com.sparta.dingdong.domain.order.dto.request.UpdateOrderStatusRequestDto;
 import com.sparta.dingdong.domain.order.dto.response.OrderDetailResponseDto;
 import com.sparta.dingdong.domain.order.dto.response.OrderListResponseDto;
 import com.sparta.dingdong.domain.order.dto.response.OrderResponseDto;
+import com.sparta.dingdong.domain.order.dto.response.OrderStatusHistoryResponseDto;
 import com.sparta.dingdong.domain.order.entity.Order;
+import com.sparta.dingdong.domain.order.entity.OrderStatusHistory;
 import com.sparta.dingdong.domain.order.entity.enums.OrderStatus;
 import com.sparta.dingdong.domain.order.exception.*;
 import com.sparta.dingdong.domain.order.repository.OrderRepository;
+import com.sparta.dingdong.domain.order.repository.OrderStatusHistoryRepository;
 import com.sparta.dingdong.domain.payment.service.PaymentTransactionService;
 import com.sparta.dingdong.domain.store.entity.Store;
 import com.sparta.dingdong.domain.store.repository.StoreDeliveryAreaRepository;
@@ -39,6 +42,7 @@ public class OrderServiceImpl implements OrderService {
     private final StoreRepository storeRepository;
     private final StoreDeliveryAreaRepository storeDeliveryAreaRepository;
     private final PaymentTransactionService paymentTransactionService;
+    private final OrderStatusHistoryRepository orderStatusHistoryRepository;
 
     public OrderServiceImpl(
             OrderRepository orderRepository,
@@ -46,7 +50,8 @@ public class OrderServiceImpl implements OrderService {
             CartService cartService,
             StoreRepository storeRepository,
             StoreDeliveryAreaRepository storeDeliveryAreaRepository,
-            PaymentTransactionService paymentTransactionService
+            PaymentTransactionService paymentTransactionService,
+            OrderStatusHistoryRepository orderStatusHistoryRepository
     ) {
         this.orderRepository = orderRepository;
         this.userService = userService;
@@ -54,6 +59,7 @@ public class OrderServiceImpl implements OrderService {
         this.storeRepository = storeRepository;
         this.storeDeliveryAreaRepository = storeDeliveryAreaRepository;
         this.paymentTransactionService = paymentTransactionService;
+        this.orderStatusHistoryRepository = orderStatusHistoryRepository;
     }
 
     @Transactional
@@ -232,6 +238,17 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(OrderNotFoundException::new);
         return OrderDetailResponseDto.from(order);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<OrderStatusHistoryResponseDto> getOrderStatusHistory(UUID orderId) {
+        List<OrderStatusHistory> histories =
+                orderStatusHistoryRepository.findAllByOrderIdOrderByChangedAtAsc(orderId);
+
+        return histories.stream()
+                .map(OrderStatusHistoryResponseDto::from)
+                .toList();
     }
 
 }
