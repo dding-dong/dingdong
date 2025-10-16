@@ -49,6 +49,7 @@ public class Order extends BaseEntity {
 
     private LocalDateTime canceledAt;
 
+    @Column(name = "requested_at")
     private LocalDateTime requestedAt;
 
     @Column
@@ -89,6 +90,10 @@ public class Order extends BaseEntity {
         this.status = OrderStatus.CANCELED;
         this.canceledAt = LocalDateTime.now();
         this.cancelReason = reason;
+    }
+
+    public void setRequestedAt(LocalDateTime requestedAt) {
+        this.requestedAt = requestedAt;
     }
 
 }
