@@ -31,9 +31,9 @@ public class AuthService {
 	private final RedisRepository redisRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final TokenService tokenService;
-
 	private final JwtUtil jwtUtil;
 
+	/** ✅ 로그인: Redis 기반 버전 관리 */
 	public TokenResponse login(LoginRequestDto requestDto) {
 		User user = userRepository.findByEmailOrElseThrow(requestDto.getEmail());
 
@@ -41,55 +41,84 @@ public class AuthService {
 			throw new RuntimeException(UserErrorCode.INVALID_PASSWORD.getMessage());
 		}
 
-		TokenResponse tokenResponse = tokenService.generateTokens(user.getId(), user.getUserRole());
+		// 1️⃣ Redis에서 기존 버전 확인, 없으면 1로 초기화
+		Long redisTokenVersion = redisRepository.getTokenVersion(user.getId());
+		Long tokenVersion = (redisTokenVersion != null) ? redisTokenVersion : 1L;
+
+		// 2️⃣ 토큰 발급 (JWT에 version 포함)
+		TokenResponse tokenResponse = tokenService.generateTokens(user.getId(), user.getUserRole(), tokenVersion);
+
+		// 3️⃣ Redis에 버전 + refresh jti 저장
+		tokenService.saveAccessTokenVersion(user.getId(), tokenResponse.getAccessToken());
 		tokenService.saveRefreshToken(user.getId(), tokenResponse.getRefreshToken());
 
 		return tokenResponse;
 	}
 
+	/** ✅ 로그아웃: Redis 버전 증가 → 토큰 무효화 */
+	@Transactional
 	public void logout(HttpServletRequest request) {
+		String token = jwtUtil.extractToken(request);
+
+		if (token == null) {
+			log.warn("로그아웃 실패: Authorization 헤더에 토큰이 없습니다.");
+			return;
+		}
+
 		try {
-			String token = jwtUtil.extractToken(request);
+			UserAuth userAuth = jwtUtil.extractUserAuth(token);
+			Long userId = userAuth.getId();
 
-			if (token != null && jwtUtil.validateToken(token)) {
-				long expiration = jwtUtil.getExpiration(token);
-				redisRepository.saveBlackListToken(token, expiration);
+			// 1️⃣ 기존 버전 조회 (없으면 1L)
+			Long oldVersion = redisRepository.getTokenVersion(userId);
+			long newVersion = (oldVersion != null ? oldVersion + 1 : 2L); // 최소 2부터 시작하게
 
-				UserAuth userAuth = jwtUtil.extractUserAuth(token);
-				redisRepository.deleteRefreshToken(userAuth.getId());
-			}
+			// 2️⃣ Redis에 새 버전 저장 (TTL은 AccessToken 만료 시간 기준)
+			long accessExpiration = jwtUtil.getExpiration(token);
+			redisRepository.saveTokenVersion(userId, newVersion, accessExpiration);
+
+			// 3️⃣ RefreshToken 제거
+			redisRepository.deleteRefreshToken(userId);
+
+			log.info("로그아웃 완료: userId={}, oldVersion={}, newVersion={}", userId, oldVersion, newVersion);
+
 		} catch (Exception e) {
-			// 로그만 남기고 조용히 무시
-			log.warn("로그아웃 처리 중 예외 발생: {}", e.getMessage());
+			log.warn("로그아웃 중 예외 발생: {}", e.getMessage());
 		}
 	}
 
+	/** ✅ 리프레시 토큰 재발급 */
 	public TokenResponse reissue(String bearerToken) {
-		// 1. Bearer 제거
 		if (bearerToken == null || !bearerToken.startsWith("Bearer ")) {
 			throw new RuntimeException(AuthErrorCode.MISMATCHED_REFRESH_TOKEN.getMessage());
 		}
 		String refreshToken = bearerToken.substring(7);
 
-		// 2. 토큰 유효성 검증
 		if (!jwtUtil.validateToken(refreshToken)) {
 			throw new RuntimeException(AuthErrorCode.MISMATCHED_REFRESH_TOKEN.getMessage());
 		}
 
-		// 3. 유저 정보 추출
 		UserAuth userAuth = jwtUtil.extractUserAuth(refreshToken);
+		Long userId = userAuth.getId();
 
-		// 4. Redis에 저장된 Refresh Token과 일치하는지 확인
-		if (!redisRepository.validateRefreshToken(userAuth.getId(), refreshToken)) {
+		// ✅ 1️⃣ Redis에 저장된 jti 검증
+		if (!redisRepository.validateRefreshToken(userId, jwtUtil.getJti(refreshToken))) {
 			throw new RuntimeException(AuthErrorCode.REUSED_REFRESH_TOKEN.getMessage());
 		}
 
-		redisRepository.deleteRefreshToken(userAuth.getId());
+		// ✅ 2️⃣ Redis의 tokenVersion과 비교
+		Long redisVersion = redisRepository.getTokenVersion(userId);
+		if (redisVersion == null || !redisVersion.equals(userAuth.getTokenVersion())) {
+			throw new RuntimeException(AuthErrorCode.MISMATCHED_REFRESH_TOKEN.getMessage());
+		}
 
-		// 4. 새 토큰 생성 및 저장
-		TokenResponse newTokens = tokenService.generateTokens(userAuth.getId(), userAuth.getUserRole());
-		tokenService.saveRefreshToken(userAuth.getId(), newTokens.getRefreshToken());
+		// ✅ 3️⃣ 기존 RefreshToken 삭제 후 새 토큰 발급
+		redisRepository.deleteRefreshToken(userId);
 
+		TokenResponse newTokens = tokenService.generateTokens(userId, userAuth.getUserRole(), redisVersion);
+		tokenService.saveRefreshToken(userId, newTokens.getRefreshToken());
+
+		log.info("리프레시 토큰 재발급 완료: userId={}, version={}", userId, redisVersion);
 		return newTokens;
 	}
 
@@ -106,8 +135,7 @@ public class AuthService {
 
 	/** 관리자 여부 확인 */
 	public boolean isAdmin(UserAuth user) {
-		return user != null &&
-			(user.getUserRole() == UserRole.MASTER || user.getUserRole() == UserRole.MANAGER);
+		return user != null && (user.getUserRole() == UserRole.MASTER || user.getUserRole() == UserRole.MANAGER);
 	}
 
 	/** 관리자만 접근 가능하도록 강제 */
