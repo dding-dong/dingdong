@@ -40,15 +40,15 @@ public class JwtTokenProvider {
 	/**
 	 * 액세스 토큰 생성
 	 */
-	public String createAccessToken(Long userId, UserRole role) {
-		return buildToken(userId, role, accessTokenExpiration, false);
+	public String createAccessToken(Long userId, UserRole role, long tokenVersion) {
+		return buildToken(userId, role, tokenVersion, accessTokenExpiration, false);
 	}
 
 	/**
 	 * 리프레시 토큰 생성 (JTI 포함)
 	 */
-	public String createRefreshToken(Long userId, UserRole role) {
-		return buildToken(userId, role, refreshTokenExpiration, true);
+	public String createRefreshToken(Long userId, UserRole role, long tokenVersion) {
+		return buildToken(userId, role, tokenVersion, refreshTokenExpiration, true);
 	}
 
 	/**
@@ -73,7 +73,8 @@ public class JwtTokenProvider {
 		Claims claims = parseClaims(token);
 		Long userId = Long.parseLong(claims.getSubject());
 		UserRole userRole = UserRole.valueOf(claims.get(CLAIM_USER_ROLE, String.class));
-		return new UserAuth(userId, userRole);
+		Long tokenVersion = ((Number)claims.get("version")).longValue();
+		return new UserAuth(userId, userRole, tokenVersion);
 	}
 
 	/**
@@ -91,10 +92,11 @@ public class JwtTokenProvider {
 	}
 
 	// 내부 공통 메서드
-	private String buildToken(Long userId, UserRole role, long expiration, boolean includeJti) {
+	private String buildToken(Long userId, UserRole role, long tokenVersion, long expiration, boolean includeJti) {
 		JwtBuilder builder = Jwts.builder()
 			.setSubject(String.valueOf(userId))
 			.claim(CLAIM_USER_ROLE, role.name())
+			.claim("version", tokenVersion)
 			.setIssuedAt(new Date())
 			.setExpiration(new Date(System.currentTimeMillis() + expiration));
 
