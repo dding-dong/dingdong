@@ -1,5 +1,11 @@
 package com.sparta.dingdong.domain.order.service;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.order.dto.request.CreateOrderRequestDto;
 import com.sparta.dingdong.domain.order.dto.request.UpdateOrderStatusRequestDto;
@@ -8,35 +14,30 @@ import com.sparta.dingdong.domain.order.dto.response.OrderListResponseDto;
 import com.sparta.dingdong.domain.order.dto.response.OrderResponseDto;
 import com.sparta.dingdong.domain.order.dto.response.OrderStatusHistoryResponseDto;
 import com.sparta.dingdong.domain.order.entity.Order;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
-import java.util.List;
-import java.util.UUID;
 
 public interface OrderService {
 
-    OrderResponseDto createOrder(UserAuth userAuth, CreateOrderRequestDto request);
+	OrderResponseDto createOrder(UserAuth userAuth, CreateOrderRequestDto request);
 
-    OrderDetailResponseDto getOrderDetail(UserAuth userAuth, UUID orderId);
+	OrderDetailResponseDto getOrderDetail(UserAuth userAuth, UUID orderId);
 
-    OrderListResponseDto getOrderList(UserAuth userAuth);
+	OrderListResponseDto getOrderList(UserAuth userAuth);
 
-    void updateOrderStatus(UUID orderId, UpdateOrderStatusRequestDto request);
+	void updateOrderStatus(UUID orderId, UpdateOrderStatusRequestDto request);
 
-    Order cancelOrder(UserAuth userAuth, UUID orderId, String reason);
+	Order cancelOrder(UserAuth userAuth, UUID orderId, String reason);
 
-    Order findByOrder(UUID orderId);
+	Order findByOrder(UUID orderId);
 
-    List<Order> findByOrders(Long userId);
+	List<Order> findByOrders(Long userId);
 
-    OrderListResponseDto getAllOrdersByOwner(UserAuth userAuth, String status);
+	OrderListResponseDto getAllOrdersByOwner(UserAuth userAuth, String status);
 
-    OrderListResponseDto getOrdersByStore(UserAuth userAuth, UUID storeId, String status);
+	OrderListResponseDto getOrdersByStore(UserAuth userAuth, UUID storeId, String status);
 
-    Page<OrderResponseDto> getAllOrdersByAdmin(UUID storeId, UUID orderId, String status, Pageable pageable);
+	Page<OrderResponseDto> getAllOrdersByAdmin(UUID storeId, UUID orderId, String status, Pageable pageable);
 
-    OrderDetailResponseDto getOrderDetailByAdmin(UUID orderId);
+	OrderDetailResponseDto getOrderDetailByAdmin(UUID orderId);
 
-    List<OrderStatusHistoryResponseDto> getOrderStatusHistory(UUID orderId);
+	List<OrderStatusHistoryResponseDto> getOrderStatusHistory(UUID orderId);
 }
