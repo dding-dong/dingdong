@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ManagerStatusRequest {
 
-	private Long managerId;
-	private String action;
+	private String status;
 
 }
