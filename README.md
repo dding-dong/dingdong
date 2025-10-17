@@ -31,8 +31,9 @@ ORM : ![Static Badge](https://img.shields.io/badge/JPA-FFA500?style=flat)
 1. [📄 API 명세서](#-api-명세서)
 2. [💿 ERD](#-erd)
 3. [❓ DTO 흐름도](#-패키지-설명)
-4. [▶️ 실행방법](#️-실행방법)
-5. [🛠 기능 요약](#-기능-요약)
+4. [🏛️ 아키텍쳐](#-아키텍쳐)
+5. [▶️ 실행방법](#️-실행방법)
+6. [🛠 기능 요약](#-기능-요약)
 
 # 📄 API 명세서
 
@@ -40,11 +41,18 @@ ORM : ![Static Badge](https://img.shields.io/badge/JPA-FFA500?style=flat)
 
 # 💿 ERD
 
-- ERD그림이 들어갈 공간입니다.
+<img width="596" height="648" alt="스크린샷 2025-10-17 오전 10 18 01" src="https://github.com/user-attachments/assets/673ef4da-4eef-4797-8ab7-cd059a07212c" />
+
+
+# 🏛️ 아키텍쳐
+
+<img width="1123" height="1081" alt="image" src="https://github.com/user-attachments/assets/9021e699-3d20-4a58-b8c0-e6e076f233a3" />
+
 
 # ❓ DTO 흐름도
 
-![sequence1.png](sequence1.png)
+<img width="1026" height="501" alt="스크린샷 2025-10-13 오후 3 21 47" src="https://github.com/user-attachments/assets/dc4ff422-05ce-4a90-8923-d429042f6833" />
+
 
 ## Entity
 
