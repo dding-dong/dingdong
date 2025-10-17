@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: dingdong
+
+  datasource:
+    url: jdbc:postgresql://dingdong-database.cjc4wqe0exea.ap-northeast-2.rds.amazonaws.com:5432/dingdong
+    username: ENC(ODQDE97kR6zp+2KTnCSHh0SrzOyKxK7z)
+    password: ENC(huZYn+V0yI7382TLZlJ0WUPQLMDuNcjE)
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        use_sql_comments: true
+        query:
+          passDistinctThrough: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+jwt:
+  secret: ENC(xGpMf3tCPdzlqie6n0qyn6PV2SNH11BlDmK3hn4R2VpqoygYDLQMDqQHCcwlLnFjm2UBI9krWBM=)
+  access-token-expiration: 900000 # 15분
+  refresh-token-expiration: 1209600000 # 14일
+
+springdoc:
+  swagger-ui:
+    tags-sorter: alpha
+    operations-sorter: alpha
+
+google:
+  ai:
+    api-key: ENC(iAr9GNCjCqTjiQH7zh2sEXW0rE0P7IJZCdmhm+fiw1E6UXw0RSsHjPSePLVIyrpM)
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+
+toss:
+  secret-key: ENC(oFAaiPw49wcKe883t1jiIWtWQhz+Qw2Ka71dSuZbsY4aDEFL+c4ePweln7vpDlfQ)
