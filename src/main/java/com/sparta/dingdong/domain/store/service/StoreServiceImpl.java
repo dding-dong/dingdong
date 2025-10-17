@@ -1,6 +1,7 @@
 package com.sparta.dingdong.domain.store.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -27,6 +28,8 @@ import com.sparta.dingdong.domain.store.exception.StoreNotFoundException;
 import com.sparta.dingdong.domain.store.repository.StoreDeliveryAreaRepository;
 import com.sparta.dingdong.domain.store.repository.StoreRepository;
 import com.sparta.dingdong.domain.user.entity.User;
+import com.sparta.dingdong.domain.user.entity.enums.UserRole;
+import com.sparta.dingdong.domain.user.exception.UserNotFoundException;
 import com.sparta.dingdong.domain.user.repository.DongRepository;
 import com.sparta.dingdong.domain.user.repository.UserRepository;
 
@@ -52,7 +55,15 @@ public class StoreServiceImpl implements StoreService {
 	@Transactional(readOnly = true)
 	@Override
 	public Page<StoreResponseDto> getActiveStores(String keyword, Pageable pageable, UserAuth user) {
-		Page<Store> storesPage = storeRepository.findAllActiveWithKeyword(keyword, pageable);
+		List<String> userDongIds = null;
+		if (user != null && user.getUserRole() == UserRole.CUSTOMER) {
+			User customer = userRepository.findById(user.getId()).orElseThrow(() -> new UserNotFoundException());
+			userDongIds = customer.getAddressList().stream()
+				.map(addr -> addr.getDong().getId())
+				.filter(Objects::nonNull)
+				.toList();
+		}
+		Page<Store> storesPage = storeRepository.findAllActiveWithKeyword(keyword, pageable, userDongIds);
 		log.info(user != null && user.getId() != null ? "로그인 사용자가 가게 조회" : "비회원이 가게 조회");
 		return storesPage.map(this::mapPublic);
 	}
@@ -61,8 +72,16 @@ public class StoreServiceImpl implements StoreService {
 	@Override
 	public Page<StoreResponseDto> getActiveStoresByCategory(UUID storeCategoryId, String keyword, Pageable pageable,
 		UserAuth user) {
+		List<String> userDongIds = null;
+		if (user != null && user.getUserRole() == UserRole.CUSTOMER) {
+			User customer = userRepository.findById(user.getId()).orElseThrow(() -> new UserNotFoundException());
+			userDongIds = customer.getAddressList().stream()
+				.map(addr -> addr.getDong().getId())
+				.filter(Objects::nonNull)
+				.toList();
+		}
 		Page<Store> storesPage = storeRepository.findAllActiveByStoreCategoryWithKeyword(storeCategoryId, keyword,
-			pageable);
+			pageable, userDongIds);
 		log.info(user != null && user.getId() != null ? "로그인 사용자가 가게 조회" : "비회원이 가게 조회");
 		return storesPage.map(this::mapPublic);
 	}
@@ -73,7 +92,7 @@ public class StoreServiceImpl implements StoreService {
 	public StoreResponseDto create(StoreRequestDto req, UserAuth user) {
 		boolean isAdmin = authService.isAdmin(user);
 		User currentUser = userRepository.findById(user.getId())
-			.orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+			.orElseThrow(() -> new UserNotFoundException());
 		StoreCategory storeCategory = getStoreCategoryOrThrow(req.getStoreCategoryId());
 
 		Store store = Store.builder()
