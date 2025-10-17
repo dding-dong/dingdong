@@ -1,10 +1,18 @@
 package com.sparta.dingdong.domain.user.repository;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.sparta.dingdong.domain.user.entity.Manager;
+import com.sparta.dingdong.domain.user.entity.enums.ManagerStatus;
 
 @Repository
 public interface ManagerRepository extends JpaRepository<Manager, Long> {
+
+	List<Manager> findByManagerStatus(ManagerStatus status);
+
+	Optional<Manager> findById(Long userId);
 }
