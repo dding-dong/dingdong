@@ -1,3 +1,3 @@
 spring:
   profiles:
-    active: dev  # 기본 실행 프로파일 (여기서 dev를 기본값으로 지정)
+    active: prod  # 기본 실행 프로파일 (여기서 dev를 기본값으로 지정)
