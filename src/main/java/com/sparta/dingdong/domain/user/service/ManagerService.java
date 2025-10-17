@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.dingdong.common.exception.CommonErrorCode;
+import com.sparta.dingdong.common.jwt.UserAuth;
+import com.sparta.dingdong.domain.user.dto.request.ManagerStatusRequest;
 import com.sparta.dingdong.domain.user.dto.response.ManagerResponseDto;
 import com.sparta.dingdong.domain.user.entity.Manager;
 import com.sparta.dingdong.domain.user.repository.ManagerRepository;
@@ -27,21 +29,13 @@ public class ManagerService {
 	}
 
 	@Transactional
-	public void updateManagerStatus(Long managerId, String action, Long masterId) {
+	public void updateManagerStatus(UserAuth userAuth, ManagerStatusRequest request, Long managerId) {
 		Manager manager = managerRepository.findById(managerId)
 			.orElseThrow(() -> new IllegalArgumentException(
 				CommonErrorCode.MANAGER_NOT_FOUND.getMessage()
 			));
 
-		switch (action.toLowerCase()) {
-			case "approve" -> manager.approve();
-			case "activate" -> manager.activate();
-			case "suspend" -> manager.suspend();
-			case "reject" -> manager.reject();
-			case "delete" -> manager.softDeleteByMaster(masterId);
-			default -> throw new IllegalArgumentException(
-				CommonErrorCode.INVALID_MANAGER_ACTION.getMessage());
-		}
+		manager.updateStatus(request.getStatus());
 	}
 
 }

@@ -74,4 +74,8 @@ public class Manager extends BaseEntity {
 		super.softDelete(masterId);
 		this.managerStatus = ManagerStatus.DELETED;
 	}
+
+	public void updateStatus(String status) {
+		this.managerStatus = ManagerStatus.valueOf(status);
+	}
 }
