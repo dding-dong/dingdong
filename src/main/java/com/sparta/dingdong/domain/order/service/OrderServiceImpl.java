@@ -75,8 +75,7 @@ public class OrderServiceImpl implements OrderService {
 	@Transactional
 	public OrderResponseDto createOrder(UserAuth userAuth, CreateOrderRequestDto request) {
 		User user = userService.findByUser(userAuth);
-
-		Cart cart = cartService.findByCart(request.getCartId());
+		Cart cart = cartService.findByUserId(user.getId());
 
 		Store store = storeRepository.findById(cart.getStore().getId())
 			.orElseThrow(() -> new IllegalArgumentException("해당 매장을 찾을 수 없습니다."));
@@ -127,7 +126,7 @@ public class OrderServiceImpl implements OrderService {
 
 		orderRepository.save(order);
 
-		cartService.deleteCart(cart);
+		cartService.deleteCart(userAuth);
 
 		return OrderResponseDto.from(order);
 	}

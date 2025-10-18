@@ -39,6 +39,13 @@ public class MenuItemServiceImpl implements MenuItemService {
 	private final AuthService authService;
 	private final UserRepository userRepository;
 
+	@Override
+	@Transactional(readOnly = true)
+	public MenuItem findById(UUID menuId) {
+		return menuItemRepository.findById(menuId)
+			.orElseThrow(MenuItemNotFoundException::new);
+	}
+
 	@Transactional(readOnly = true)
 	@Override
 	public Page<MenuItemResponseDto> getAllByStore(UUID storeId, boolean includeHidden, String keyword,
@@ -108,8 +115,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 	@Transactional(readOnly = true)
 	@Override
 	public MenuItemResponseDto getById(UUID menuId, UserAuth user) {
-		MenuItem menu = menuItemRepository.findById(menuId)
-			.orElseThrow(MenuItemNotFoundException::new);
+		MenuItem menu = findById(menuId);
 
 		authService.validateStoreOwnership(user, menu.getStore().getOwner().getId());
 		return map(menu);
@@ -117,8 +123,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 
 	@Override
 	public MenuItemResponseDto update(UUID menuId, MenuItemRequestDto req, UserAuth user) {
-		MenuItem menu = menuItemRepository.findById(menuId)
-			.orElseThrow(MenuItemNotFoundException::new);
+		MenuItem menu = findById(menuId);
 		authService.validateStoreOwnership(user, menu.getStore().getOwner().getId());
 
 		User currentUser = userRepository.findById(user.getId())
@@ -143,8 +148,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 
 	@Override
 	public void delete(UUID menuId, UserAuth user) {
-		MenuItem menu = menuItemRepository.findById(menuId)
-			.orElseThrow(MenuItemNotFoundException::new);
+		MenuItem menu = findById(menuId);
 
 		authService.validateStoreOwnership(user, menu.getStore().getOwner().getId());
 
