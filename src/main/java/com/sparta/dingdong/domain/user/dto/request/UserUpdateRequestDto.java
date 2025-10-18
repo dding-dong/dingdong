@@ -31,4 +31,12 @@ public class UserUpdateRequestDto {
 		message = "비밀번호는 최소 8자 이상이며, 대문자, 소문자, 숫자, 특수문자를 모두 포함해야 합니다"
 	)
 	private String newPassword;
+
+	@Schema(description = "사용자 전화번호", example = "010-1234-5678")
+	@Pattern(
+		regexp = "^\\d{2,3}-\\d{3,4}-\\d{4}$",
+		message = "전화번호 형식은 010-1234-5678과 같이 입력해주세요."
+	)
+	private String phone;
+
 }

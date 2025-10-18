@@ -24,7 +24,7 @@ public class JwtUtil {
 	private String secretKey;
 
 	private final UserRepository userRepository;
-	private static final long EXPIRATION = 1000L * 60 * 30; // 30분
+	private static final long ACCESS_EXPIRATION = 1000L * 60 * 30; // 30분
 	private static final long REFRESH_EXPIRATION = 1000L * 60 * 60 * 24 * 14; // 14일
 
 	public String createAccessToken(Long id, UserRole userRole, long tokenVersion) {
@@ -33,7 +33,7 @@ public class JwtUtil {
 			.claim("userRole", userRole.name())
 			.claim("version", tokenVersion)
 			.setIssuedAt(new Date())
-			.setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+			.setExpiration(new Date(System.currentTimeMillis() + ACCESS_EXPIRATION))
 			.signWith(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)))
 			.compact();
 	}

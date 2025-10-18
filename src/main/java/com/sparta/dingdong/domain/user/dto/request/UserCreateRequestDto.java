@@ -39,8 +39,11 @@ public class UserCreateRequestDto {
 	@NotBlank
 	private String nickname;
 
-	@Schema(description = "사용자 연락처", example = "010-1234-5678")
-	@NotBlank
+	@Schema(description = "사용자 전화번호", example = "010-1234-5678")
+	@Pattern(
+		regexp = "^\\d{2,3}-\\d{3,4}-\\d{4}$",
+		message = "전화번호 형식은 010-1234-5678과 같이 입력해주세요."
+	)
 	private String phone;
 
 	@Schema(description = "사용자 권한", example = "CUSTOMER")
