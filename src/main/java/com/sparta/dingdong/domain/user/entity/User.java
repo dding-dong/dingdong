@@ -63,11 +63,13 @@ public class User extends BaseEntity {
 	private Manager manager;
 
 	// 편의 메서드: 사용자 정보 업데이트
-	public void updateUser(String nickname, String password) {
+	public void updateUser(String nickname, String password, String phone) {
 		if (nickname != null)
 			this.nickname = nickname;
 		if (password != null)
 			this.password = password;
+		if (phone != null)
+			this.phone = phone;
 	}
 
 	public void addAddress(Address address) {

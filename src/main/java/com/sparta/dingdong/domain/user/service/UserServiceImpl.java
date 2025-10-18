@@ -19,6 +19,7 @@ import com.sparta.dingdong.domain.user.exception.InvalidPasswordException;
 import com.sparta.dingdong.domain.user.exception.NicknameNotChangeedException;
 import com.sparta.dingdong.domain.user.exception.NoUpdateTargetException;
 import com.sparta.dingdong.domain.user.exception.PasswordNotChangedException;
+import com.sparta.dingdong.domain.user.exception.PhoneNotChangeedException;
 import com.sparta.dingdong.domain.user.repository.AddressRepository;
 import com.sparta.dingdong.domain.user.repository.DongRepository;
 import com.sparta.dingdong.domain.user.repository.ManagerRepository;
@@ -82,12 +83,18 @@ public class UserServiceImpl implements UserService {
 		User findUser = userRepository.findByIdOrElseThrow(userAuth.getId());
 		checkPassword(req.getOldPassword(), findUser.getPassword());
 
-		if (req.getNickname() == null && req.getNewPassword() == null) {
+		if (req.getNickname() == null && req.getNewPassword() == null && req.getPhone() == null) {
 			throw new NoUpdateTargetException();
 		}
+
 		if (req.getNickname() != null && findUser.getNickname().equals(req.getNickname())) {
 			throw new NicknameNotChangeedException();
 		}
+
+		if (req.getPhone() != null && findUser.getPhone().equals(req.getPhone())) {
+			throw new PhoneNotChangeedException();
+		}
+
 		if (req.getNewPassword() != null && passwordEncoder.matches(req.getNewPassword(), findUser.getPassword())) {
 			throw new PasswordNotChangedException();
 		}
@@ -97,7 +104,9 @@ public class UserServiceImpl implements UserService {
 			encodedPassword = passwordEncoder.encode(req.getNewPassword());
 		}
 
-		findUser.updateUser(req.getNickname(), encodedPassword);
+		redisRepository.deleteAccessToken(findUser.getId());
+		redisRepository.deleteRefreshToken(findUser.getId());
+		findUser.updateUser(req.getNickname(), encodedPassword, req.getPhone());
 	}
 
 	public void checkPassword(String rawPassword, String hashedPassword) {
