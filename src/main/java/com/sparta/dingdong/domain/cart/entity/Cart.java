@@ -2,10 +2,10 @@ package com.sparta.dingdong.domain.cart.entity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import com.sparta.dingdong.common.base.BaseEntity;
+import com.sparta.dingdong.domain.menu.entity.MenuItem;
 import com.sparta.dingdong.domain.store.entity.Store;
 import com.sparta.dingdong.domain.user.entity.User;
 
@@ -59,19 +59,24 @@ public class Cart extends BaseEntity {
 		return new Cart(user, store);
 	}
 
-	public void addItem(CartItem item) {
-		// 합산 로직: 같은 menuItem이면 수량 더하기
-		Optional<CartItem> existing = items.stream()
-			.filter(i -> i.getMenuItem().getId().equals(item.getMenuItem().getId()))
-			.findFirst();
-		if (existing.isPresent()) {
-			existing.get().increaseQuantity(item.getQuantity());
+	public void addItem(MenuItem menu, int quantity) {
+		CartItem existing = findExistingItem(menu.getId());
+		if (existing != null) {
+			existing.increaseQuantity(quantity);
 		} else {
+			CartItem item = CartItem.of(menu, quantity);
 			item.setCart(this);
 			items.add(item);
 		}
 	}
 
+	private CartItem findExistingItem(UUID menuItemId) {
+		return items.stream()
+			.filter(i -> i.getMenuItem().getId().equals(menuItemId))
+			.findFirst()
+			.orElse(null);
+	}
+	
 	public void setStore(Store store) {
 		this.store = store;
 	}

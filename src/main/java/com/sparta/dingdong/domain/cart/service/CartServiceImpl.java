@@ -78,8 +78,8 @@ public class CartServiceImpl implements CartService {
 			}
 		}
 
-		// 카트에 아이템 합산 또는 신규 추가
-		cart.addItem(CartItem.of(menu, req.getQuantity()));
+		// 이미 존재하면 수량 합산, 없으면 새 아이템 추가
+		cart.addItem(menu, req.getQuantity());
 		Cart saved = cartRepository.save(cart);
 		return CartResponseDto.from(saved);
 	}
