@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.dingdong.common.entity.Dong;
+import com.sparta.dingdong.common.jwt.JwtUtil;
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.user.dto.request.UserCreateRequestDto;
 import com.sparta.dingdong.domain.user.dto.request.UserUpdateRequestDto;
@@ -21,6 +22,7 @@ import com.sparta.dingdong.domain.user.exception.PasswordNotChangedException;
 import com.sparta.dingdong.domain.user.repository.AddressRepository;
 import com.sparta.dingdong.domain.user.repository.DongRepository;
 import com.sparta.dingdong.domain.user.repository.ManagerRepository;
+import com.sparta.dingdong.domain.user.repository.RedisRepository;
 import com.sparta.dingdong.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -34,6 +36,8 @@ public class UserServiceImpl implements UserService {
 	private final DongRepository dongRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final ManagerRepository managerRepository;
+	private final RedisRepository redisRepository;
+	private final JwtUtil jwtUtil;
 
 	@Override
 	public User findByUser(Long userId) {
@@ -105,8 +109,9 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	public void deleteUser(UserAuth userAuth) {
 		User user = userRepository.findByIdOrElseThrow(userAuth.getId());
-		user.softDelete();
-		// TODO 추후 유저관련 내용 삭제 로직 추가
+		redisRepository.deleteAccessToken(user.getId());
+		redisRepository.deleteRefreshToken(user.getId());
+		user.softDelete(user.getId());
 	}
 
 	public UserResponseDto findById(UserAuth userAuth) {
