@@ -16,7 +16,6 @@ import com.sparta.dingdong.domain.cart.exception.CartStoreConflictException;
 import com.sparta.dingdong.domain.cart.exception.InvalidCartQuantityException;
 import com.sparta.dingdong.domain.cart.repository.CartRepository;
 import com.sparta.dingdong.domain.menu.entity.MenuItem;
-import com.sparta.dingdong.domain.menu.exception.MenuItemNotFoundException;
 import com.sparta.dingdong.domain.menu.exception.MenuItemSoldOutException;
 import com.sparta.dingdong.domain.menu.service.MenuItemService;
 import com.sparta.dingdong.domain.store.entity.Store;
@@ -40,6 +39,13 @@ public class CartServiceImpl implements CartService {
 			.orElseThrow(() -> new CartNotFoundException());
 	}
 
+	private CartItem getCartItem(UUID menuItemId, Cart cart) {
+		return cart.getItems().stream()
+			.filter(i -> i.getMenuItem().getId().equals(menuItemId))
+			.findFirst()
+			.orElseThrow(CartItemNotFoundException::new);
+	}
+
 	@Override
 	@Transactional(readOnly = true)
 	public CartResponseDto getCart(UserAuth userAuth) {
@@ -54,9 +60,7 @@ public class CartServiceImpl implements CartService {
 	public CartResponseDto addItem(UserAuth userAuth, AddCartItemRequestDto req, boolean replace) {
 		User user = userService.findByUser(userAuth);
 
-		MenuItem menu = menuItemRepository.findById(req.getMenuItemId())
-			.orElseThrow(MenuItemNotFoundException::new);
-
+		MenuItem menu = menuItemService.findById(req.getMenuItemId());
 		if (menu.getIsSoldout()) {
 			throw new MenuItemSoldOutException();
 		}
@@ -95,17 +99,13 @@ public class CartServiceImpl implements CartService {
 		User user = userService.findByUser(userAuth);
 		Cart cart = findByUserId(user.getId());
 
-		CartItem item = cart.getItems().stream()
-			.filter(i -> i.getMenuItem().getId().equals(menuItemId))
-			.findFirst()
-			.orElseThrow(CartItemNotFoundException::new);
+		CartItem item = getCartItem(menuItemId, cart);
 
 		if (quantity <= 0) {
 			throw new InvalidCartQuantityException();
-		} else {
-			item.updateQuantity(quantity);
 		}
 
+		item.updateQuantity(quantity);
 		Cart saved = cartRepository.save(cart);
 		return CartResponseDto.from(saved);
 	}
@@ -116,10 +116,7 @@ public class CartServiceImpl implements CartService {
 		User user = userService.findByUser(userAuth);
 		Cart cart = findByUserId(user.getId());
 
-		CartItem item = cart.getItems().stream()
-			.filter(i -> i.getMenuItem().getId().equals(menuItemId))
-			.findFirst()
-			.orElseThrow(CartItemNotFoundException::new);
+		CartItem item = getCartItem(menuItemId, cart);
 
 		cart.removeItem(item.getId());
 		if (cart.getItems().isEmpty()) { // 장바구니에 메뉴가 없으면 장바구니 삭제
