@@ -3,6 +3,7 @@ package com.sparta.dingdong.domain.user.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,9 +39,10 @@ public class AddressControllerV1 {
 	}
 
 	@GetMapping
+	@PreAuthorize("hasAnyRole('MANAGER','MASTER')")
 	public ResponseEntity<BaseResponseDto<List<AddressResponseDto>>> getAddressList(
 		@AuthenticationPrincipal UserAuth userAuth) {
-		return ResponseEntity.ok(BaseResponseDto.success("주소 조회 완료", addressService.getAddressList(userAuth)));
+		return ResponseEntity.ok(BaseResponseDto.success("주소 조회 완료", addressService.getAllAddress(userAuth)));
 	}
 
 	@GetMapping("/search")

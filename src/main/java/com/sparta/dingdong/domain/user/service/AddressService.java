@@ -46,7 +46,7 @@ public class AddressService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<AddressResponseDto> getAddressList(UserAuth userAuth) {
+	public List<AddressResponseDto> getAllAddress(UserAuth userAuth) {
 		User user = userRepository.findByIdOrElseThrow(userAuth.getId());
 		return user.getAddressList().stream()
 			.map(AddressResponseDto::of)
