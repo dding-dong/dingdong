@@ -8,13 +8,13 @@ import org.springframework.stereotype.Repository;
 import com.sparta.dingdong.common.entity.Dong;
 import com.sparta.dingdong.domain.user.exception.DongNotFoundException;
 
-import jakarta.validation.constraints.NotBlank;
-
 @Repository
 public interface DongRepository extends JpaRepository<Dong, Long> {
-	Optional<Dong> findById(@NotBlank String id);
 
-	default Dong findByIdOrElseThrow(String id) {
-		return findById(id).orElseThrow(DongNotFoundException::new);
+	Optional<Dong> findById(String dongId);
+
+	default Dong findByIdOrElseThrow(String dongId) {
+		return findById(dongId).orElseThrow(DongNotFoundException::new);
 	}
+
 }

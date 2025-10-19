@@ -53,7 +53,10 @@ public class UserResponseDto {
 	}
 
 	public static UserResponseDto from(User user) {
-		Address address = user.getAddressList().get(0); // 기본 주소
+		Address address = user.getAddressList().stream()
+			.filter(Address::isDefault)
+			.findFirst()
+			.orElse(user.getAddressList().get(0)); // 기본주소 없으면 첫번째
 		return UserResponseDto.builder()
 			.id(user.getId())
 			.email(user.getEmail())
