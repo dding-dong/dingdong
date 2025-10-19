@@ -30,46 +30,44 @@ public class AddressService {
 	@Transactional
 	public void addAddress(AddressRequestDto req, UserAuth userAuth) {
 		User user = userRepository.findByIdOrElseThrow(userAuth.getId());
-
 		if (req.getIsDefault()) {
-			Address.unsetOtherAddress(user);
+			user.disableAllDefaultAddress();
 		}
-
 		Address address = Address.builder()
 			.user(user)
-			.dong(dongRepository.findByIdOrElseThrow(req.getDongId())) // Dong 조회
+			.dong(dongRepository.findByIdOrElseThrow(req.getDongId()))
 			.detailAddress(req.getDetailAddress())
 			.postalCode(req.getPostalCode())
 			.isDefault(req.getIsDefault())
 			.build();
+		user.addAddress(address);
 		addressRepository.save(address);
 	}
 
 	@Transactional(readOnly = true)
-	public List<AddressResponseDto> getAllAddress(UserAuth userAuth) {
-		User user = userRepository.findByIdOrElseThrow(userAuth.getId());
-		return user.getAddressList().stream()
+	public List<AddressResponseDto> getAllMyAddress(UserAuth userAuth) {
+		return addressRepository.findAllByUserIdOrElseThrow(userAuth.getId()).stream()
 			.map(AddressResponseDto::of)
 			.collect(Collectors.toList());
 	}
 
 	@Transactional(readOnly = true)
-	public List<AddressResponseDto> getAddressesByLocation(List<String> cityId, List<String> guId,
+	public List<AddressResponseDto> getAddress(List<String> cityId, List<String> guId,
 		List<String> dongId) {
-		List<Address> addresses;
+		List<Address> addressList;
 
 		if (dongId != null && !dongId.isEmpty()) {
-			addresses = addressRepository.findByDongIdIn(dongId);
+			addressList = addressRepository.findByDongIdIn(dongId);
 		} else if (guId != null && !guId.isEmpty()) {
-			addresses = addressRepository.findByDongGuIdIn(guId);
+			addressList = addressRepository.findByDongGuIdIn(guId);
 		} else if (cityId != null && !cityId.isEmpty()) {
-			addresses = addressRepository.findByDongGuCityIdIn(cityId);
+			addressList = addressRepository.findByDongGuCityIdIn(cityId);
 		} else {
-			addresses = addressRepository.findAll();
+			addressList = addressRepository.findAll();
 		}
 
-		return addresses.stream()
-			.map(AddressResponseDto::of) // Address → DTO 변환
+		return addressList.stream()
+			.map(AddressResponseDto::of)
 			.collect(Collectors.toList());
 	}
 
@@ -85,8 +83,9 @@ public class AddressService {
 
 		// 기본주소 처리
 		if (req.getIsDefault()) {
-			Address.unsetOtherAddress(user);
+			user.disableAllDefaultAddress();
 		}
+
 		Dong dong = dongRepository.findByIdOrElseThrow(req.getDongId());
 		address.updateAddress(req, dong);
 	}
@@ -100,6 +99,8 @@ public class AddressService {
 			throw new AddressNotMatchedException();
 		}
 
+		User user = address.getUser();
+		user.deleteAddress(address);
 		addressRepository.delete(address);
 	}
 }

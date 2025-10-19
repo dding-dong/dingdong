@@ -69,11 +69,7 @@ public class Address {
 		this.isDefault = Boolean.TRUE.equals(req.getIsDefault());
 	}
 
-	// ✅ 유저의 다른 기본주소 해제
-	public static void unsetOtherAddress(User user) {
-		user.getAddressList().forEach(address -> {
-			if (address.isDefault)
-				address.isDefault = false;
-		});
+	public void updateDefault(boolean isDefault) {
+		this.isDefault = isDefault;
 	}
 }

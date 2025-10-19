@@ -18,6 +18,16 @@ public interface AddressRepository extends JpaRepository<Address, Long> {
 		return findById(addressId).orElseThrow(AddressNotFoundException::new);
 	}
 
+	List<Address> findAllByUserId(Long userId);
+
+	default List<Address> findAllByUserIdOrElseThrow(Long userId) {
+		List<Address> addressList = findAllByUserId(userId);
+		if (addressList.isEmpty()) {
+			throw new AddressNotFoundException();
+		}
+		return addressList;
+	}
+
 	// 특정 동에 거주하는 주소 조회
 	List<Address> findByDongIdIn(List<String> dongIds);
 

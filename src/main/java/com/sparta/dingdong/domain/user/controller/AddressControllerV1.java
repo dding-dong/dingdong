@@ -32,40 +32,45 @@ public class AddressControllerV1 {
 	private final AddressService addressService;
 
 	@PostMapping
-	public ResponseEntity<BaseResponseDto<Void>> addAddress(@Valid @RequestBody AddressRequestDto req,
-		@AuthenticationPrincipal UserAuth userAuth) {
+	public ResponseEntity<BaseResponseDto<Void>> addAddress(
+		@Valid @RequestBody AddressRequestDto req,
+		@AuthenticationPrincipal UserAuth userAuth
+	) {
 		addressService.addAddress(req, userAuth);
 		return ResponseEntity.ok(BaseResponseDto.success("주소 등록 완료"));
 	}
 
-	@GetMapping
-	@PreAuthorize("hasAnyRole('MANAGER','MASTER')")
-	public ResponseEntity<BaseResponseDto<List<AddressResponseDto>>> getAddressList(
+	@GetMapping("/me")
+	public ResponseEntity<BaseResponseDto<List<AddressResponseDto>>> getAllMyAddress(
 		@AuthenticationPrincipal UserAuth userAuth) {
-		return ResponseEntity.ok(BaseResponseDto.success("주소 조회 완료", addressService.getAllAddress(userAuth)));
+		return ResponseEntity.ok(BaseResponseDto.success("내 주소 전체 조회 완료", addressService.getAllMyAddress(userAuth)));
 	}
 
 	@GetMapping("/search")
-	public ResponseEntity<BaseResponseDto<List<AddressResponseDto>>> getAddressesByLocation(
+	@PreAuthorize("hasAnyRole('MANAGER','MASTER')")
+	public ResponseEntity<BaseResponseDto<List<AddressResponseDto>>> getAddress(
 		@RequestParam(required = false) List<String> cityId,
 		@RequestParam(required = false) List<String> guId,
-		@RequestParam(required = false) List<String> dongId) {
-
+		@RequestParam(required = false) List<String> dongId
+	) {
 		return ResponseEntity.ok(
-			BaseResponseDto.success("주소 조회 완료", addressService.getAddressesByLocation(cityId, guId, dongId)));
+			BaseResponseDto.success("주소 조회 완료", addressService.getAddress(cityId, guId, dongId)));
 	}
 
 	@PatchMapping("/{addressId}")
 	public ResponseEntity<BaseResponseDto<Void>> updateAddress(@PathVariable Long addressId,
 		@Valid @RequestBody AddressRequestDto req,
-		@AuthenticationPrincipal UserAuth userAuth) {
+		@AuthenticationPrincipal UserAuth userAuth
+	) {
 		addressService.updateAddress(addressId, req, userAuth);
 		return ResponseEntity.ok(BaseResponseDto.success("주소 수정 완료"));
 	}
 
 	@DeleteMapping("/{addressId}")
-	public ResponseEntity<BaseResponseDto<Void>> deleteAddress(@PathVariable Long addressId,
-		@AuthenticationPrincipal UserAuth userAuth) {
+	public ResponseEntity<BaseResponseDto<Void>> deleteAddress(
+		@PathVariable Long addressId,
+		@AuthenticationPrincipal UserAuth userAuth
+	) {
 		addressService.deleteAddress(addressId, userAuth);
 		return ResponseEntity.ok(BaseResponseDto.success("주소 삭제 완료"));
 	}
