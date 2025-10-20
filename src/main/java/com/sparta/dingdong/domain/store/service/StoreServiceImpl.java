@@ -27,6 +27,7 @@ import com.sparta.dingdong.domain.store.exception.NotStoreOwnerException;
 import com.sparta.dingdong.domain.store.exception.StoreNotFoundException;
 import com.sparta.dingdong.domain.store.repository.StoreDeliveryAreaRepository;
 import com.sparta.dingdong.domain.store.repository.StoreRepository;
+import com.sparta.dingdong.domain.user.entity.Address;
 import com.sparta.dingdong.domain.user.entity.User;
 import com.sparta.dingdong.domain.user.entity.enums.UserRole;
 import com.sparta.dingdong.domain.user.exception.UserNotFoundException;
@@ -59,6 +60,7 @@ public class StoreServiceImpl implements StoreService {
 		if (user != null && user.getUserRole() == UserRole.CUSTOMER) {
 			User customer = userRepository.findById(user.getId()).orElseThrow(() -> new UserNotFoundException());
 			userDongIds = customer.getAddressList().stream()
+				.filter(Address::isDefault)
 				.map(addr -> addr.getDong().getId())
 				.filter(Objects::nonNull)
 				.toList();
@@ -76,6 +78,7 @@ public class StoreServiceImpl implements StoreService {
 		if (user != null && user.getUserRole() == UserRole.CUSTOMER) {
 			User customer = userRepository.findById(user.getId()).orElseThrow(() -> new UserNotFoundException());
 			userDongIds = customer.getAddressList().stream()
+				.filter(Address::isDefault)
 				.map(addr -> addr.getDong().getId())
 				.filter(Objects::nonNull)
 				.toList();
