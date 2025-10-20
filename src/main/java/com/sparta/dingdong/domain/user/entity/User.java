@@ -22,6 +22,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Getter
 @Entity
@@ -29,6 +30,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "p_user")
+@Slf4j(topic = "User Entity")
 public class User extends BaseEntity {
 
 	@Id
@@ -77,4 +79,27 @@ public class User extends BaseEntity {
 		address.setUser(this);
 	}
 
+	public void disableAllDefaultAddress() {
+		if (this.addressList != null) {
+			this.addressList.forEach(address -> address.updateDefault(false));
+		}
+	}
+
+	// 주소 삭제 및 기본주소 처리
+	public void deleteAddress(Address address) {
+		if (address == null || addressList == null || !addressList.contains(address)) {
+			return;
+		}
+
+		addressList.remove(address);
+		address.setUser(null);
+
+		if (address.isDefault()) {
+			if (!addressList.isEmpty()) {
+				addressList.get(0).updateDefault(true);
+			} else {
+				log.warn("마지막 기본주소가 삭제되었습니다. 현재 유저는 기본주소가 없습니다.");
+			}
+		}
+	}
 }

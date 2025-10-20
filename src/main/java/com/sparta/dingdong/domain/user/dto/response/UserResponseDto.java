@@ -1,6 +1,8 @@
 package com.sparta.dingdong.domain.user.dto.response;
 
-import com.sparta.dingdong.domain.user.entity.Address;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.sparta.dingdong.domain.user.entity.User;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,45 +27,22 @@ public class UserResponseDto {
 
 	@Schema(description = "사용자 연락처", example = "010-1234-5678")
 	private String phone;
-
-	@Schema(description = "시 이름", example = "서울특별시")
-	private String city;
-
-	@Schema(description = "구 이름", example = "종로구")
-	private String gu;
-
-	@Schema(description = "동 이름", example = "연건동")
-	private String dong;
-
-	@Schema(description = "상세 주소", example = "101호")
-	private String detailAddress;
-
-	public static UserResponseDto of(User user, Address address) {
-		return UserResponseDto.builder()
-			.id(user.getId())
-			.email(user.getEmail())
-			.username(user.getUsername())
-			.nickname(user.getNickname())
-			.phone(user.getPhone())
-			.city(address.getDong().getGu().getCity().getName())
-			.gu(address.getDong().getGu().getName())
-			.dong(address.getDong().getName())
-			.detailAddress(address.getDetailAddress())
-			.build();
-	}
+	
+	@Schema(description = "주소 목록")
+	private List<AddressResponseDto> addressList;
 
 	public static UserResponseDto from(User user) {
-		Address address = user.getAddressList().get(0); // 기본 주소
+		List<AddressResponseDto> addressDtoList = user.getAddressList().stream()
+			.map(AddressResponseDto::of)
+			.collect(Collectors.toList());
+
 		return UserResponseDto.builder()
 			.id(user.getId())
 			.email(user.getEmail())
 			.username(user.getUsername())
 			.nickname(user.getNickname())
 			.phone(user.getPhone())
-			.city(address.getDong().getGu().getCity().getName())
-			.gu(address.getDong().getGu().getName())
-			.dong(address.getDong().getName())
-			.detailAddress(address.getDetailAddress())
+			.addressList(addressDtoList)
 			.build();
 	}
 }

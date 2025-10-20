@@ -169,8 +169,7 @@ public class StoreServiceImpl implements StoreService {
 		boolean isAdmin = authService.isAdmin(user);
 		Store store = getStoreOrThrow(storeId);
 
-		Dong dong = dongRepository.findById(dongId)
-			.orElseThrow(() -> new IllegalArgumentException("동 정보를 찾을 수 없습니다."));
+		Dong dong = dongRepository.findByIdOrElseThrow(dongId);
 
 		StoreDeliveryArea area = StoreDeliveryArea.builder()
 			.store(store)

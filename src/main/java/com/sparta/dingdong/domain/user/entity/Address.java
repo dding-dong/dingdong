@@ -1,6 +1,7 @@
 package com.sparta.dingdong.domain.user.entity;
 
 import com.sparta.dingdong.common.entity.Dong;
+import com.sparta.dingdong.domain.user.dto.request.AddressRequestDto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -58,13 +59,17 @@ public class Address {
 		}
 	}
 
-	public void updateAddress(String detailAddress, String postalCode, Dong dong, boolean isDefault) {
-		if (detailAddress != null)
-			this.detailAddress = detailAddress;
-		if (postalCode != null)
-			this.postalCode = postalCode;
+	public void updateAddress(AddressRequestDto req, Dong dong) {
+		if (req.getDetailAddress() != null)
+			this.detailAddress = req.getDetailAddress();
+		if (req.getPostalCode() != null)
+			this.postalCode = req.getPostalCode();
 		if (dong != null)
 			this.dong = dong;
+		this.isDefault = Boolean.TRUE.equals(req.getIsDefault());
+	}
+
+	public void updateDefault(boolean isDefault) {
 		this.isDefault = isDefault;
 	}
 }
