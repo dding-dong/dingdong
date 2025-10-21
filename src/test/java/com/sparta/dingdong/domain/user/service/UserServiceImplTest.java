@@ -80,7 +80,6 @@ public class UserServiceImplTest {
 		verify(addressRepository).save(any(Address.class));
 		verify(managerRepository, never()).save(any()); // CUSTOMER는 매니저 아님
 
-		// 👇 추가 검증 포인트
 		// 1️⃣ userRepository.save()로 저장되는 User의 필드 검증
 		ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
 		verify(userRepository).save(userCaptor.capture());
