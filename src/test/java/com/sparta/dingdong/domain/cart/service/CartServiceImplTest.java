@@ -150,7 +150,6 @@ class CartServiceImplTest {
 			assertThrows(MenuItemSoldOutException.class, () -> cartService.addItem(userAuth, request, false));
 		}
 
-		// 동일 메뉴 여러번 addItem 호출 시 수량 합산 확인
 		@DisplayName("동일 메뉴 여러번 addItem 호출 시 수량 합산")
 		@Test
 		void addItem_existingMenu_increasesQuantity() {
