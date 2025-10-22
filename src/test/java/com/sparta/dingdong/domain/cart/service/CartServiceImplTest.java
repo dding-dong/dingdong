@@ -5,6 +5,7 @@ import static org.mockito.Mockito.*;
 
 import java.math.BigInteger;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,6 +27,8 @@ import com.sparta.dingdong.domain.cart.exception.InvalidCartQuantityException;
 import com.sparta.dingdong.domain.cart.repository.CartRepository;
 import com.sparta.dingdong.domain.category.entity.StoreCategory;
 import com.sparta.dingdong.domain.menu.entity.MenuItem;
+import com.sparta.dingdong.domain.menu.exception.MenuItemNotFoundException;
+import com.sparta.dingdong.domain.menu.exception.MenuItemSoldOutException;
 import com.sparta.dingdong.domain.menu.service.MenuItemService;
 import com.sparta.dingdong.domain.store.entity.Store;
 import com.sparta.dingdong.domain.user.entity.User;
@@ -53,7 +56,7 @@ class CartServiceImplTest {
 	private Store store;
 	private Store store2;
 	private MenuItem kimchi;
-	private MenuItem doenjang;
+	private MenuItem doenjang; // soldOut 메뉴
 	private MenuItem jjajang;
 	private MenuItem jjamppong;
 
@@ -72,13 +75,14 @@ class CartServiceImplTest {
 		jjamppong = TestDataFactory.createJjamppong(store2);
 
 		userAuth = TestDataFactory.createUserAuth(customer);
+
+		when(userService.findByUser(any(UserAuth.class))).thenReturn(customer);
 	}
 
 	@DisplayName("장바구니에 메뉴 담아둔거 없으면 조회되지 않아 예외처리")
 	@Test
 	void getCart_exception() {
 		// given
-		when(userService.findByUser(any(UserAuth.class))).thenReturn(customer);
 		when(cartRepository.findByUserId(customer.getId())).thenReturn(Optional.empty());
 
 		// when & then
@@ -93,7 +97,6 @@ class CartServiceImplTest {
 		final int QTY_2 = 2;
 
 		//given
-		when(userService.findByUser(any(UserAuth.class))).thenReturn(customer);
 		when(menuItemService.findById(kimchi.getId())).thenReturn(kimchi);
 
 		AddCartItemRequestDto request = AddCartItemRequestDto.builder()
@@ -124,13 +127,88 @@ class CartServiceImplTest {
 		verify(menuItemService, times(1)).findById(kimchi.getId());
 	}
 
+	@DisplayName("품절된 메뉴 addItem 호출 시 예외처리")
+	@Test
+	void addItem_soldOut_menuItem() {
+		// given
+		when(menuItemService.findById(doenjang.getId())).thenReturn(doenjang);
+
+		AddCartItemRequestDto request = AddCartItemRequestDto.builder()
+			.menuItemId(doenjang.getId())
+			.quantity(2)
+			.build();
+
+		// when & then
+		assertThrows(MenuItemSoldOutException.class, () -> cartService.addItem(userAuth, request, false));
+	}
+
+	// 동일 메뉴 여러번 addItem 호출 시 수량 합산 확인
+	@DisplayName("동일 메뉴 여러번 addItem 호출 시 수량 합산")
+	@Test
+	void addItem_existing_menuItem() {
+		// given
+		final int QTY_2 = 2;
+
+		when(menuItemService.findById(kimchi.getId())).thenReturn(kimchi);
+
+		Cart existingCart = TestDataFactory.createCart(customer, store, kimchi); // 1개 들어 있음
+
+		when(cartRepository.findByUserId(eq(customer.getId()))).thenReturn(Optional.of(existingCart));
+		when(cartRepository.save(any(Cart.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		AddCartItemRequestDto request = AddCartItemRequestDto.builder()
+			.menuItemId(kimchi.getId())
+			.quantity(QTY_2) // 2개 추가
+			.build();
+
+		// when
+		CartResponseDto response = cartService.addItem(userAuth, request, false);
+
+		// then
+		assertNotNull(response);
+		assertEquals(store.getId(), response.getStoreId());
+		assertEquals(store.getName(), response.getStoreName());
+		assertEquals(1, response.getItems().size());
+
+		CartItemResponseDto itemResponse = response.getItems().get(0);
+		assertEquals(kimchi.getId(), itemResponse.getMenuItemId());
+		assertEquals(QTY_2 + 1, itemResponse.getQuantity());
+
+		BigInteger expectedTotal = kimchi.getPrice().multiply(BigInteger.valueOf(QTY_2 + 1));
+		assertEquals(expectedTotal, response.getTotalPrice());
+
+		verify(userService, times(1)).findByUser(any(UserAuth.class));
+		verify(menuItemService, times(1)).findById(kimchi.getId());
+		verify(cartRepository, times(1)).findByUserId(customer.getId());
+	}
+
+	@DisplayName("존재하지 않은 menuItem addItem 호출 시 예외처리")
+	@Test
+	void addItem_nonExisting_menuItem() {
+		// given
+		final UUID nonExistingMenuItemId = UUID.randomUUID();
+
+		when(menuItemService.findById(nonExistingMenuItemId)).thenThrow(new MenuItemNotFoundException());
+
+		AddCartItemRequestDto request = AddCartItemRequestDto.builder()
+			.menuItemId(nonExistingMenuItemId)
+			.quantity(1)
+			.build();
+
+		// when & then
+		assertThrows(MenuItemNotFoundException.class, () -> cartService.addItem(userAuth, request, false));
+
+		verify(userService, times(1)).findByUser(any(UserAuth.class));
+		verify(menuItemService, times(1)).findById(nonExistingMenuItemId);
+		verify(cartRepository, never()).save(any(Cart.class));
+	}
+
 	@DisplayName("장바구니에 다른 가게가 있으면 replace=false일 때 예외처리")
 	@Test
 	void addItem_replace_false() {
 		final int QTY_2 = 2;
 
 		// given
-		when(userService.findByUser(any(UserAuth.class))).thenReturn(customer);
 		when(menuItemService.findById(kimchi.getId())).thenReturn(kimchi);
 
 		Cart existingCart = TestDataFactory.createCart(customer, store2, jjajang);
@@ -158,7 +236,6 @@ class CartServiceImplTest {
 		final int QTY_2 = 2;
 
 		// given
-		when(userService.findByUser(any(UserAuth.class))).thenReturn(customer);
 		when(menuItemService.findById(kimchi.getId())).thenReturn(kimchi);
 
 		// store2 메뉴 장바구니에 추가
@@ -199,8 +276,6 @@ class CartServiceImplTest {
 		final int QTY_3 = 3;
 
 		//given
-		when(userService.findByUser(any(UserAuth.class))).thenReturn(customer);
-
 		Cart existingCart = TestDataFactory.createCart(customer, store, kimchi);
 		existingCart.addItem(kimchi, 2);
 
@@ -232,8 +307,6 @@ class CartServiceImplTest {
 		final int QTY_0 = 0;
 
 		//given
-		when(userService.findByUser(any(UserAuth.class))).thenReturn(customer);
-
 		Cart existingCart = TestDataFactory.createCart(customer, store, kimchi);
 		existingCart.addItem(kimchi, 2);
 
@@ -248,5 +321,30 @@ class CartServiceImplTest {
 		verify(cartRepository, times(1)).findByUserId(customer.getId());
 		verify(cartRepository, never()).save(any(Cart.class));
 
+	}
+
+	// 장바구니에 담긴 메뉴 삭제 - 성공
+	// 장바구니에 담긴 마지막 메뉴 삭제 시 장바구니도 함께 삭제
+	// 장바구니에 담긴 메뉴가 아닌 경우 예외처리
+
+	// 장바구니 삭제
+	@DisplayName("장바구니 삭제 성공")
+	@Test
+	void deleteCart_success() {
+		// given
+		Cart existingCart = TestDataFactory.createCart(customer, store, kimchi); // 1개 들어 있음
+
+		when(cartRepository.findByUserId(eq(customer.getId()))).thenReturn(Optional.of(existingCart));
+
+		doAnswer(invocation -> {
+			when(cartRepository.findByUserId(customer.getId())).thenReturn(Optional.empty());
+			return null;
+		}).when(cartRepository).delete(any(Cart.class));
+
+		// when
+		cartService.deleteCart(userAuth);
+
+		// then
+		assertThrows(CartNotFoundException.class, () -> cartService.getCart(userAuth));
 	}
 }

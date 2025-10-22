@@ -18,7 +18,6 @@ import com.sparta.dingdong.domain.cart.repository.CartRepository;
 import com.sparta.dingdong.domain.menu.entity.MenuItem;
 import com.sparta.dingdong.domain.menu.exception.MenuItemSoldOutException;
 import com.sparta.dingdong.domain.menu.service.MenuItemService;
-import com.sparta.dingdong.domain.store.entity.Store;
 import com.sparta.dingdong.domain.user.entity.User;
 import com.sparta.dingdong.domain.user.service.UserService;
 
@@ -65,12 +64,8 @@ public class CartServiceImpl implements CartService {
 			throw new MenuItemSoldOutException();
 		}
 
-		Cart cart = cartRepository.findByUserId(user.getId()).orElse(null);
-
 		// 장바구니가 없는 경우 새 생성
-		if (cart == null) {
-			cart = createNewCartForUser(user, menu.getStore());
-		}
+		Cart cart = cartRepository.findByUserId(user.getId()).orElse(Cart.of(user, menu.getStore()));
 
 		// 장바구니가 있고 다른 가게인 경우
 		if (cart.getStore() != null && !cart.getStore().getId().equals(menu.getStore().getId())) {
@@ -86,11 +81,6 @@ public class CartServiceImpl implements CartService {
 		cart.addItem(menu, req.getQuantity());
 		Cart saved = cartRepository.save(cart);
 		return CartResponseDto.from(saved);
-	}
-
-	private Cart createNewCartForUser(User user, Store store) {
-		Cart newCart = Cart.of(user, store);
-		return cartRepository.save(newCart);
 	}
 
 	@Override

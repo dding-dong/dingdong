@@ -117,7 +117,7 @@ public class TestDataFactory {
 			.isAiUsed(false)
 			.isDisplayed(true)
 			.isRecommended(false)
-			.isSoldout(false)
+			.isSoldout(true)
 			.name("된장찌개")
 			.price(BigInteger.valueOf(7000))
 			.store(store)
