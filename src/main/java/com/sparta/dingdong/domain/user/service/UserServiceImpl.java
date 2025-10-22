@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.dingdong.common.entity.Dong;
-import com.sparta.dingdong.common.jwt.JwtUtil;
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.user.dto.request.UserCreateRequestDto;
 import com.sparta.dingdong.domain.user.dto.request.UserUpdateRequestDto;
@@ -38,7 +37,6 @@ public class UserServiceImpl implements UserService {
 	private final PasswordEncoder passwordEncoder;
 	private final ManagerRepository managerRepository;
 	private final RedisRepository redisRepository;
-	private final JwtUtil jwtUtil;
 
 	@Override
 	public User findByUser(Long userId) {
