@@ -43,10 +43,8 @@ class CartServiceImplTest {
 
 	@InjectMocks
 	CartServiceImpl cartService;
-
 	@Mock
 	CartRepository cartRepository;
-
 	@Mock
 	MenuItemService menuItemService;
 	@Mock
@@ -87,7 +85,7 @@ class CartServiceImplTest {
 	class GetCartTest {
 		@DisplayName("장바구니에 아이템 없으면 조회되지 않아 예외처리")
 		@Test
-		void getCart_exception() {
+		void getCart_noItems_exception() {
 			// given
 			when(cartRepository.findByUserId(customer.getId())).thenReturn(Optional.empty());
 
@@ -101,9 +99,9 @@ class CartServiceImplTest {
 	@Nested
 	@DisplayName("장바구니 아이템 추가")
 	class AddItemToCartTest {
-		@DisplayName("장바구니가 없을 때 addItem을 호출하면 새 장바구니가 생성된다.")
+		@DisplayName("장바구니가 없을 때 addItem을 호출하면 새 장바구니 생성")
 		@Test
-		void addItem_whenCartNotExists_shouldCreateNewCart() {
+		void addItem_whenCartNotExists_createsCart() {
 			final int QTY_2 = 2;
 
 			//given
@@ -139,7 +137,7 @@ class CartServiceImplTest {
 
 		@DisplayName("품절된 메뉴 addItem 호출 시 예외처리")
 		@Test
-		void addItem_soldOut_menuItem() {
+		void addItem_soldOut_exception() {
 			// given
 			when(menuItemService.findById(doenjang.getId())).thenReturn(doenjang);
 
@@ -155,7 +153,7 @@ class CartServiceImplTest {
 		// 동일 메뉴 여러번 addItem 호출 시 수량 합산 확인
 		@DisplayName("동일 메뉴 여러번 addItem 호출 시 수량 합산")
 		@Test
-		void addItem_existing_menuItem() {
+		void addItem_existingMenu_increasesQuantity() {
 			// given
 			final int QTY_2 = 2;
 
@@ -194,7 +192,7 @@ class CartServiceImplTest {
 
 		@DisplayName("존재하지 않은 menuItem addItem 호출 시 예외처리")
 		@Test
-		void addItem_nonExisting_menuItem() {
+		void addItem_nonExistingMenu_exception() {
 			// given
 			final UUID nonExistingMenuItemId = UUID.randomUUID();
 
@@ -215,7 +213,7 @@ class CartServiceImplTest {
 
 		@DisplayName("장바구니에 다른 가게가 있으면 replace=false일 때 예외처리")
 		@Test
-		void addItem_replace_false() {
+		void addItem_conflict_replaceFalse_exception() {
 			final int QTY_2 = 2;
 
 			// given
@@ -242,7 +240,7 @@ class CartServiceImplTest {
 
 		@DisplayName("장바구니에 다른 가게가 있으면 replace=true일 때 기존 장바구니 교체하고 추가")
 		@Test
-		void addItem_replace_true() {
+		void addItem_conflict_replaceTrue_replacesAndAdds() {
 			final int QTY_2 = 2;
 
 			// given
@@ -317,7 +315,7 @@ class CartServiceImplTest {
 
 		@DisplayName("장바구니 아이템 수량 0으로 변경하면 예외처리")
 		@Test
-		void updateItemQuantity_exception() {
+		void updateItemQuantity_zero_exception() {
 			final int QTY_0 = 0;
 
 			//given
@@ -394,7 +392,7 @@ class CartServiceImplTest {
 
 		@DisplayName("장바구니에 담긴 마지막 아이템 삭제 시 장바구니도 함께 삭제")
 		@Test
-		void deleteItem_whenLastItem_thenDeleteCart() {
+		void deleteItem_lastItem_deletesCart() {
 			// given
 			Cart existingCart = TestDataFactory.createCart(customer, store2, jjajang); // 1개 들어 있음
 			assignIdsToCartItems(existingCart);
@@ -417,7 +415,7 @@ class CartServiceImplTest {
 
 		@DisplayName("장바구니에 담긴 아이템이 아닌 경우 예외처리")
 		@Test
-		void deleteItem_whenUnknownItem_exception() {
+		void deleteItem_nonExistingMenu_exception() {
 			final UUID nonExistingMenuItemId = UUID.randomUUID();
 
 			// given
@@ -463,7 +461,7 @@ class CartServiceImplTest {
 
 		@DisplayName("빈 장바구니 삭제 예외처리")
 		@Test
-		void deleteCart_emptyCartException() {
+		void deleteCart_empty_exception() {
 			// given
 			when(cartRepository.findByUserId(customer.getId())).thenReturn(Optional.empty());
 
