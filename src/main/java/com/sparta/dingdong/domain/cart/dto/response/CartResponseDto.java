@@ -1,7 +1,6 @@
 package com.sparta.dingdong.domain.cart.dto.response;
 
 import java.math.BigInteger;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,11 +38,4 @@ public class CartResponseDto {
 			.build();
 	}
 
-	public static CartResponseDto empty() {
-		return CartResponseDto.builder()
-			.items(Collections.emptyList())
-			.totalPrice(BigInteger.ZERO)
-			.message("장바구니가 비어 있습니다.")
-			.build();
-	}
 }

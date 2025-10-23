@@ -9,8 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sparta.dingdong.common.jwt.UserAuth;
 import com.sparta.dingdong.domain.menu.dto.request.MenuItemRequestDto;
 import com.sparta.dingdong.domain.menu.dto.response.MenuItemResponseDto;
+import com.sparta.dingdong.domain.menu.entity.MenuItem;
 
 public interface MenuItemService {
+
+	MenuItem findById(UUID menuId);
 
 	@Transactional(readOnly = true)
 	Page<MenuItemResponseDto> getAllByStore(UUID storeId, boolean includeHidden, String keyword,

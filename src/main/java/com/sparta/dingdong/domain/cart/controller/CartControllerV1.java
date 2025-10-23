@@ -70,19 +70,19 @@ public class CartControllerV1 {
 	@Operation(summary = "장바구니에 담긴 메뉴 삭제 API", description = "장바구니에 담긴 메뉴를 삭제합니다.")
 	@PreAuthorize("hasRole('ROLE_CUSTOMER')")
 	@DeleteMapping("/items/{menuItemId}")
-	public ResponseEntity<BaseResponseDto<Void>> deleteItem(
+	public ResponseEntity<BaseResponseDto<Void>> deleteMenuItem(
 		@Parameter(description = "메뉴 아이템 UUID") @PathVariable UUID menuItemId,
 		@AuthenticationPrincipal UserAuth userAuth) {
-		cartService.removeItem(userAuth, menuItemId); // 명확한 remove 메서드 권장
+		cartService.deleteItem(userAuth, menuItemId); // 명확한 remove 메서드 권장
 		return ResponseEntity.ok(BaseResponseDto.success("장바구니에 담긴 메뉴가 삭제되었습니다."));
 	}
 
 	@Operation(summary = "장바구니 삭제 API", description = "장바구니를 삭제합니다.")
 	@PreAuthorize("hasRole('ROLE_CUSTOMER')")
 	@DeleteMapping
-	public ResponseEntity<BaseResponseDto<Void>> clearCart(
+	public ResponseEntity<BaseResponseDto<Void>> deleteCart(
 		@AuthenticationPrincipal UserAuth userAuth) {
-		cartService.clearCart(userAuth);
+		cartService.deleteCart(userAuth);
 		return ResponseEntity.ok(BaseResponseDto.success("장바구니가 삭제되었습니다."));
 	}
 }
