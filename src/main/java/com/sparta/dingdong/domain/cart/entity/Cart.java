@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.sparta.dingdong.common.base.BaseEntity;
 import com.sparta.dingdong.domain.menu.entity.MenuItem;
 import com.sparta.dingdong.domain.store.entity.Store;
 import com.sparta.dingdong.domain.user.entity.User;
@@ -34,7 +33,7 @@ import lombok.NoArgsConstructor;
 		@UniqueConstraint(name = "uq_cart_user", columnNames = {"user_id"})
 	}
 )
-public class Cart extends BaseEntity {
+public class Cart {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
@@ -77,7 +76,7 @@ public class Cart extends BaseEntity {
 			.findFirst()
 			.orElse(null);
 	}
-	
+
 	public void setStore(Store store) {
 		this.store = store;
 	}

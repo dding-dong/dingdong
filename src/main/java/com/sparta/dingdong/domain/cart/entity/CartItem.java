@@ -3,7 +3,6 @@ package com.sparta.dingdong.domain.cart.entity;
 import java.math.BigInteger;
 import java.util.UUID;
 
-import com.sparta.dingdong.common.base.BaseEntity;
 import com.sparta.dingdong.domain.menu.entity.MenuItem;
 
 import jakarta.persistence.Column;
@@ -29,7 +28,7 @@ import lombok.NoArgsConstructor;
 		@UniqueConstraint(name = "uq_cart_item_cart_menu", columnNames = {"cart_id", "menu_item_id"})
 	}
 )
-public class CartItem extends BaseEntity {
+public class CartItem {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
