@@ -29,18 +29,11 @@ public class AIServiceImpl implements AIService {
 	@Async
 	@Override
 	public CompletableFuture<String> generateDescription(String name, String ownerContent, User user, UUID menuId) {
-
-		// 프롬프트 생성
 		String prompt = promptBuilder.buildMenuDescriptionPrompt(name, ownerContent);
-
-		// AI 호출 로직을 GoogleAIService로 위임
 		String aiContent = googleAIService.generateText(prompt);
-
 		if (aiContent == null || aiContent.isBlank()) {
 			aiContent = "AI 설명을 생성하지 못했습니다.";
 		}
-
-		// AI 히스토리 저장
 		AIHistory history = AIHistory.builder()
 			.id(UUID.randomUUID())
 			.question(prompt)
@@ -48,10 +41,7 @@ public class AIServiceImpl implements AIService {
 			.owner(user)
 			.build();
 		aiHistoryRepository.save(history);
-
-		// 메뉴에 AI 결과를 후속 처리하도록 이벤트 발행
 		eventPublisher.publishEvent(new AIResultEvent(this, menuId, aiContent));
-
 		return CompletableFuture.completedFuture(aiContent);
 	}
 }

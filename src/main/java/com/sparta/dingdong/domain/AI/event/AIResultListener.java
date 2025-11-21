@@ -20,7 +20,6 @@ public class AIResultListener {
 		menuItemRepository.findById(event.getMenuId()).ifPresent(menu -> {
 			menu.setAiContent(event.getAiContent());
 			menu.setIsAiUsed(true);
-			// 필요시 다른 후속 처리 가능
 		});
 	}
 }
