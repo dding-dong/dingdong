@@ -1,10 +1,14 @@
 package com.sparta.dingdong.domain.AI.service;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import com.sparta.dingdong.domain.AI.entity.AIHistory;
+import com.sparta.dingdong.domain.AI.event.AIResultEvent;
 import com.sparta.dingdong.domain.AI.prompt.PromptBuilder;
 import com.sparta.dingdong.domain.AI.repository.AIHistoryRepository;
 import com.sparta.dingdong.domain.user.entity.User;
@@ -20,9 +24,11 @@ public class AIServiceImpl implements AIService {
 	private final PromptBuilder promptBuilder;
 	private final GoogleAIService googleAIService;
 	private final AIHistoryRepository aiHistoryRepository;
+	private final ApplicationEventPublisher eventPublisher;
 
+	@Async
 	@Override
-	public String generateDescription(String name, String ownerContent, User user) {
+	public CompletableFuture<String> generateDescription(String name, String ownerContent, User user, UUID menuId) {
 
 		// 프롬프트 생성
 		String prompt = promptBuilder.buildMenuDescriptionPrompt(name, ownerContent);
@@ -42,7 +48,10 @@ public class AIServiceImpl implements AIService {
 			.owner(user)
 			.build();
 		aiHistoryRepository.save(history);
-		
-		return aiContent;
+
+		// 메뉴에 AI 결과를 후속 처리하도록 이벤트 발행
+		eventPublisher.publishEvent(new AIResultEvent(this, menuId, aiContent));
+
+		return CompletableFuture.completedFuture(aiContent);
 	}
 }

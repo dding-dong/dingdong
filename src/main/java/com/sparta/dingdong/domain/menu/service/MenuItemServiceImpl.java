@@ -82,6 +82,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 
 	@Override
 	public MenuItemResponseDto create(UUID storeId, MenuItemRequestDto req, UserAuth user) {
+		// 1️⃣ 가게 조회 및 권한 체크
 		Store store = storeRepository.findById(storeId)
 			.orElseThrow(StoreNotFoundException::new);
 		authService.validateStoreOwnership(user, store.getOwner().getId());
@@ -89,13 +90,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 		User currentUser = userRepository.findById(user.getId())
 			.orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-		String aiContent = null;
-		boolean usedAi = false;
-		if (Boolean.TRUE.equals(req.getUseAi())) {
-			aiContent = aiMenuDescriptionService.generateDescription(req.getName(), req.getContent(), currentUser);
-			usedAi = true;
-		}
-
+		// 2️⃣ 메뉴 엔티티 생성 (AI 결과 없이)
 		MenuItem menu = MenuItem.builder()
 			.store(store)
 			.name(req.getName())
@@ -105,11 +100,23 @@ public class MenuItemServiceImpl implements MenuItemService {
 			.isRecommended(req.getIsRecommended())
 			.isDisplayed(req.getIsDisplayed())
 			.isSoldout(req.getIsSoldout())
-			.aiContent(aiContent)
-			.isAiUsed(usedAi)
+			.isAiUsed(false) // 초기 false
 			.build();
 
-		return map(menuItemRepository.save(menu));
+		menuItemRepository.save(menu); // 메뉴 먼저 저장
+
+		// 3️⃣ AI 설명 생성 (비동기)
+		if (Boolean.TRUE.equals(req.getUseAi())) {
+			aiMenuDescriptionService.generateDescription(
+				req.getName(),
+				req.getContent(),
+				currentUser,
+				menu.getId() // 이벤트에서 메뉴 업데이트에 사용
+			);
+		}
+
+		// 4️⃣ 응답 반환 (AI 결과는 나중에 이벤트로 업데이트)
+		return map(menu);
 	}
 
 	@Transactional(readOnly = true)
@@ -123,12 +130,14 @@ public class MenuItemServiceImpl implements MenuItemService {
 
 	@Override
 	public MenuItemResponseDto update(UUID menuId, MenuItemRequestDto req, UserAuth user) {
+		// 1️⃣ 메뉴 조회 및 권한 체크
 		MenuItem menu = findById(menuId);
 		authService.validateStoreOwnership(user, menu.getStore().getOwner().getId());
 
 		User currentUser = userRepository.findById(user.getId())
 			.orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
+		// 2️⃣ 메뉴 엔티티 업데이트 (기본 정보)
 		menu.setName(req.getName());
 		menu.setContent(req.getContent());
 		menu.setPrice(req.getPrice());
@@ -137,12 +146,21 @@ public class MenuItemServiceImpl implements MenuItemService {
 		menu.setIsRecommended(req.getIsRecommended());
 		menu.setIsSoldout(req.getIsSoldout());
 
+		// 3️⃣ AI 설명 비동기 생성
 		if (Boolean.TRUE.equals(req.getUseAi())) {
-			String aiDesc = aiMenuDescriptionService.generateDescription(req.getName(), req.getContent(), currentUser);
-			menu.setAiContent(aiDesc);
-			menu.setIsAiUsed(true);
+			// 기존 AI 내용 초기화, 이벤트에서 업데이트됨
+			menu.setIsAiUsed(false);
+
+			// 비동기 호출
+			aiMenuDescriptionService.generateDescription(
+				req.getName(),
+				req.getContent(),
+				currentUser,
+				menu.getId() // 이벤트에서 메뉴 업데이트에 사용
+			);
 		}
 
+		// 4️⃣ 응답 반환 (AI 결과는 이벤트에서 나중에 반영)
 		return map(menu);
 	}
 
