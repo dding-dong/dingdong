@@ -56,9 +56,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 		if (store.getDeletedAt() != null) {
 			throw new DeletedStoreMenuAccessException();
 		}
-
 		boolean includeDeleted = false;
-
 		if (includeHidden) {
 			if (user == null)
 				throw new SecurityException("로그인이 필요합니다.");
@@ -76,7 +74,6 @@ public class MenuItemServiceImpl implements MenuItemService {
 
 		Page<MenuItem> itemsPage = menuItemRepository.findByStoreIdWithKeyword(storeId, keyword, pageable,
 			includeDeleted);
-
 		return itemsPage.map(this::map);
 	}
 
@@ -89,13 +86,6 @@ public class MenuItemServiceImpl implements MenuItemService {
 		User currentUser = userRepository.findById(user.getId())
 			.orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-		String aiContent = null;
-		boolean usedAi = false;
-		if (Boolean.TRUE.equals(req.getUseAi())) {
-			aiContent = aiMenuDescriptionService.generateDescription(req.getName(), req.getContent(), currentUser);
-			usedAi = true;
-		}
-
 		MenuItem menu = MenuItem.builder()
 			.store(store)
 			.name(req.getName())
@@ -105,18 +95,26 @@ public class MenuItemServiceImpl implements MenuItemService {
 			.isRecommended(req.getIsRecommended())
 			.isDisplayed(req.getIsDisplayed())
 			.isSoldout(req.getIsSoldout())
-			.aiContent(aiContent)
-			.isAiUsed(usedAi)
+			.isAiUsed(false) // 초기 false
 			.build();
 
-		return map(menuItemRepository.save(menu));
+		menuItemRepository.save(menu);
+
+		if (Boolean.TRUE.equals(req.getUseAi())) {
+			aiMenuDescriptionService.generateDescription(
+				req.getName(),
+				req.getContent(),
+				currentUser,
+				menu.getId()
+			);
+		}
+		return map(menu);
 	}
 
 	@Transactional(readOnly = true)
 	@Override
 	public MenuItemResponseDto getById(UUID menuId, UserAuth user) {
 		MenuItem menu = findById(menuId);
-
 		authService.validateStoreOwnership(user, menu.getStore().getOwner().getId());
 		return map(menu);
 	}
@@ -138,20 +136,21 @@ public class MenuItemServiceImpl implements MenuItemService {
 		menu.setIsSoldout(req.getIsSoldout());
 
 		if (Boolean.TRUE.equals(req.getUseAi())) {
-			String aiDesc = aiMenuDescriptionService.generateDescription(req.getName(), req.getContent(), currentUser);
-			menu.setAiContent(aiDesc);
-			menu.setIsAiUsed(true);
+			menu.setIsAiUsed(false);
+			aiMenuDescriptionService.generateDescription(
+				req.getName(),
+				req.getContent(),
+				currentUser,
+				menu.getId()
+			);
 		}
-
 		return map(menu);
 	}
 
 	@Override
 	public void delete(UUID menuId, UserAuth user) {
 		MenuItem menu = findById(menuId);
-
 		authService.validateStoreOwnership(user, menu.getStore().getOwner().getId());
-
 		menu.softDelete(user.getId());
 		menu.setIsDisplayed(false); // 삭제 시 비노출
 		menu.setIsActive(false); // 삭제 시 비활성화
