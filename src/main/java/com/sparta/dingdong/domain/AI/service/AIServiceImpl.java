@@ -1,7 +1,6 @@
 package com.sparta.dingdong.domain.AI.service;
 
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
@@ -15,6 +14,7 @@ import com.sparta.dingdong.domain.user.entity.User;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
@@ -28,20 +28,24 @@ public class AIServiceImpl implements AIService {
 
 	@Async
 	@Override
-	public CompletableFuture<String> generateDescription(String name, String ownerContent, User user, UUID menuId) {
+	public Mono<String> generateDescription(String name, String ownerContent, User user, UUID menuId) {
 		String prompt = promptBuilder.buildMenuDescriptionPrompt(name, ownerContent);
-		String aiContent = googleAIService.generateText(prompt);
-		if (aiContent == null || aiContent.isBlank()) {
-			aiContent = "AI 설명을 생성하지 못했습니다.";
-		}
-		AIHistory history = AIHistory.builder()
-			.id(UUID.randomUUID())
-			.question(prompt)
-			.answer(aiContent)
-			.owner(user)
-			.build();
-		aiHistoryRepository.save(history);
-		eventPublisher.publishEvent(new AIResultEvent(this, menuId, aiContent));
-		return CompletableFuture.completedFuture(aiContent);
+
+		return googleAIService.generateText(prompt)
+			.defaultIfEmpty("AI 설명을 생성하지 못했습니다.")
+			.doOnNext(aiContent -> {
+				// JPA 저장 (동기)
+				AIHistory history = AIHistory.builder()
+					.id(UUID.randomUUID())
+					.question(prompt)
+					.answer(aiContent)
+					.owner(user)
+					.build();
+				aiHistoryRepository.save(history);
+
+				// 이벤트 발행
+				eventPublisher.publishEvent(new AIResultEvent(this, menuId, aiContent));
+			})
+			.onErrorReturn("AI 설명을 생성하지 못했습니다.");
 	}
 }
