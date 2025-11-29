@@ -22,6 +22,7 @@ import com.sparta.dingdong.domain.store.exception.StoreNotFoundException;
 import com.sparta.dingdong.domain.store.repository.StoreRepository;
 import com.sparta.dingdong.domain.user.entity.User;
 import com.sparta.dingdong.domain.user.entity.enums.UserRole;
+import com.sparta.dingdong.domain.user.exception.UserNotFoundException;
 import com.sparta.dingdong.domain.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -84,7 +85,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 		authService.validateStoreOwnership(user, store.getOwner().getId());
 
 		User currentUser = userRepository.findById(user.getId())
-			.orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+			.orElseThrow(() -> new UserNotFoundException());
 
 		MenuItem menu = MenuItem.builder()
 			.store(store)
@@ -106,7 +107,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 				req.getContent(),
 				currentUser,
 				menu.getId()
-			);
+			).subscribe();
 		}
 		return map(menu);
 	}
@@ -125,7 +126,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 		authService.validateStoreOwnership(user, menu.getStore().getOwner().getId());
 
 		User currentUser = userRepository.findById(user.getId())
-			.orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+			.orElseThrow(() -> new UserNotFoundException());
 
 		menu.setName(req.getName());
 		menu.setContent(req.getContent());
@@ -142,7 +143,7 @@ public class MenuItemServiceImpl implements MenuItemService {
 				req.getContent(),
 				currentUser,
 				menu.getId()
-			);
+			).subscribe();
 		}
 		return map(menu);
 	}
